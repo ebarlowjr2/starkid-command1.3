@@ -1,20 +1,34 @@
-import React, { useEffect, useState, useMemo } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import MissionCard from './components/MissionCard.jsx'
-import { getAPOD, getNEOsToday, getDonkiAlerts } from './lib/nasa.js'
+
+// NASA + general space info
+import { getAPOD, getNEOsToday, getDonkiAlerts, getEPICLatest, getRecentSolarActivity } from './lib/nasa.js'
+import { getISSNow, getAstros } from './lib/iss.js'
+
+// SpaceX
 import { getLatestLaunch, getUpcomingLaunches, getRockets, getCrew } from './lib/spacex.js'
+
+// Components
 import CountdownCard from './components/CountdownCard.jsx'
 import CrewGrid from './components/CrewGrid.jsx'
 import LaunchDetails from './components/LaunchDetails.jsx'
+import SolarStormMeter from './components/SolarStormMeter.jsx'
+import EarthView from './components/EarthView.jsx'
+import ISSStatus from './components/ISSStatus.jsx'
 
 export default function App(){
   // General space info
   const [neos, setNeos] = useState([])
   const [alerts, setAlerts] = useState([])
-  const [apod, setApod] = useState(null) // kept for future, not top-priority in layout
+  const [apod, setApod] = useState(null)  // kept for future use
+  const [epic, setEpic] = useState(null)
+  const [solar, setSolar] = useState(null)
+  const [issPos, setIssPos] = useState(null)
+  const [astros, setAstros] = useState(null)
 
   // Launch/SpaceX
-  const [launch, setLaunch] = useState(null)        // latest (kept if you want elsewhere)
-  const [upcoming, setUpcoming] = useState([])      // we use [0] as “Next Mission”
+  const [launch, setLaunch] = useState(null)       // latest (optional)
+  const [upcoming, setUpcoming] = useState([])     // next mission = [0]
   const [rockets, setRockets] = useState([])
   const [crew, setCrew] = useState([])
 
@@ -23,23 +37,35 @@ export default function App(){
   useEffect(()=>{
     async function load(){
       try{
+        // batch 1: existing content
         const [a, n, d, l, u, r, c] = await Promise.all([
           getAPOD(),
           getNEOsToday(),
           getDonkiAlerts(),
           getLatestLaunch(),
-          getUpcomingLaunches(1),   // next mission
+          getUpcomingLaunches(1),   // next mission (countdown)
           getRockets(),
-          getCrew(6)                // small roster for right rail
+          getCrew(6)                // roster for right column
         ])
         setApod(a); setNeos(n); setAlerts(d);
         setLaunch(l); setUpcoming(u); setRockets(r); setCrew(c)
-      }catch(e){ setError(e.message || 'Failed to load data') }
+
+        // batch 2: new general info (EPIC, solar, ISS)
+        const [ep, so, pos, crewInfo] = await Promise.all([
+          getEPICLatest(),
+          getRecentSolarActivity(3),
+          getISSNow(),
+          getAstros()
+        ])
+        setEpic(ep); setSolar(so); setIssPos(pos); setAstros(crewInfo)
+
+      }catch(e){
+        setError(e.message || 'Failed to load data')
+      }
     }
     load()
   },[])
 
-  // Find the rocket object for the next mission (if available)
   const nextLaunch = upcoming?.[0] || null
   const nextRocket = useMemo(() => {
     if (!nextLaunch || !rockets?.length) return null
@@ -55,13 +81,9 @@ export default function App(){
 
       {error && <p className="p-4 text-red-400">{error}</p>}
 
-      {/* DASH LAYOUT */}
-      <main className="grid gap-4 p-4
-                       grid-cols-1
-                       md:grid-cols-3
-                       auto-rows-max">
+      <main className="grid gap-4 p-4 grid-cols-1 md:grid-cols-3 auto-rows-max">
 
-        {/* ===== Top Row (3 cards) ===== */}
+        {/* ===== Top Row: 3 general cards ===== */}
         <MissionCard
           title="Asteroid Flybys Today"
           subtitle="NEO Scout"
@@ -97,15 +119,20 @@ export default function App(){
             <div className="text-sm">
               <ol className="list-decimal ml-5 space-y-1">
                 <li>Identify today’s APOD subject and draw it.</li>
-                <li>Pick one near-Earth object and log its closest approach.</li>
-                <li>Check if there are any solar storm alerts.</li>
+                <li>Pick a near-Earth object and log its closest approach.</li>
+                <li>Check the Solar Storm Meter.</li>
                 <li>Report the next mission and its rocket.</li>
               </ol>
             </div>
           }
         />
 
-        {/* ===== Row 2: Next Mission (span 2) + Crew (right) ===== */}
+        {/* ===== General Info Row (under top): Solar/Earth/ISS ===== */}
+        <SolarStormMeter summary={solar} />
+        <EarthView epic={epic} />
+        <ISSStatus position={issPos} astros={astros} />
+
+        {/* ===== Next Mission group: countdown (2 cols) + crew (right) ===== */}
         <div className="md:col-span-2">
           {nextLaunch ? (
             <CountdownCard launch={nextLaunch} />
@@ -120,42 +147,10 @@ export default function App(){
           <CrewGrid crew={crew} />
         </div>
 
-        {/* ===== Row 3: Mission patch + rocket details (span full width on mobile, 2 cols on md+) ===== */}
+        {/* ===== Mission Details: patch + rocket info ===== */}
         <div className="md:col-span-2">
           <LaunchDetails launch={nextLaunch} rocket={nextRocket} />
         </div>
-
-        {/* Optional extra: keep latest launch somewhere (hidden for now)
-        <MissionCard
-          title="Latest Launch"
-          subtitle="SpaceX"
-          content={
-            launch ? (
-              <div className="text-sm">
-                <p>{launch.name}</p>
-                <p className="text-xs opacity-80">{new Date(launch.date_utc).toLocaleString()}</p>
-                {launch.links?.patch?.small && <img className="mt-2 w-28" src={launch.links.patch.small} alt="patch" />}
-                {launch.links?.webcast && <a className="underline block mt-2" href={launch.links.webcast} target="_blank" rel="noreferrer">Watch Webcast</a>}
-              </div>
-            ) : 'Loading...'
-          }
-        />
-        */}
-
-        {/* Optional: show APOD somewhere lower if you want */}
-        {/* <MissionCard
-          title="Astronomy Picture of the Day"
-          subtitle="APOD"
-          content={
-            apod ? (
-              <div>
-                <p className="text-sm mb-2">{apod.title}</p>
-                {apod.media_type === 'image' && <img src={apod.url} alt={apod.title} className="rounded" />}
-                {apod.media_type === 'video' && <a href={apod.url} target="_blank" rel="noreferrer" className="underline">Watch</a>}
-              </div>
-            ) : 'Loading...'
-          }
-        /> */}
 
       </main>
 
