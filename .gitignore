@@ -1,0 +1,11 @@
+# deps & builds
+node_modules
+dist
+.vercel
+.cache
+.gitcache
+
+# env & OS cruft
+.env
+.env.*
+.DS_Store
