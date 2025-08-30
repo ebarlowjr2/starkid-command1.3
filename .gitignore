@@ -5,3 +5,9 @@ dist
 .env
 .env.*
 .DS_Store
+node_modules
+dist
+.vercel
+.env
+.env.*
+.DS_Store
