@@ -1,3 +1,7 @@
 @tailwind base; @tailwind components; @tailwind utilities;
 :root { color-scheme: dark; }
 .lcars { border: 2px solid #00ffff; border-radius: 8px; }
+
+/* Dashboard tweaks */
+.lcars { border: 2px solid #00ffff; border-radius: 8px; }
+.lcars .text-sm { line-height: 1.25rem; }
