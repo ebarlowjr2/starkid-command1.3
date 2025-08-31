@@ -1,5 +1,5 @@
-import React, { useEffect, useMemo, useState } from 'react';
-import MissionCard from './components/MissionCard.jsx';
+import React, { useEffect, useMemo, useState } from 'react'
+import MissionCard from './components/MissionCard.jsx'
 
 // NASA + general space info
 import {
@@ -8,8 +8,8 @@ import {
   getDonkiAlerts,
   getEPICLatest,
   getRecentSolarActivity,
-} from './lib/nasa.js';
-import { getISSNow, getAstros } from './lib/iss.js';
+} from './lib/nasa.js'
+import { getISSNow, getAstros } from './lib/iss.js'
 
 // SpaceX
 import {
@@ -17,38 +17,38 @@ import {
   getUpcomingLaunches,
   getRockets,
   getCrew,
-} from './lib/spacex.js';
+} from './lib/spacex.js'
 
 // Components
-import CountdownCard from './components/CountdownCard.jsx';
-import CrewGrid from './components/CrewGrid.jsx';
-import LaunchDetails from './components/LaunchDetails.jsx';
-import SolarStormMeter from './components/SolarStormMeter.jsx';
-import EarthView from './components/EarthView.jsx';
-import ISSStatus from './components/ISSStatus.jsx';
+import CountdownCard from './components/CountdownCard.jsx'
+import CrewGrid from './components/CrewGrid.jsx'
+import LaunchDetails from './components/LaunchDetails.jsx'
+import SolarStormMeter from './components/SolarStormMeter.jsx'
+import EarthView from './components/EarthView.jsx'
+import ISSStatus from './components/ISSStatus.jsx'
 
 export default function App() {
   // General space info
-  const [neos, setNeos] = useState([]);
-  const [alerts, setAlerts] = useState([]);
-  const [apod, setApod] = useState(null); // optional
-  const [epic, setEpic] = useState(null);
-  const [solar, setSolar] = useState(null);
-  const [issPos, setIssPos] = useState(null);
-  const [astros, setAstros] = useState(null);
+  const [neos, setNeos] = useState([])
+  const [alerts, setAlerts] = useState([])
+  const [apod, setApod] = useState(null)
+  const [epic, setEpic] = useState(null)
+  const [solar, setSolar] = useState(null)
+  const [issPos, setIssPos] = useState(null)
+  const [astros, setAstros] = useState(null)
 
   // Launch/SpaceX
-  const [launch, setLaunch] = useState(null); // optional
-  const [upcoming, setUpcoming] = useState([]); // next mission = [0]
-  const [rockets, setRockets] = useState([]);
-  const [crew, setCrew] = useState([]);
+  const [launch, setLaunch] = useState(null)
+  const [upcoming, setUpcoming] = useState([])
+  const [rockets, setRockets] = useState([])
+  const [crew, setCrew] = useState([])
 
-  const [error, setError] = useState(null);
+  const [error, setError] = useState(null)
 
   useEffect(() => {
     async function load() {
       try {
-        // Batch 1: core content (fail fast if *all* fail)
+        // Core content
         const [a, n, d, l, u, r, c] = await Promise.all([
           getAPOD(),
           getNEOsToday(),
@@ -57,45 +57,43 @@ export default function App() {
           getUpcomingLaunches(1),
           getRockets(),
           getCrew(6),
-        ]);
-        setApod(a);
-        setNeos(n);
-        setAlerts(d);
-        setLaunch(l);
-        setUpcoming(u);
-        setRockets(r);
-        setCrew(c);
+        ])
+        setApod(a)
+        setNeos(n)
+        setAlerts(d)
+        setLaunch(l)
+        setUpcoming(u)
+        setRockets(r)
+        setCrew(c)
       } catch (e) {
-        // keep a banner only if core content failed completely
-        setError(e.message || 'Failed to load data');
+        setError(e.message || 'Failed to load data')
       }
 
-      // Batch 2: best-effort panels (never trip the red banner)
+      // Best-effort extras
       const settled = await Promise.allSettled([
         getEPICLatest(),
         getRecentSolarActivity(3),
         getISSNow(),
         getAstros(),
-      ]);
+      ])
       const val = (i) =>
-        settled[i].status === 'fulfilled' ? settled[i].value : null;
+        settled[i].status === 'fulfilled' ? settled[i].value : null
 
-      setEpic(val(0));
-      setSolar(val(1));
-      setIssPos(val(2));
-      setAstros(val(3));
+      setEpic(val(0))
+      setSolar(val(1))
+      setIssPos(val(2))
+      setAstros(val(3))
 
-      // If at least one panel loaded, clear the global error
-      if (settled.some((r) => r.status === 'fulfilled')) setError(null);
+      if (settled.some((r) => r.status === 'fulfilled')) setError(null)
     }
-    load();
-  }, []);
+    load()
+  }, [])
 
-  const nextLaunch = upcoming?.[0] || null;
+  const nextLaunch = upcoming?.[0] || null
   const nextRocket = useMemo(() => {
-    if (!nextLaunch || !rockets?.length) return null;
-    return rockets.find((r) => r.id === nextLaunch.rocket) || null;
-  }, [nextLaunch, rockets]);
+    if (!nextLaunch || !rockets?.length) return null
+    return rockets.find((r) => r.id === nextLaunch.rocket) || null
+  }, [nextLaunch, rockets])
 
   return (
     <div className="min-h-screen text-cyan-200 font-mono">
@@ -163,10 +161,48 @@ export default function App() {
           }
         />
 
-        {/* ===== General Info Row (under top): Solar/Earth/ISS ===== */}
+        {/* ===== General Info Row: Solar/Earth/ISS ===== */}
         <SolarStormMeter summary={solar} />
         <EarthView epic={epic} />
         <ISSStatus position={issPos} astros={astros} />
+
+        {/* ===== APOD: Astronomy Picture of the Day ===== */}
+        <MissionCard
+          title="Astronomy Picture of the Day"
+          subtitle="APOD"
+          content={
+            apod ? (
+              <div>
+                <p className="text-sm mb-2">{apod.title}</p>
+                {apod.media_type === 'image' ? (
+                  <img
+                    src={apod.url}
+                    alt={apod.title}
+                    className="rounded mb-2"
+                  />
+                ) : (
+                  <a
+                    href={apod.url}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="underline"
+                  >
+                    Watch today’s APOD
+                  </a>
+                )}
+                {apod.explanation && (
+                  <p className="text-xs opacity-80 mt-2">
+                    {apod.explanation.length > 220
+                      ? apod.explanation.slice(0, 220) + '…'
+                      : apod.explanation}
+                  </p>
+                )}
+              </div>
+            ) : (
+              'Loading...'
+            )
+          }
+        />
 
         {/* ===== Next Mission group: countdown (2 cols) + crew (right) ===== */}
         <div className="md:col-span-2">
@@ -183,7 +219,7 @@ export default function App() {
           <CrewGrid crew={crew} />
         </div>
 
-        {/* ===== Mission Details: patch + rocket info ===== */}
+        {/* ===== Mission Details ===== */}
         <div className="md:col-span-2">
           <LaunchDetails launch={nextLaunch} rocket={nextRocket} />
         </div>
@@ -193,5 +229,5 @@ export default function App() {
         Built with NASA + SpaceX public APIs. For kids & learning.
       </footer>
     </div>
-  );
+  )
 }
