@@ -1,88 +1,114 @@
-import React, { useEffect, useMemo, useState } from 'react'
-import MissionCard from './components/MissionCard.jsx'
+import React, { useEffect, useMemo, useState } from 'react';
+import MissionCard from './components/MissionCard.jsx';
 
 // NASA + general space info
-import { getAPOD, getNEOsToday, getDonkiAlerts, getEPICLatest, getRecentSolarActivity } from './lib/nasa.js'
-import { getISSNow, getAstros } from './lib/iss.js'
+import {
+  getAPOD,
+  getNEOsToday,
+  getDonkiAlerts,
+  getEPICLatest,
+  getRecentSolarActivity,
+} from './lib/nasa.js';
+import { getISSNow, getAstros } from './lib/iss.js';
 
 // SpaceX
-import { getLatestLaunch, getUpcomingLaunches, getRockets, getCrew } from './lib/spacex.js'
+import {
+  getLatestLaunch,
+  getUpcomingLaunches,
+  getRockets,
+  getCrew,
+} from './lib/spacex.js';
 
 // Components
-import CountdownCard from './components/CountdownCard.jsx'
-import CrewGrid from './components/CrewGrid.jsx'
-import LaunchDetails from './components/LaunchDetails.jsx'
-import SolarStormMeter from './components/SolarStormMeter.jsx'
-import EarthView from './components/EarthView.jsx'
-import ISSStatus from './components/ISSStatus.jsx'
+import CountdownCard from './components/CountdownCard.jsx';
+import CrewGrid from './components/CrewGrid.jsx';
+import LaunchDetails from './components/LaunchDetails.jsx';
+import SolarStormMeter from './components/SolarStormMeter.jsx';
+import EarthView from './components/EarthView.jsx';
+import ISSStatus from './components/ISSStatus.jsx';
 
-export default function App(){
+export default function App() {
   // General space info
-  const [neos, setNeos] = useState([])
-  const [alerts, setAlerts] = useState([])
-  const [apod, setApod] = useState(null)  // kept for future use
-  const [epic, setEpic] = useState(null)
-  const [solar, setSolar] = useState(null)
-  const [issPos, setIssPos] = useState(null)
-  const [astros, setAstros] = useState(null)
+  const [neos, setNeos] = useState([]);
+  const [alerts, setAlerts] = useState([]);
+  const [apod, setApod] = useState(null); // optional
+  const [epic, setEpic] = useState(null);
+  const [solar, setSolar] = useState(null);
+  const [issPos, setIssPos] = useState(null);
+  const [astros, setAstros] = useState(null);
 
   // Launch/SpaceX
-  const [launch, setLaunch] = useState(null)       // latest (optional)
-  const [upcoming, setUpcoming] = useState([])     // next mission = [0]
-  const [rockets, setRockets] = useState([])
-  const [crew, setCrew] = useState([])
+  const [launch, setLaunch] = useState(null); // optional
+  const [upcoming, setUpcoming] = useState([]); // next mission = [0]
+  const [rockets, setRockets] = useState([]);
+  const [crew, setCrew] = useState([]);
 
-  const [error, setError] = useState(null)
+  const [error, setError] = useState(null);
 
-  useEffect(()=>{
-    async function load(){
-      try{
-        // batch 1: existing content
+  useEffect(() => {
+    async function load() {
+      try {
+        // Batch 1: core content (fail fast if *all* fail)
         const [a, n, d, l, u, r, c] = await Promise.all([
           getAPOD(),
           getNEOsToday(),
           getDonkiAlerts(),
           getLatestLaunch(),
-          getUpcomingLaunches(1),   // next mission (countdown)
+          getUpcomingLaunches(1),
           getRockets(),
-          getCrew(6)                // roster for right column
-        ])
-        setApod(a); setNeos(n); setAlerts(d);
-        setLaunch(l); setUpcoming(u); setRockets(r); setCrew(c)
-
-        // batch 2: new general info (EPIC, solar, ISS)
-        const [ep, so, pos, crewInfo] = await Promise.all([
-          getEPICLatest(),
-          getRecentSolarActivity(3),
-          getISSNow(),
-          getAstros()
-        ])
-        setEpic(ep); setSolar(so); setIssPos(pos); setAstros(crewInfo)
-
-      }catch(e){
-        setError(e.message || 'Failed to load data')
+          getCrew(6),
+        ]);
+        setApod(a);
+        setNeos(n);
+        setAlerts(d);
+        setLaunch(l);
+        setUpcoming(u);
+        setRockets(r);
+        setCrew(c);
+      } catch (e) {
+        // keep a banner only if core content failed completely
+        setError(e.message || 'Failed to load data');
       }
-    }
-    load()
-  },[])
 
-  const nextLaunch = upcoming?.[0] || null
+      // Batch 2: best-effort panels (never trip the red banner)
+      const settled = await Promise.allSettled([
+        getEPICLatest(),
+        getRecentSolarActivity(3),
+        getISSNow(),
+        getAstros(),
+      ]);
+      const val = (i) =>
+        settled[i].status === 'fulfilled' ? settled[i].value : null;
+
+      setEpic(val(0));
+      setSolar(val(1));
+      setIssPos(val(2));
+      setAstros(val(3));
+
+      // If at least one panel loaded, clear the global error
+      if (settled.some((r) => r.status === 'fulfilled')) setError(null);
+    }
+    load();
+  }, []);
+
+  const nextLaunch = upcoming?.[0] || null;
   const nextRocket = useMemo(() => {
-    if (!nextLaunch || !rockets?.length) return null
-    return rockets.find(r => r.id === nextLaunch.rocket) || null
-  }, [nextLaunch, rockets])
+    if (!nextLaunch || !rockets?.length) return null;
+    return rockets.find((r) => r.id === nextLaunch.rocket) || null;
+  }, [nextLaunch, rockets]);
 
   return (
     <div className="min-h-screen text-cyan-200 font-mono">
       <header className="p-4 lcars shadow-neon">
-        <h1 className="text-3xl">STAR<span className="text-cyan-400">KID</span> COMMAND</h1>
+        <h1 className="text-3xl">
+          STAR<span className="text-cyan-400">KID</span> COMMAND
+        </h1>
         <p className="text-sm">Junior Science Officer Dashboard</p>
       </header>
 
       {error && <p className="p-4 text-red-400">{error}</p>}
 
       <main className="grid gap-4 p-4 grid-cols-1 md:grid-cols-3 auto-rows-max">
-
         {/* ===== Top Row: 3 general cards ===== */}
         <MissionCard
           title="Asteroid Flybys Today"
@@ -90,11 +116,16 @@ export default function App(){
           content={
             neos.length ? (
               <ul className="text-xs space-y-1">
-                {neos.slice(0,5).map((o,i)=> (
-                  <li key={i}>• {o.name} — {o.close_approach_date_full} — {Number(o.miss_distance_km).toLocaleString()} km</li>
+                {neos.slice(0, 5).map((o, i) => (
+                  <li key={i}>
+                    • {o.name} — {o.close_approach_date_full} —{' '}
+                    {Number(o.miss_distance_km).toLocaleString()} km
+                  </li>
                 ))}
               </ul>
-            ) : 'Loading...'
+            ) : (
+              'Loading...'
+            )
           }
         />
 
@@ -104,11 +135,16 @@ export default function App(){
           content={
             alerts.length ? (
               <ul className="text-xs space-y-1">
-                {alerts.slice(0,5).map((a,i)=> (
-                  <li key={i}>• {a.messageType} — {new Date(a.messageIssueTime).toLocaleString()}</li>
+                {alerts.slice(0, 5).map((a, i) => (
+                  <li key={i}>
+                    • {a.messageType} —{' '}
+                    {new Date(a.messageIssueTime).toLocaleString()}
+                  </li>
                 ))}
               </ul>
-            ) : 'Loading...'
+            ) : (
+              'Loading...'
+            )
           }
         />
 
@@ -151,12 +187,11 @@ export default function App(){
         <div className="md:col-span-2">
           <LaunchDetails launch={nextLaunch} rocket={nextRocket} />
         </div>
-
       </main>
 
       <footer className="p-4 text-center opacity-75 text-xs">
         Built with NASA + SpaceX public APIs. For kids & learning.
       </footer>
     </div>
-  )
+  );
 }
