@@ -116,7 +116,7 @@ export default function App() {
     loadLaunchData()
     loadNASASpaceXData()
 
-    const interval = setInterval(loadLaunchData, 300000)
+    const interval = setInterval(loadLaunchData, 1800000)
     return () => clearInterval(interval)
   }, [])
 
