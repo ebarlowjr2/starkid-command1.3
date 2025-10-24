@@ -144,9 +144,9 @@ export default function App() {
       )}
 
       <main className="p-4 space-y-4">
-        <section className="grid grid-cols-1 lg:grid-cols-3 gap-4 h-[600px]">
-          <div className="lg:col-span-2 h-full">
-            <div className="h-full border-2 border-cyan-500 rounded-lg overflow-hidden shadow-lg shadow-cyan-500/50 bg-black">
+        <section className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+          <div className="lg:col-span-2">
+            <div className="h-[500px] border-2 border-cyan-500 rounded-lg overflow-hidden shadow-lg shadow-cyan-500/50 bg-black">
               <div className="bg-gradient-to-r from-zinc-900 to-black p-2 border-b border-cyan-600">
                 <h2 className="text-lg font-semibold text-cyan-300 tracking-wider">
                   GLOBAL LAUNCH SITES
@@ -169,7 +169,7 @@ export default function App() {
             </div>
           </div>
 
-          <div className="lg:col-span-1 h-full">
+          <div className="lg:col-span-1">
             <AdminPanel launches={launches} currentMission={currentMission} />
           </div>
         </section>
