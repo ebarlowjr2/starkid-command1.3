@@ -229,72 +229,68 @@ export default function App() {
           />
         </section>
 
-        <section className="grid gap-4 grid-cols-1 md:grid-cols-3">
-          <SolarStormMeter summary={solar} />
-          <EarthView epic={epic} />
-          <ISSStatus position={issPos} astros={astros} />
-        </section>
-
-        <section className="grid gap-4 grid-cols-1 md:grid-cols-3">
-          <div className="md:col-span-3">
-            <MissionCard
-              title="Astronomy Picture of the Day"
-              subtitle="APOD"
-              content={
-                apod ? (
-                  <div>
-                    <p className="text-sm mb-2">{apod.title}</p>
-                    {apod.media_type === 'image' ? (
-                      <img
-                        src={apod.url}
-                        alt={apod.title}
-                        className="rounded mb-2 max-w-full"
-                      />
-                    ) : (
-                      <a
-                        href={apod.url}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="underline"
-                      >
-                        Watch today's APOD
-                      </a>
-                    )}
-                    {apod.explanation && (
-                      <p className="text-xs opacity-80 mt-2">
-                        {apod.explanation.length > 220
-                          ? apod.explanation.slice(0, 220) + '…'
-                          : apod.explanation}
-                      </p>
-                    )}
+        <section className="border-2 border-cyan-500 rounded-lg overflow-hidden shadow-lg shadow-cyan-500/50 bg-black">
+          <div className="bg-gradient-to-r from-zinc-900 to-black p-2 border-b border-cyan-600">
+            <h2 className="text-lg font-semibold text-cyan-300 tracking-wider">
+              UPCOMING LAUNCHES
+            </h2>
+          </div>
+          <div className="p-4 space-y-4 max-h-[600px] overflow-y-auto">
+            {launches.length > 0 ? (
+              launches.slice(0, 10).map((launch, idx) => (
+                <div key={idx} className="border border-cyan-700 rounded p-4 bg-zinc-900/50 hover:bg-zinc-900/70 transition-colors">
+                  <div className="flex justify-between items-start mb-2">
+                    <div className="flex-1">
+                      <h3 className="text-cyan-300 font-semibold text-sm mb-1">
+                        {launch.name || 'Unknown Mission'}
+                      </h3>
+                      <div className="text-xs text-cyan-200 space-y-1">
+                        <div className="flex items-center gap-2">
+                          <span className="text-cyan-400">Agency:</span>
+                          <span>{launch.launch_service_provider?.name || 'N/A'}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <span className="text-cyan-400">Location:</span>
+                          <span>{launch.pad?.location?.name || 'N/A'}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <span className="text-cyan-400">Pad:</span>
+                          <span>{launch.pad?.name || 'N/A'}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <span className="text-cyan-400">Rocket:</span>
+                          <span>{launch.rocket?.configuration?.name || 'N/A'}</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="text-right ml-4">
+                      <div className="text-xs text-cyan-400 mb-1">
+                        {new Date(launch.net).toLocaleDateString()}
+                      </div>
+                      <div className="text-xs text-cyan-200">
+                        {new Date(launch.net).toLocaleTimeString()}
+                      </div>
+                      <div className={`text-xs mt-2 px-2 py-1 rounded ${
+                        launch.status?.abbrev === 'Go' ? 'bg-green-900/50 text-green-300' :
+                        launch.status?.abbrev === 'TBD' ? 'bg-yellow-900/50 text-yellow-300' :
+                        'bg-cyan-900/50 text-cyan-300'
+                      }`}>
+                        {launch.status?.abbrev || 'N/A'}
+                      </div>
+                    </div>
                   </div>
-                ) : (
-                  'Loading...'
-                )
-              }
-            />
-          </div>
-        </section>
-
-        <section className="grid gap-4 grid-cols-1 md:grid-cols-3">
-          <div className="md:col-span-2">
-            {nextLaunch ? (
-              <CountdownCard launch={nextLaunch} />
+                  {launch.mission?.description && (
+                    <p className="text-xs text-cyan-200/80 mt-2 line-clamp-2">
+                      {launch.mission.description}
+                    </p>
+                  )}
+                </div>
+              ))
             ) : (
-              <section className="lcars p-4 rounded bg-gradient-to-br from-black to-zinc-900">
-                <div className="text-sm">Loading next mission…</div>
-              </section>
+              <div className="text-center text-cyan-300 py-8">
+                Loading launch data...
+              </div>
             )}
-          </div>
-
-          <div className="md:col-span-1">
-            <CrewGrid crew={crew} />
-          </div>
-        </section>
-
-        <section className="grid gap-4 grid-cols-1 md:grid-cols-3">
-          <div className="md:col-span-3">
-            <LaunchDetails launch={nextLaunch} rocket={nextRocket} />
           </div>
         </section>
       </main>
