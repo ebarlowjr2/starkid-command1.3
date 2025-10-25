@@ -143,8 +143,8 @@ export default function App() {
         </div>
       )}
 
-      <main className="p-4 space-y-2">
-        <section className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+      <main className="p-4">
+        <section className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-1">
           <div className="lg:col-span-2">
             <div className="h-[500px] border-2 border-cyan-500 rounded-lg overflow-hidden shadow-lg shadow-cyan-500/50 bg-black">
               <div className="bg-gradient-to-r from-zinc-900 to-black p-2 border-b border-cyan-600">
@@ -174,7 +174,7 @@ export default function App() {
           </div>
         </section>
 
-        <section className="grid gap-4 grid-cols-1 md:grid-cols-3">
+        <section className="grid gap-4 grid-cols-1 md:grid-cols-3 mb-4">
           <MissionCard
             title="Asteroid Flybys Today"
             subtitle="NEO Scout"
