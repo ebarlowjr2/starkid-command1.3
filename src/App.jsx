@@ -143,7 +143,7 @@ export default function App() {
         </div>
       )}
 
-      <main className="p-4 space-y-4">
+      <main className="p-4 space-y-2">
         <section className="grid grid-cols-1 lg:grid-cols-3 gap-4">
           <div className="lg:col-span-2">
             <div className="h-[500px] border-2 border-cyan-500 rounded-lg overflow-hidden shadow-lg shadow-cyan-500/50 bg-black">
