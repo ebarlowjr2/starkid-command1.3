@@ -170,7 +170,7 @@ export default function App() {
           </div>
 
           <div className="lg:col-span-1">
-            <AdminPanel launches={launches} currentMission={currentMission} />
+            <AdminPanel launches={launches} currentMission={currentMission} apod={apod} />
           </div>
         </section>
 

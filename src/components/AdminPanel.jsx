@@ -1,6 +1,6 @@
 import React from 'react'
 
-export default function AdminPanel({ launches = [], currentMission = null }) {
+export default function AdminPanel({ launches = [], currentMission = null, apod = null }) {
   return (
     <div className="h-full overflow-y-auto bg-gradient-to-br from-black via-zinc-900 to-black border-2 border-cyan-500 rounded-lg p-4 shadow-lg shadow-cyan-500/50">
       <div className="mb-6">
@@ -39,6 +39,40 @@ export default function AdminPanel({ launches = [], currentMission = null }) {
                 <span className="text-cyan-200">Destination:</span>
                 <p className="text-white mt-1">{currentMission.mission.description || 'N/A'}</p>
               </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {apod && (
+        <div className="p-4 bg-zinc-900/50 border border-cyan-600 rounded">
+          <h3 className="text-lg font-semibold text-cyan-300 mb-3">
+            ASTRONOMY PICTURE OF THE DAY
+          </h3>
+          <div className="space-y-2">
+            <p className="text-sm text-cyan-200 font-medium">{apod.title}</p>
+            {apod.media_type === 'image' ? (
+              <img
+                src={apod.url}
+                alt={apod.title}
+                className="rounded w-full"
+              />
+            ) : (
+              <a
+                href={apod.url}
+                target="_blank"
+                rel="noreferrer"
+                className="text-cyan-400 underline text-sm"
+              >
+                View today's APOD video
+              </a>
+            )}
+            {apod.explanation && (
+              <p className="text-xs text-cyan-200/80 mt-2">
+                {apod.explanation.length > 150
+                  ? apod.explanation.slice(0, 150) + '…'
+                  : apod.explanation}
+              </p>
             )}
           </div>
         </div>
