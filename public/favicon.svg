@@ -1,0 +1,60 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <defs>
+    <!-- Gradient for the space background - NASA meatball style blue -->
+    <radialGradient id="spaceGradient" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" style="stop-color:#1a3a6e"/>
+      <stop offset="100%" style="stop-color:#0b1a33"/>
+    </radialGradient>
+    
+    <!-- Glow effect for stars -->
+    <filter id="starGlow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="8" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    
+    <!-- Stronger glow for main star -->
+    <filter id="mainStarGlow" x="-100%" y="-100%" width="300%" height="300%">
+      <feGaussianBlur stdDeviation="15" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  
+  <!-- Main circular background - NASA meatball style -->
+  <circle cx="256" cy="256" r="250" fill="url(#spaceGradient)" stroke="#2a5298" stroke-width="6"/>
+  
+  <!-- Orbital ring - NASA style white orbit -->
+  <ellipse cx="256" cy="256" rx="200" ry="60" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="3" transform="rotate(-20, 256, 256)"/>
+  
+  <!-- Red chevron/swoosh - NASA meatball signature element -->
+  <path d="M 80 280 Q 180 200 256 180 Q 332 200 432 280" fill="none" stroke="#fc3d21" stroke-width="18" stroke-linecap="round"/>
+  
+  <!-- Alpha Centauri A - Main bright yellow-white star -->
+  <circle cx="256" cy="200" r="35" fill="#fff8e7" filter="url(#mainStarGlow)"/>
+  <circle cx="256" cy="200" r="25" fill="#fffef5"/>
+  <circle cx="256" cy="200" r="15" fill="#ffffff"/>
+  
+  <!-- Alpha Centauri B - Secondary orange-yellow star -->
+  <circle cx="340" cy="280" r="22" fill="#ffd699" filter="url(#starGlow)"/>
+  <circle cx="340" cy="280" r="15" fill="#ffe6b3"/>
+  <circle cx="340" cy="280" r="8" fill="#ffffff"/>
+  
+  <!-- Proxima Centauri - Small red dwarf star -->
+  <circle cx="170" cy="320" r="12" fill="#ff9999" filter="url(#starGlow)"/>
+  <circle cx="170" cy="320" r="8" fill="#ffcccc"/>
+  <circle cx="170" cy="320" r="4" fill="#ffffff"/>
+  
+  <!-- Small background stars for depth -->
+  <circle cx="120" cy="150" r="3" fill="rgba(255,255,255,0.6)"/>
+  <circle cx="380" cy="130" r="2" fill="rgba(255,255,255,0.5)"/>
+  <circle cx="420" cy="200" r="2.5" fill="rgba(255,255,255,0.4)"/>
+  <circle cx="100" cy="250" r="2" fill="rgba(255,255,255,0.5)"/>
+  <circle cx="400" cy="380" r="2" fill="rgba(255,255,255,0.4)"/>
+  <circle cx="150" cy="400" r="2.5" fill="rgba(255,255,255,0.5)"/>
+  <circle cx="350" cy="420" r="2" fill="rgba(255,255,255,0.3)"/>
+</svg>
