@@ -3,6 +3,8 @@ import { BrowserRouter, Routes, Route, NavLink } from 'react-router-dom'
 import CommandCenterPage from './pages/CommandCenterPage.jsx'
 import SkyEventsPage from './pages/SkyEventsPage.jsx'
 import TonightsMissionPage from './pages/TonightsMissionPage.jsx'
+import CometsPage from './pages/CometsPage.jsx'
+import CometDetailPage from './pages/CometDetailPage.jsx'
 
 export default function App() {
   return (
@@ -45,29 +47,43 @@ export default function App() {
               >
                 Sky Events
               </NavLink>
-              <NavLink
-                to="/tonights-mission"
-                className={({ isActive }) =>
-                  `px-3 py-1.5 rounded border transition-all ${
-                    isActive 
-                      ? 'bg-cyan-500/30 border-cyan-400 text-cyan-200 shadow-md shadow-cyan-500/30' 
-                      : 'bg-black/40 border-cyan-500/40 text-cyan-300 hover:bg-cyan-500/10'
-                  }`
-                }
-              >
-                Tonight&apos;s Sky Mission
-              </NavLink>
-            </nav>
+                          <NavLink
+                            to="/tonights-mission"
+                            className={({ isActive }) =>
+                              `px-3 py-1.5 rounded border transition-all ${
+                                isActive 
+                                  ? 'bg-cyan-500/30 border-cyan-400 text-cyan-200 shadow-md shadow-cyan-500/30' 
+                                  : 'bg-black/40 border-cyan-500/40 text-cyan-300 hover:bg-cyan-500/10'
+                              }`
+                            }
+                          >
+                            Tonight&apos;s Sky Mission
+                          </NavLink>
+                          <NavLink
+                            to="/comets"
+                            className={({ isActive }) =>
+                              `px-3 py-1.5 rounded border transition-all ${
+                                isActive 
+                                  ? 'bg-cyan-500/30 border-cyan-400 text-cyan-200 shadow-md shadow-cyan-500/30' 
+                                  : 'bg-black/40 border-cyan-500/40 text-cyan-300 hover:bg-cyan-500/10'
+                              }`
+                            }
+                          >
+                            Comets
+                          </NavLink>
+                        </nav>
           </div>
         </header>
 
         {/* Routed content */}
         <main className="flex-1">
           <Routes>
-            <Route path="/" element={<CommandCenterPage />} />
-            <Route path="/sky-events" element={<SkyEventsPage />} />
-            <Route path="/tonights-mission" element={<TonightsMissionPage />} />
-          </Routes>
+                      <Route path="/" element={<CommandCenterPage />} />
+                      <Route path="/sky-events" element={<SkyEventsPage />} />
+                      <Route path="/tonights-mission" element={<TonightsMissionPage />} />
+                      <Route path="/comets" element={<CometsPage />} />
+                      <Route path="/comets/:designation" element={<CometDetailPage />} />
+                    </Routes>
         </main>
 
         <footer className="p-4 text-center bg-gradient-to-r from-black to-zinc-900 border-t border-cyan-800 text-xs text-cyan-300">
