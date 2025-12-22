@@ -154,7 +154,7 @@ export default function SolarMapPage() {
   return (
     <div className="h-full flex flex-col min-h-0 flex-1">
       {/* Header controls */}
-      <div className="p-4 border-b border-cyan-800 bg-black/50">
+      <div className="p-4 bg-black/50">
         <div className="flex flex-col lg:flex-row lg:items-center gap-4">
           {/* Title */}
           <div>
