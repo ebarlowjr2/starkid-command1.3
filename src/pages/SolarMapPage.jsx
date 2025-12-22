@@ -152,7 +152,7 @@ export default function SolarMapPage() {
   }
   
   return (
-    <div className="h-full flex flex-col">
+    <div className="h-full flex flex-col min-h-0 flex-1">
       {/* Header controls */}
       <div className="p-4 border-b border-cyan-800 bg-black/50">
         <div className="flex flex-col lg:flex-row lg:items-center gap-4">
@@ -277,7 +277,7 @@ export default function SolarMapPage() {
       </div>
       
       {/* 3D Canvas */}
-      <div className="flex-1 relative bg-black">
+      <div className="flex-1 relative bg-black min-h-0">
         {/* Status overlays */}
         {loading && (
           <div className="absolute top-4 left-4 z-10 px-3 py-2 bg-black/80 border border-cyan-700 rounded text-cyan-300 text-sm">

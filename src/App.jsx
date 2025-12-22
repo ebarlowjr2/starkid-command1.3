@@ -89,7 +89,7 @@ export default function App() {
         </header>
 
         {/* Routed content */}
-        <main className="flex-1">
+        <main className="flex-1 flex flex-col min-h-0">
           <Routes>
             <Route path="/" element={<CommandCenterPage />} />
             <Route path="/sky-events" element={<SkyEventsPage />} />
