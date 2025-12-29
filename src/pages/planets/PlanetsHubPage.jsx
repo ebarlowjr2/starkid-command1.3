@@ -107,15 +107,18 @@ export default function PlanetsHubPage() {
                            text-white font-mono text-sm tracking-wider
                            hover:bg-white/10 transition-colors"
                 >
-                  OPEN
+                  INITIATE MISSION
                 </button>
               )}
 
               {planet.status === 'locked' && (
-                <div className="w-full py-2 px-4 bg-black/40 border border-gray-700 rounded 
-                              text-gray-500 font-mono text-sm tracking-wider text-center">
-                  COMING SOON
-                </div>
+                <button
+                  disabled
+                  className="w-full py-2 px-4 bg-black/40 border border-gray-700 rounded 
+                           text-gray-500 font-mono text-sm tracking-wider cursor-not-allowed"
+                >
+                  SYSTEMS OFFLINE
+                </button>
               )}
             </div>
 
