@@ -8,6 +8,7 @@ import CometDetailPage from './pages/CometDetailPage.jsx'
 import SolarMapPage from './pages/SolarMapPage.jsx'
 import PlanetsHubPage from './pages/planets/PlanetsHubPage.jsx'
 import MarsCommandCenterPage from './pages/planets/MarsCommandCenterPage.jsx'
+import BeyondSolarSystemPage from './pages/beyond/BeyondSolarSystemPage.jsx'
 
 export default function App() {
   return (
@@ -98,6 +99,18 @@ export default function App() {
               >
                 Visit Another Planet
               </NavLink>
+              <NavLink
+                to="/beyond"
+                className={({ isActive }) =>
+                  `px-3 py-1.5 rounded border transition-all ${
+                    isActive 
+                      ? 'bg-purple-500/30 border-purple-400 text-purple-200 shadow-md shadow-purple-500/30' 
+                      : 'bg-black/40 border-purple-500/40 text-purple-300 hover:bg-purple-500/10'
+                  }`
+                }
+              >
+                Beyond Our Solar System
+              </NavLink>
             </nav>
           </div>
         </header>
@@ -113,6 +126,7 @@ export default function App() {
             <Route path="/solar-map" element={<SolarMapPage />} />
             <Route path="/planets" element={<PlanetsHubPage />} />
             <Route path="/planets/mars" element={<MarsCommandCenterPage />} />
+            <Route path="/beyond" element={<BeyondSolarSystemPage />} />
           </Routes>
         </main>
 
