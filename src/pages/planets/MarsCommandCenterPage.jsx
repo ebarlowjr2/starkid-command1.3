@@ -1,9 +1,6 @@
-// src/pages/planets/MarsCommandCenterPage.jsx
-// Mars mini command center with rover photos, telemetry, weather, and facts
-
-import React from 'react'
 import { Link } from 'react-router-dom'
 import useMarsCommandCenter from './hooks/useMarsCommandCenter.js'
+import { PlanetModelViewer } from '../../components/PlanetModelViewer.jsx'
 import RoverPhotoCard from '../../components/mars/RoverPhotoCard.jsx'
 import TelemetryGrid from '../../components/mars/TelemetryGrid.jsx'
 import WeatherCard from '../../components/mars/WeatherCard.jsx'
@@ -14,7 +11,6 @@ export default function MarsCommandCenterPage() {
 
   return (
     <div className="p-4 min-h-full">
-      {/* Header */}
       <div className="mb-6">
         <div className="flex items-center gap-2 mb-2">
           <Link 
@@ -42,7 +38,6 @@ export default function MarsCommandCenterPage() {
         </div>
       </div>
 
-      {/* Error display */}
       {error && (
         <div className="mb-4 p-4 bg-red-900/30 border-l-4 border-red-500 text-red-200 font-mono">
           <p className="font-semibold text-sm">SYSTEM ALERT:</p>
@@ -50,9 +45,21 @@ export default function MarsCommandCenterPage() {
         </div>
       )}
 
-      {/* Main content grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        {/* Left column - Photo hero */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        <div className="lg:row-span-2">
+          <div className="mb-3">
+            <span className="text-xs font-mono text-red-300/70">3D_MODEL // MARS</span>
+          </div>
+          <PlanetModelViewer 
+            modelSrc="/models/planets/mars.glb" 
+            alt="Mars 3D model" 
+            height={400}
+          />
+          <div className="mt-2 text-xs font-mono text-red-300/50 text-center">
+            SOURCE: NASA glTF embed • DRAG TO ROTATE
+          </div>
+        </div>
+
         <div className="lg:col-span-2">
           <RoverPhotoCard 
             photo={photoOfDay} 
@@ -62,18 +69,15 @@ export default function MarsCommandCenterPage() {
           />
         </div>
 
-        {/* Telemetry grid */}
         <div>
           <TelemetryGrid telemetry={telemetry} loading={loading} />
         </div>
 
-        {/* Weather card */}
         <div>
           <WeatherCard weather={weather} loading={loading} />
         </div>
 
-        {/* Facts panel - full width */}
-        <div className="lg:col-span-2">
+        <div className="lg:col-span-3">
           <MarsFactsPanel facts={facts} loading={loading} />
         </div>
       </div>
