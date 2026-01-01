@@ -51,7 +51,18 @@ export default function MarsFactsPanel({ facts, loading }) {
   }
 
   if (!facts || facts.length === 0) {
-    return null
+    return (
+      <div className="border-2 border-red-500 rounded-lg overflow-hidden shadow-lg shadow-red-500/30 bg-black">
+        <div className="bg-gradient-to-r from-zinc-900 to-black p-3 border-b border-red-600">
+          <h2 className="text-lg font-semibold text-red-300 tracking-wider font-mono">
+            DID YOU KNOW?
+          </h2>
+        </div>
+        <div className="p-4 text-center text-red-300/70 font-mono">
+          FACTS MODULE OFFLINE
+        </div>
+      </div>
+    )
   }
 
   return (
