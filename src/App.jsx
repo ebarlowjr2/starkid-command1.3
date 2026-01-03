@@ -9,6 +9,8 @@ import SolarMapPage from './pages/SolarMapPage.jsx'
 import PlanetsHubPage from './pages/planets/PlanetsHubPage.jsx'
 import MarsCommandCenterPage from './pages/planets/MarsCommandCenterPage.jsx'
 import BeyondSolarSystemPage from './pages/beyond/BeyondSolarSystemPage.jsx'
+import RocketsHubPage from './pages/rockets/RocketsHubPage.jsx'
+import RocketDetailPage from './pages/rockets/RocketDetailPage.jsx'
 
 export default function App() {
   return (
@@ -111,6 +113,18 @@ export default function App() {
               >
                 Beyond Our Solar System
               </NavLink>
+              <NavLink
+                to="/rockets"
+                className={({ isActive }) =>
+                  `px-3 py-1.5 rounded border transition-all ${
+                    isActive 
+                      ? 'bg-orange-500/30 border-orange-400 text-orange-200 shadow-md shadow-orange-500/30' 
+                      : 'bg-black/40 border-orange-500/40 text-orange-300 hover:bg-orange-500/10'
+                  }`
+                }
+              >
+                Rocket Science
+              </NavLink>
             </nav>
           </div>
         </header>
@@ -127,6 +141,8 @@ export default function App() {
             <Route path="/planets" element={<PlanetsHubPage />} />
             <Route path="/planets/mars" element={<MarsCommandCenterPage />} />
             <Route path="/beyond" element={<BeyondSolarSystemPage />} />
+            <Route path="/rockets" element={<RocketsHubPage />} />
+            <Route path="/rockets/:rocketId" element={<RocketDetailPage />} />
           </Routes>
         </main>
 
