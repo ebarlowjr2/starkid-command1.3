@@ -6,10 +6,12 @@ export default function LandingPage() {
 
   return (
     <div
+      className="landing-page-bg"
       style={{
         minHeight: "calc(100vh - 120px)",
         padding: "28px 18px",
-        background: "radial-gradient(1200px 600px at 70% 50%, rgba(255,255,255,0.06), transparent 55%), #000",
+        position: "relative",
+        overflow: "hidden",
       }}
     >
       <div
@@ -106,20 +108,73 @@ export default function LandingPage() {
         </div>
       </div>
 
-      <style>{`
-        @media (max-width: 900px) {
-          .landing-grid {
-            grid-template-columns: 1fr !important;
-            text-align: center;
-          }
-          .landing-grid > div:first-child {
-            align-items: center;
-          }
-          .nebula-container {
-            height: 380px !important;
-          }
-        }
-      `}</style>
+            <style>{`
+              .landing-page-bg {
+                background: 
+                  radial-gradient(ellipse at 20% 80%, rgba(30, 64, 175, 0.15) 0%, transparent 50%),
+                  radial-gradient(ellipse at 80% 20%, rgba(88, 28, 135, 0.12) 0%, transparent 50%),
+                  radial-gradient(ellipse at 50% 50%, rgba(6, 182, 212, 0.08) 0%, transparent 60%),
+                  linear-gradient(to bottom, #000000 0%, #0a0a1a 50%, #000000 100%);
+              }
+        
+              .landing-page-bg::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background-image: 
+                  radial-gradient(1px 1px at 10% 10%, rgba(255,255,255,0.8) 0%, transparent 100%),
+                  radial-gradient(1px 1px at 20% 30%, rgba(255,255,255,0.6) 0%, transparent 100%),
+                  radial-gradient(1px 1px at 35% 15%, rgba(255,255,255,0.9) 0%, transparent 100%),
+                  radial-gradient(1px 1px at 45% 45%, rgba(255,255,255,0.5) 0%, transparent 100%),
+                  radial-gradient(1px 1px at 55% 25%, rgba(255,255,255,0.7) 0%, transparent 100%),
+                  radial-gradient(1px 1px at 65% 55%, rgba(255,255,255,0.6) 0%, transparent 100%),
+                  radial-gradient(1px 1px at 75% 35%, rgba(255,255,255,0.8) 0%, transparent 100%),
+                  radial-gradient(1px 1px at 85% 65%, rgba(255,255,255,0.5) 0%, transparent 100%),
+                  radial-gradient(1px 1px at 95% 20%, rgba(255,255,255,0.7) 0%, transparent 100%),
+                  radial-gradient(1px 1px at 5% 50%, rgba(255,255,255,0.6) 0%, transparent 100%),
+                  radial-gradient(1px 1px at 15% 70%, rgba(255,255,255,0.8) 0%, transparent 100%),
+                  radial-gradient(1px 1px at 25% 85%, rgba(255,255,255,0.5) 0%, transparent 100%),
+                  radial-gradient(1px 1px at 40% 75%, rgba(255,255,255,0.7) 0%, transparent 100%),
+                  radial-gradient(1px 1px at 50% 90%, rgba(255,255,255,0.6) 0%, transparent 100%),
+                  radial-gradient(1px 1px at 60% 80%, rgba(255,255,255,0.8) 0%, transparent 100%),
+                  radial-gradient(1px 1px at 70% 95%, rgba(255,255,255,0.5) 0%, transparent 100%),
+                  radial-gradient(1px 1px at 80% 5%, rgba(255,255,255,0.9) 0%, transparent 100%),
+                  radial-gradient(1px 1px at 90% 40%, rgba(255,255,255,0.6) 0%, transparent 100%),
+                  radial-gradient(2px 2px at 12% 22%, rgba(255,255,255,0.4) 0%, transparent 100%),
+                  radial-gradient(2px 2px at 32% 62%, rgba(255,255,255,0.3) 0%, transparent 100%),
+                  radial-gradient(2px 2px at 52% 12%, rgba(255,255,255,0.5) 0%, transparent 100%),
+                  radial-gradient(2px 2px at 72% 72%, rgba(255,255,255,0.4) 0%, transparent 100%),
+                  radial-gradient(2px 2px at 92% 52%, rgba(255,255,255,0.3) 0%, transparent 100%),
+                  radial-gradient(1.5px 1.5px at 8% 88%, rgba(200,220,255,0.6) 0%, transparent 100%),
+                  radial-gradient(1.5px 1.5px at 28% 38%, rgba(255,200,200,0.5) 0%, transparent 100%),
+                  radial-gradient(1.5px 1.5px at 48% 58%, rgba(200,255,220,0.4) 0%, transparent 100%),
+                  radial-gradient(1.5px 1.5px at 68% 18%, rgba(255,255,200,0.5) 0%, transparent 100%),
+                  radial-gradient(1.5px 1.5px at 88% 78%, rgba(220,200,255,0.6) 0%, transparent 100%);
+                pointer-events: none;
+                z-index: 0;
+              }
+        
+              .landing-page-bg > * {
+                position: relative;
+                z-index: 1;
+              }
+        
+              @media (max-width: 900px) {
+                .landing-grid {
+                  grid-template-columns: 1fr !important;
+                  text-align: center;
+                }
+                .landing-grid > div:first-child {
+                  align-items: center;
+                }
+                .nebula-container {
+                  height: 380px !important;
+                }
+              }
+            `}</style>
     </div>
   )
 }
