@@ -72,12 +72,22 @@ export default function NebulaHero() {
   const particleCount = isMobile ? 7000 : 16000
 
   return (
-    <div style={{ width: "100%", height: "100%", borderRadius: 20, overflow: "hidden" }}>
+    <div 
+      style={{ 
+        width: "100%", 
+        height: "100%",
+        WebkitMaskImage: "radial-gradient(ellipse 85% 85% at 50% 50%, rgba(0,0,0,1) 0%, rgba(0,0,0,1) 40%, rgba(0,0,0,0) 70%)",
+        maskImage: "radial-gradient(ellipse 85% 85% at 50% 50%, rgba(0,0,0,1) 0%, rgba(0,0,0,1) 40%, rgba(0,0,0,0) 70%)",
+      }}
+    >
       <Canvas
         camera={{ position: [0, 0, 10], fov: 50 }}
         gl={{ antialias: true, alpha: true }}
+        onCreated={({ gl }) => {
+          gl.setClearColor(0x000000, 0)
+        }}
       >
-        <fog attach="fog" args={["#000000", 6, 16]} />
+        <fog attach="fog" args={["#0a0a1a", 8, 18]} />
         <ambientLight intensity={0.6} />
         <NebulaPoints count={particleCount} />
         <OrbitControls
