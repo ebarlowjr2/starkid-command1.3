@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom"
 import NebulaHero from "../components/hero/NebulaHero.jsx"
+import { TelemetryStrip } from "../components/TelemetryStrip.jsx"
 
 export default function LandingPage() {
   const nav = useNavigate()
@@ -103,10 +104,20 @@ export default function LandingPage() {
           </div>
         </div>
 
-        <div className="nebula-container" style={{ height: 520 }}>
-          <NebulaHero />
-        </div>
-      </div>
+              <div className="nebula-container" style={{ height: 520 }}>
+                <NebulaHero />
+              </div>
+            </div>
+
+            <div
+              style={{
+                maxWidth: 1200,
+                margin: "24px auto 0",
+                padding: "0 18px",
+              }}
+            >
+              <TelemetryStrip />
+            </div>
 
             <style>{`
               .landing-page-bg {
