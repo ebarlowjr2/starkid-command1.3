@@ -1,38 +1,32 @@
 import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { 
-  getRocketById, 
-  formatThrust, 
-  formatPayload, 
-  formatLength, 
-  formatMass 
-} from '../../lib/rockets/rocketService.js'
+import { getSpacecraftById } from '../../lib/spacecraft/spacecraftService.js'
 
-export default function RocketDetailPage() {
-  const { rocketId } = useParams()
+export default function SpacecraftDetailPage() {
+  const { spacecraftId } = useParams()
   const navigate = useNavigate()
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
-  const [rocket, setRocket] = useState(null)
+  const [spacecraft, setSpacecraft] = useState(null)
 
   useEffect(() => {
-    async function loadRocket() {
+    async function loadSpacecraft() {
       setLoading(true)
       setError(null)
       
       try {
-        const result = await getRocketById(rocketId)
-        setRocket(result.rocket)
+        const result = await getSpacecraftById(spacecraftId)
+        setSpacecraft(result.spacecraft)
       } catch (err) {
-        console.error('Error loading rocket:', err)
-        setError(err.message || 'Failed to load rocket data')
+        console.error('Error loading spacecraft:', err)
+        setError(err.message || 'Failed to load spacecraft data')
       } finally {
         setLoading(false)
       }
     }
     
-    loadRocket()
-  }, [rocketId])
+    loadSpacecraft()
+  }, [spacecraftId])
 
   if (loading) {
     return (
@@ -44,14 +38,14 @@ export default function RocketDetailPage() {
     )
   }
 
-  if (error || !rocket) {
+  if (error || !spacecraft) {
     return (
       <div className="p-4">
         <button
-          onClick={() => navigate('/rockets/launch-vehicles')}
+          onClick={() => navigate('/rockets/spacecraft')}
           className="mb-4 px-3 py-2 bg-orange-500/20 border border-orange-500/30 rounded-lg text-orange-300 font-mono text-sm"
         >
-          &larr; BACK TO VEHICLES
+          &larr; BACK TO SPACECRAFT
         </button>
         <div className="text-center py-12">
           <div className="text-red-400 font-mono">
@@ -62,41 +56,33 @@ export default function RocketDetailPage() {
     )
   }
 
-  const successRate = rocket.totalLaunches > 0 
-    ? ((rocket.successfulLaunches / rocket.totalLaunches) * 100).toFixed(1)
-    : 'N/A'
-
-  const landingRate = rocket.attemptedLandings > 0
-    ? ((rocket.successfulLandings / rocket.attemptedLandings) * 100).toFixed(1)
-    : null
-
   return (
     <div className="p-4">
       <button
-        onClick={() => navigate('/rockets/launch-vehicles')}
+        onClick={() => navigate('/rockets/spacecraft')}
         className="mb-4 px-3 py-2 bg-orange-500/20 border border-orange-500/30 rounded-lg text-orange-300 font-mono text-sm hover:bg-orange-500/30"
       >
-        &larr; BACK TO VEHICLES
+        &larr; BACK TO SPACECRAFT
       </button>
 
       <div className="mb-4">
-        <div className="flex items-center gap-3 mb-1">
+        <div className="flex items-center gap-3 mb-1 flex-wrap">
           <span className="text-orange-400 font-mono text-sm">
-            {rocket.manufacturerName}
+            {spacecraft.agencyName}
           </span>
-          {rocket.reusable && (
-            <span className="text-xs px-2 py-1 bg-green-500/20 text-green-400 rounded font-mono">
-              REUSABLE
+          {spacecraft.humanRated && (
+            <span className="text-xs px-2 py-1 bg-blue-500/20 text-blue-400 rounded font-mono">
+              HUMAN RATED
             </span>
           )}
-          {rocket.active && (
-            <span className="text-xs px-2 py-1 bg-blue-500/20 text-blue-400 rounded font-mono">
-              ACTIVE
+          {spacecraft.inUse && (
+            <span className="text-xs px-2 py-1 bg-green-500/20 text-green-400 rounded font-mono">
+              IN USE
             </span>
           )}
         </div>
         <h1 className="text-3xl md:text-4xl font-bold text-white">
-          {rocket.fullName || rocket.name}
+          {spacecraft.name}
         </h1>
       </div>
 
@@ -116,10 +102,10 @@ export default function RocketDetailPage() {
               border: '1px solid rgba(249, 115, 22, 0.2)',
             }}
           >
-            {rocket.imageUrl ? (
+            {spacecraft.imageUrl ? (
               <img
-                src={rocket.imageUrl}
-                alt={rocket.name}
+                src={spacecraft.imageUrl}
+                alt={spacecraft.name}
                 style={{
                   width: '100%',
                   height: '100%',
@@ -129,7 +115,7 @@ export default function RocketDetailPage() {
             ) : (
               <div className="w-full h-full flex items-center justify-center text-orange-300/30 font-mono">
                 <div className="text-center">
-                  <span style={{ fontSize: 64 }}>🚀</span>
+                  <span style={{ fontSize: 64 }}>🛸</span>
                   <div className="mt-2">NO IMAGE AVAILABLE</div>
                 </div>
               </div>
@@ -137,9 +123,9 @@ export default function RocketDetailPage() {
           </div>
 
           <div className="flex gap-2">
-            {rocket.wikiUrl && (
+            {spacecraft.wikiUrl && (
               <a
-                href={rocket.wikiUrl}
+                href={spacecraft.wikiUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex-1 px-3 py-2 bg-orange-500/20 border border-orange-500/30 rounded-lg text-orange-300 font-mono text-sm text-center hover:bg-orange-500/30"
@@ -147,9 +133,9 @@ export default function RocketDetailPage() {
                 WIKIPEDIA
               </a>
             )}
-            {rocket.infoUrl && (
+            {spacecraft.infoUrl && (
               <a
-                href={rocket.infoUrl}
+                href={spacecraft.infoUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex-1 px-3 py-2 bg-orange-500/20 border border-orange-500/30 rounded-lg text-orange-300 font-mono text-sm text-center hover:bg-orange-500/30"
@@ -162,100 +148,61 @@ export default function RocketDetailPage() {
 
         <div className="flex flex-col gap-4">
           <Module title="VEHICLE OVERVIEW">
-            {rocket.description && (
+            {spacecraft.description && (
               <p className="text-white/80 text-sm leading-relaxed mb-4">
-                {rocket.description}
+                {spacecraft.description}
               </p>
             )}
             <div className="grid grid-cols-2 gap-3">
-              <DataField label="MANUFACTURER" value={rocket.manufacturerName} />
-              <DataField label="COUNTRY" value={rocket.countryName || 'N/A'} />
-              <DataField label="MAIDEN FLIGHT" value={rocket.maidenFlight || 'N/A'} />
-              <DataField label="FAMILY" value={rocket.familyName || 'N/A'} />
+              <DataField label="TYPE" value={spacecraft.typeName} />
+              <DataField label="AGENCY" value={spacecraft.agencyName} />
+              <DataField label="COUNTRY" value={spacecraft.countryName || 'N/A'} />
+              <DataField label="MAIDEN FLIGHT" value={spacecraft.maidenFlight || 'N/A'} />
             </div>
           </Module>
 
-          <Module title="PERFORMANCE">
+          <Module title="CAPABILITIES">
             <div className="grid grid-cols-2 gap-3">
               <DataField 
-                label="LEO PAYLOAD" 
-                value={formatPayload(rocket.leoCapacityKg)} 
-                highlight 
+                label="CREW CAPACITY" 
+                value={spacecraft.crewCapacity ? `${spacecraft.crewCapacity} astronauts` : 'Not provided by API'} 
+                highlight={!!spacecraft.crewCapacity}
               />
               <DataField 
-                label="GTO PAYLOAD" 
-                value={formatPayload(rocket.gtoCapacityKg)} 
-                highlight 
+                label="HUMAN RATED" 
+                value={spacecraft.humanRated ? 'YES' : 'NO'} 
+                highlight={spacecraft.humanRated}
               />
               <DataField 
-                label="LIFTOFF THRUST" 
-                value={formatThrust(rocket.toThrustKN)} 
-                highlight 
+                label="FLIGHT LIFE" 
+                value={spacecraft.flightLife || 'Not provided by API'} 
               />
               <DataField 
-                label="LAUNCH MASS" 
-                value={formatMass(rocket.launchMassT)} 
+                label="STATUS" 
+                value={spacecraft.inUse ? 'ACTIVE' : 'RETIRED'} 
+                highlight={spacecraft.inUse}
               />
             </div>
-          </Module>
-
-          <Module title="DIMENSIONS">
-            <div className="grid grid-cols-3 gap-3">
-              <DataField 
-                label="LENGTH" 
-                value={formatLength(rocket.lengthM)} 
-              />
-              <DataField 
-                label="DIAMETER" 
-                value={formatLength(rocket.diameterM)} 
-              />
-              <DataField 
-                label="STAGES" 
-                value="2" 
-              />
-            </div>
-          </Module>
-
-          <Module title="LAUNCH STATISTICS">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-              <DataField 
-                label="TOTAL LAUNCHES" 
-                value={rocket.totalLaunches} 
-                highlight 
-              />
-              <DataField 
-                label="SUCCESSFUL" 
-                value={rocket.successfulLaunches} 
-              />
-              <DataField 
-                label="FAILED" 
-                value={rocket.failedLaunches} 
-              />
-              <DataField 
-                label="SUCCESS RATE" 
-                value={successRate !== 'N/A' ? `${successRate}%` : 'N/A'} 
-                highlight 
-              />
-            </div>
-            {rocket.reusable && landingRate && (
+            {spacecraft.capability && (
               <div className="mt-3 pt-3 border-t border-orange-500/20">
-                <div className="grid grid-cols-3 gap-3">
-                  <DataField 
-                    label="LANDING ATTEMPTS" 
-                    value={rocket.attemptedLandings} 
-                  />
-                  <DataField 
-                    label="SUCCESSFUL LANDINGS" 
-                    value={rocket.successfulLandings} 
-                  />
-                  <DataField 
-                    label="LANDING RATE" 
-                    value={`${landingRate}%`} 
-                    highlight 
-                  />
-                </div>
+                <DataField label="MISSION CAPABILITY" value={spacecraft.capability} />
               </div>
             )}
+          </Module>
+
+          {spacecraft.history && (
+            <Module title="SYSTEM NOTES">
+              <p className="text-white/70 text-sm leading-relaxed">
+                {spacecraft.history}
+              </p>
+            </Module>
+          )}
+
+          <Module title="CLASSIFICATION">
+            <div className="grid grid-cols-2 gap-3">
+              <DataField label="VEHICLE CLASS" value={spacecraft.typeName} />
+              <DataField label="OPERATOR" value={spacecraft.agencyAbbrev || spacecraft.agencyName} />
+            </div>
           </Module>
         </div>
       </div>

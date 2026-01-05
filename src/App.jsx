@@ -11,8 +11,11 @@ import SolarMapPage from './pages/SolarMapPage.jsx'
 import PlanetsHubPage from './pages/planets/PlanetsHubPage.jsx'
 import MarsCommandCenterPage from './pages/planets/MarsCommandCenterPage.jsx'
 import BeyondSolarSystemPage from './pages/beyond/BeyondSolarSystemPage.jsx'
+import RocketsSectionPage from './pages/rockets/RocketsSectionPage.jsx'
 import RocketsHubPage from './pages/rockets/RocketsHubPage.jsx'
 import RocketDetailPage from './pages/rockets/RocketDetailPage.jsx'
+import SpacecraftHubPage from './pages/rockets/SpacecraftHubPage.jsx'
+import SpacecraftDetailPage from './pages/rockets/SpacecraftDetailPage.jsx'
 
 export default function App() {
   return (
@@ -131,23 +134,26 @@ export default function App() {
         </header>
 
         {/* Routed content */}
-        <main className="flex-1 flex flex-col min-h-0">
-          <Routes>
-            <Route path="/" element={<LandingPage />} />
-            <Route path="/explore" element={<ExploreHubPage />} />
-            <Route path="/command" element={<CommandCenterPage />} />
-            <Route path="/sky-events" element={<SkyEventsPage />} />
-            <Route path="/tonights-mission" element={<TonightsMissionPage />} />
-            <Route path="/comets" element={<CometsPage />} />
-            <Route path="/comets/:designation" element={<CometDetailPage />} />
-            <Route path="/solar-map" element={<SolarMapPage />} />
-            <Route path="/planets" element={<PlanetsHubPage />} />
-            <Route path="/planets/mars" element={<MarsCommandCenterPage />} />
-            <Route path="/beyond" element={<BeyondSolarSystemPage />} />
-            <Route path="/rockets" element={<RocketsHubPage />} />
-            <Route path="/rockets/:rocketId" element={<RocketDetailPage />} />
-          </Routes>
-        </main>
+                <main className="flex-1 flex flex-col min-h-0">
+                  <Routes>
+                    <Route path="/" element={<LandingPage />} />
+                    <Route path="/explore" element={<ExploreHubPage />} />
+                    <Route path="/command" element={<CommandCenterPage />} />
+                    <Route path="/sky-events" element={<SkyEventsPage />} />
+                    <Route path="/tonights-mission" element={<TonightsMissionPage />} />
+                    <Route path="/comets" element={<CometsPage />} />
+                    <Route path="/comets/:designation" element={<CometDetailPage />} />
+                    <Route path="/solar-map" element={<SolarMapPage />} />
+                    <Route path="/planets" element={<PlanetsHubPage />} />
+                    <Route path="/planets/mars" element={<MarsCommandCenterPage />} />
+                    <Route path="/beyond" element={<BeyondSolarSystemPage />} />
+                    <Route path="/rockets" element={<RocketsSectionPage />} />
+                    <Route path="/rockets/launch-vehicles" element={<RocketsHubPage />} />
+                    <Route path="/rockets/launch-vehicles/:rocketId" element={<RocketDetailPage />} />
+                    <Route path="/rockets/spacecraft" element={<SpacecraftHubPage />} />
+                    <Route path="/rockets/spacecraft/:spacecraftId" element={<SpacecraftDetailPage />} />
+                  </Routes>
+                </main>
 
         <footer className="p-4 text-center bg-gradient-to-r from-black to-zinc-900 border-t border-cyan-800 text-xs text-cyan-300">
           <p>Built with NASA, SpaceX and astronomy APIs. For kids &amp; learning.</p>
