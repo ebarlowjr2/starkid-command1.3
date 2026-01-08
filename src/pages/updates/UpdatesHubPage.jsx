@@ -28,6 +28,14 @@ export default function UpdatesHubPage() {
       icon: '🔴',
       status: 'live',
     },
+    {
+      id: 'x',
+      title: 'X Accounts',
+      description: 'Curated X/Twitter accounts from space agencies, companies, journalists, and trackers.',
+      route: '/updates/x',
+      icon: '𝕏',
+      status: 'live',
+    },
   ]
 
   return (

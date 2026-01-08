@@ -21,6 +21,7 @@ import NewsPage from './pages/updates/NewsPage.jsx'
 import BlogListPage from './pages/updates/BlogListPage.jsx'
 import BlogDetailPage from './pages/updates/BlogDetailPage.jsx'
 import LivePage from './pages/updates/LivePage.jsx'
+import XPage from './pages/updates/XPage.jsx'
 
 export default function App() {
   return (
@@ -174,6 +175,7 @@ export default function App() {
                                       <Route path="/updates/blog" element={<BlogListPage />} />
                                       <Route path="/updates/blog/:slug" element={<BlogDetailPage />} />
                                       <Route path="/updates/live" element={<LivePage />} />
+                                      <Route path="/updates/x" element={<XPage />} />
                                     </Routes>
                 </main>
 

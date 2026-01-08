@@ -1,13 +1,7 @@
 import { useNavigate } from 'react-router-dom'
 import { useState, useEffect } from 'react'
-
-const NEWS_CATEGORIES = [
-  { id: 'all', label: 'All Sources' },
-  { id: 'official', label: 'Official Sources' },
-  { id: 'launch', label: 'Launch Coverage' },
-  { id: 'astronomy', label: 'Astronomy' },
-  { id: 'journalism', label: 'News Media' },
-]
+import { NEWS_FEEDS, NEWS_CATEGORIES } from '../../config/newsFeeds'
+import { normalizeNewsCards, timeAgo } from '../../utils/normalize'
 
 export default function NewsPage() {
   const navigate = useNavigate()
@@ -28,7 +22,8 @@ export default function NewsPage() {
       const response = await fetch('/api/news')
       if (!response.ok) throw new Error('Failed to fetch news')
       const data = await response.json()
-      setNews(data.news || [])
+      const normalizedCards = normalizeNewsCards(NEWS_FEEDS, data.news || [], { maxItems: 80 })
+      setNews(normalizedCards)
       setIsFallback(data.fallback || false)
     } catch (e) {
       console.error('Error fetching news:', e)
@@ -43,16 +38,8 @@ export default function NewsPage() {
     : news.filter((item) => item.category === selectedCategory)
 
   const formatDate = (dateString) => {
-    const date = new Date(dateString)
-    const now = new Date()
-    const diffMs = now - date
-    const diffHours = Math.floor(diffMs / (1000 * 60 * 60))
-    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24))
-
-    if (diffHours < 1) return 'Just now'
-    if (diffHours < 24) return `${diffHours}h ago`
-    if (diffDays < 7) return `${diffDays}d ago`
-    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+    if (!dateString) return 'Unknown'
+    return timeAgo(dateString)
   }
 
   return (
@@ -173,8 +160,8 @@ export default function NewsPage() {
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
           {filteredNews.map((item, index) => (
             <a
-              key={`${item.source}-${index}`}
-              href={item.link}
+              key={item.id || `${item.subtitle}-${index}`}
+              href={item.href}
               target="_blank"
               rel="noopener noreferrer"
               style={{
@@ -190,7 +177,7 @@ export default function NewsPage() {
               onMouseLeave={(e) => e.currentTarget.style.borderColor = 'rgba(34, 211, 238, 0.2)'}
             >
               <div style={{ display: 'flex', gap: 16 }}>
-                {item.image && (
+                {item.imageUrl && (
                   <div
                     style={{
                       width: 80,
@@ -202,7 +189,7 @@ export default function NewsPage() {
                     }}
                   >
                     <img
-                      src={item.image}
+                      src={item.imageUrl}
                       alt=""
                       style={{
                         width: '100%',
@@ -227,7 +214,7 @@ export default function NewsPage() {
                     {item.title}
                   </h3>
 
-                  {item.summary && (
+                  {item.description && (
                     <p
                       style={{
                         fontSize: 13,
@@ -241,7 +228,7 @@ export default function NewsPage() {
                         WebkitBoxOrient: 'vertical',
                       }}
                     >
-                      {item.summary}
+                      {item.description}
                     </p>
                   )}
 
@@ -262,10 +249,10 @@ export default function NewsPage() {
                         color: '#22d3ee',
                       }}
                     >
-                      {item.source}
+                      {item.metaLeft || item.subtitle}
                     </span>
                     <span style={{ color: 'rgba(255,255,255,0.4)' }}>
-                      {formatDate(item.publishedAt)}
+                      {item.metaRight || formatDate(item.publishedAt)}
                     </span>
                     <span style={{ color: '#22d3ee', marginLeft: 'auto' }}>
                       READ →

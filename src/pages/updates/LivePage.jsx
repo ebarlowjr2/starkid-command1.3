@@ -1,5 +1,7 @@
 import { useNavigate } from 'react-router-dom'
 import { useState, useEffect, useRef } from 'react'
+import { YOUTUBE_CHANNELS } from '../../config/youtubeChannels'
+import { normalizeYouTubeLiveCards, timeAgo } from '../../utils/normalize'
 
 export default function LivePage() {
   const navigate = useNavigate()
@@ -27,7 +29,8 @@ export default function LivePage() {
       const response = await fetch('/api/youtube-live')
       if (!response.ok) throw new Error('Failed to fetch live status')
       const data = await response.json()
-      setChannels(data.channels || [])
+      const normalizedCards = normalizeYouTubeLiveCards(YOUTUBE_CHANNELS, data)
+      setChannels(normalizedCards)
       setLastChecked(data.checkedAt)
       setApiConfigured(data.apiConfigured !== false)
       setError(null)
@@ -44,15 +47,7 @@ export default function LivePage() {
 
   const formatTimeSince = (dateString) => {
     if (!dateString) return null
-    const date = new Date(dateString)
-    const now = new Date()
-    const diffMs = now - date
-    const diffMins = Math.floor(diffMs / (1000 * 60))
-    const diffHours = Math.floor(diffMs / (1000 * 60 * 60))
-
-    if (diffMins < 1) return 'Just started'
-    if (diffMins < 60) return `Live for ${diffMins}m`
-    return `Live for ${diffHours}h ${diffMins % 60}m`
+    return timeAgo(dateString)
   }
 
   return (
