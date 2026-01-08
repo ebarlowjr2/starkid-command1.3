@@ -15,6 +15,33 @@ export const ARTEMIS_PROGRAM = {
   description: 'NASA\'s Artemis program will land the first woman and first person of color on the Moon, using innovative technologies to explore more of the lunar surface than ever before.',
 }
 
+export const ARTEMIS_IMAGES = {
+  slsLaunch: {
+    url: 'https://www.nasa.gov/wp-content/uploads/2022/11/artemis-i-launch-nhq202211160029.jpg',
+    alt: 'Artemis I SLS Launch',
+    caption: 'Space Launch System lifts off from Kennedy Space Center',
+    credit: 'NASA/Bill Ingalls',
+  },
+  orionMoon: {
+    url: 'https://www.nasa.gov/wp-content/uploads/2022/11/art001e000672-orig.jpg',
+    alt: 'Orion spacecraft with Moon',
+    caption: 'Orion spacecraft captures the Moon during Artemis I',
+    credit: 'NASA',
+  },
+  orionEarth: {
+    url: 'https://www.nasa.gov/wp-content/uploads/2022/11/art001e002132-orig.jpg',
+    alt: 'Orion spacecraft with Earth',
+    caption: 'Earth rises behind Orion during lunar flyby',
+    credit: 'NASA',
+  },
+  slsRollout: {
+    url: 'https://www.nasa.gov/wp-content/uploads/2022/08/ksc-20220816-ph-kls01-0001orig.jpg',
+    alt: 'SLS on launch pad',
+    caption: 'SLS and Orion on Launch Pad 39B',
+    credit: 'NASA/Kim Shiflett',
+  },
+}
+
 export const ARTEMIS_ROCKETS = {
   sls: {
     id: 'sls',

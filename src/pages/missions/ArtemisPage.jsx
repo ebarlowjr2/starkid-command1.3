@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
   ARTEMIS_PROGRAM,
+  ARTEMIS_IMAGES,
   ARTEMIS_MISSIONS,
   ARTEMIS_ROCKETS,
   ARTEMIS_SPACECRAFT,
@@ -75,6 +76,130 @@ export default function ArtemisPage() {
         >
           {ARTEMIS_PROGRAM.subtitle}
         </p>
+      </div>
+
+      {/* Hero Image Gallery */}
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+          gap: 16,
+          marginBottom: 32,
+        }}
+      >
+        {/* SLS Launch Image */}
+        <div
+          style={{
+            position: 'relative',
+            borderRadius: 16,
+            overflow: 'hidden',
+            background: 'rgba(0,0,0,0.4)',
+            border: '1px solid rgba(249, 115, 22, 0.3)',
+          }}
+        >
+          <img
+            src={ARTEMIS_IMAGES.slsLaunch.url}
+            alt={ARTEMIS_IMAGES.slsLaunch.alt}
+            style={{
+              width: '100%',
+              height: 280,
+              objectFit: 'cover',
+              display: 'block',
+            }}
+            onError={(e) => {
+              e.target.style.display = 'none'
+              e.target.nextSibling.style.display = 'flex'
+            }}
+          />
+          <div
+            style={{
+              display: 'none',
+              height: 280,
+              alignItems: 'center',
+              justifyContent: 'center',
+              background: 'linear-gradient(135deg, rgba(249, 115, 22, 0.1), rgba(249, 115, 22, 0.05))',
+              color: 'rgba(255,255,255,0.4)',
+              fontSize: 14,
+              fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace',
+            }}
+          >
+            SLS LAUNCH IMAGE
+          </div>
+          <div
+            style={{
+              position: 'absolute',
+              bottom: 0,
+              left: 0,
+              right: 0,
+              padding: '12px 16px',
+              background: 'linear-gradient(transparent, rgba(0,0,0,0.9))',
+            }}
+          >
+            <div style={{ fontSize: 12, fontWeight: 600, color: '#f97316', marginBottom: 2 }}>
+              SPACE LAUNCH SYSTEM
+            </div>
+            <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.6)', fontFamily: 'monospace' }}>
+              {ARTEMIS_IMAGES.slsLaunch.caption}
+            </div>
+          </div>
+        </div>
+
+        {/* Orion with Moon Image */}
+        <div
+          style={{
+            position: 'relative',
+            borderRadius: 16,
+            overflow: 'hidden',
+            background: 'rgba(0,0,0,0.4)',
+            border: '1px solid rgba(34, 211, 238, 0.3)',
+          }}
+        >
+          <img
+            src={ARTEMIS_IMAGES.orionMoon.url}
+            alt={ARTEMIS_IMAGES.orionMoon.alt}
+            style={{
+              width: '100%',
+              height: 280,
+              objectFit: 'cover',
+              display: 'block',
+            }}
+            onError={(e) => {
+              e.target.style.display = 'none'
+              e.target.nextSibling.style.display = 'flex'
+            }}
+          />
+          <div
+            style={{
+              display: 'none',
+              height: 280,
+              alignItems: 'center',
+              justifyContent: 'center',
+              background: 'linear-gradient(135deg, rgba(34, 211, 238, 0.1), rgba(34, 211, 238, 0.05))',
+              color: 'rgba(255,255,255,0.4)',
+              fontSize: 14,
+              fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace',
+            }}
+          >
+            ORION SPACECRAFT IMAGE
+          </div>
+          <div
+            style={{
+              position: 'absolute',
+              bottom: 0,
+              left: 0,
+              right: 0,
+              padding: '12px 16px',
+              background: 'linear-gradient(transparent, rgba(0,0,0,0.9))',
+            }}
+          >
+            <div style={{ fontSize: 12, fontWeight: 600, color: '#22d3ee', marginBottom: 2 }}>
+              ORION SPACECRAFT
+            </div>
+            <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.6)', fontFamily: 'monospace' }}>
+              {ARTEMIS_IMAGES.orionMoon.caption}
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* Program Status Panel */}
