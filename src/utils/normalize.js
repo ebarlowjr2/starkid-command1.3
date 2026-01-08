@@ -102,11 +102,13 @@ export function normalizeYouTubeLiveCards(channelsConfig, livePayload) {
       id: `yt:${ch.channelId}`,
       kind: 'youtube',
       title: ch.name,
+      name: ch.name,
       subtitle: ch.focus ? ch.focus.toUpperCase() : undefined,
       description: isLive
         ? (live?.liveTitle ?? 'LIVE NOW')
         : 'Offline — monitoring for live events.',
       href: liveUrl,
+      liveUrl: liveUrl,
       imageUrl: live?.thumbnail,
       badge: isLive ? 'LIVE' : undefined,
       metaLeft: isLive ? 'LIVE NOW' : 'STATUS: OFFLINE',
@@ -119,6 +121,8 @@ export function normalizeYouTubeLiveCards(channelsConfig, livePayload) {
       handle: ch.handle,
       isLive,
       liveVideoId: videoId,
+      liveTitle: live?.liveTitle,
+      startedAt: startedIso,
     }
   })
 
