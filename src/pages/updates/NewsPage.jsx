@@ -3,9 +3,10 @@ import { useState, useEffect } from 'react'
 
 const NEWS_CATEGORIES = [
   { id: 'all', label: 'All Sources' },
-  { id: 'agency', label: 'Space Agencies' },
-  { id: 'company', label: 'Companies' },
-  { id: 'media', label: 'News Media' },
+  { id: 'official', label: 'Official Sources' },
+  { id: 'launch', label: 'Launch Coverage' },
+  { id: 'astronomy', label: 'Astronomy' },
+  { id: 'journalism', label: 'News Media' },
 ]
 
 export default function NewsPage() {
