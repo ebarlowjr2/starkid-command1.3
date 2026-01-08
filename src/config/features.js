@@ -36,6 +36,15 @@ export const FEATURES = [
     color: "#f97316",
   },
   {
+    id: "artemis",
+    title: "Artemis Program",
+    description: "Mission control dashboard for NASA's lunar program. Track Artemis I-IV, crew, and systems.",
+    route: "/missions/artemis",
+    thumbnail: "/thumbs/artemis.png",
+    status: "live",
+    color: "#3b82f6",
+  },
+  {
     id: "beyond",
     title: "Beyond Our Solar System",
     description: "Explore confirmed exoplanets by distance, star type, and discovery method.",

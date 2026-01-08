@@ -44,6 +44,7 @@ function FeatureCard({ feature, onNavigate }) {
           {feature.id === "solar-map" && "🌌"}
           {feature.id === "planets" && "🪐"}
           {feature.id === "rockets" && "🚀"}
+          {feature.id === "artemis" && "🌙"}
           {feature.id === "beyond" && "✨"}
           {feature.id === "sky-events" && "🌠"}
           {feature.id === "tonights-mission" && "🔭"}
