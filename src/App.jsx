@@ -23,6 +23,8 @@ import BlogDetailPage from './pages/updates/BlogDetailPage.jsx'
 import LivePage from './pages/updates/LivePage.jsx'
 import XPage from './pages/updates/XPage.jsx'
 import ArtemisPage from './pages/missions/ArtemisPage.jsx'
+import SLSDetailPage from './pages/missions/SLSDetailPage.jsx'
+import OrionDetailPage from './pages/missions/OrionDetailPage.jsx'
 
 export default function App() {
   return (
@@ -178,6 +180,8 @@ export default function App() {
                                       <Route path="/updates/live" element={<LivePage />} />
                                       <Route path="/updates/x" element={<XPage />} />
                                       <Route path="/missions/artemis" element={<ArtemisPage />} />
+                                      <Route path="/missions/artemis/sls" element={<SLSDetailPage />} />
+                                      <Route path="/missions/artemis/orion" element={<OrionDetailPage />} />
                                     </Routes>
                 </main>
 

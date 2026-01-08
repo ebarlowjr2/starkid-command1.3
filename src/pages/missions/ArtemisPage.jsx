@@ -89,12 +89,23 @@ export default function ArtemisPage() {
       >
         {/* SLS Launch Image */}
         <div
+          onClick={() => navigate('/missions/artemis/sls')}
           style={{
             position: 'relative',
             borderRadius: 16,
             overflow: 'hidden',
             background: 'rgba(0,0,0,0.4)',
             border: '1px solid rgba(249, 115, 22, 0.3)',
+            cursor: 'pointer',
+            transition: 'all 0.2s ease',
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.transform = 'scale(1.02)'
+            e.currentTarget.style.borderColor = 'rgba(249, 115, 22, 0.6)'
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.transform = 'scale(1)'
+            e.currentTarget.style.borderColor = 'rgba(249, 115, 22, 0.3)'
           }}
         >
           <img
@@ -141,17 +152,31 @@ export default function ArtemisPage() {
             <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.6)', fontFamily: 'monospace' }}>
               {ARTEMIS_IMAGES.slsLaunch.caption}
             </div>
+            <div style={{ fontSize: 10, color: '#f97316', marginTop: 8, fontFamily: 'monospace' }}>
+              CLICK FOR DETAILS →
+            </div>
           </div>
         </div>
 
         {/* Orion with Earth Image */}
         <div
+          onClick={() => navigate('/missions/artemis/orion')}
           style={{
             position: 'relative',
             borderRadius: 16,
             overflow: 'hidden',
             background: 'rgba(0,0,0,0.4)',
             border: '1px solid rgba(34, 211, 238, 0.3)',
+            cursor: 'pointer',
+            transition: 'all 0.2s ease',
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.transform = 'scale(1.02)'
+            e.currentTarget.style.borderColor = 'rgba(34, 211, 238, 0.6)'
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.transform = 'scale(1)'
+            e.currentTarget.style.borderColor = 'rgba(34, 211, 238, 0.3)'
           }}
         >
           <img
@@ -197,6 +222,9 @@ export default function ArtemisPage() {
             </div>
             <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.6)', fontFamily: 'monospace' }}>
               {ARTEMIS_IMAGES.orionEarth.caption}
+            </div>
+            <div style={{ fontSize: 10, color: '#22d3ee', marginTop: 8, fontFamily: 'monospace' }}>
+              CLICK FOR DETAILS →
             </div>
           </div>
         </div>
