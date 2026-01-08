@@ -22,6 +22,7 @@ import BlogListPage from './pages/updates/BlogListPage.jsx'
 import BlogDetailPage from './pages/updates/BlogDetailPage.jsx'
 import LivePage from './pages/updates/LivePage.jsx'
 import XPage from './pages/updates/XPage.jsx'
+import ArtemisPage from './pages/missions/ArtemisPage.jsx'
 
 export default function App() {
   return (
@@ -176,6 +177,7 @@ export default function App() {
                                       <Route path="/updates/blog/:slug" element={<BlogDetailPage />} />
                                       <Route path="/updates/live" element={<LivePage />} />
                                       <Route path="/updates/x" element={<XPage />} />
+                                      <Route path="/missions/artemis" element={<ArtemisPage />} />
                                     </Routes>
                 </main>
 
