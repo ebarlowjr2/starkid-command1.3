@@ -144,7 +144,7 @@ export default function ArtemisPage() {
           </div>
         </div>
 
-        {/* Orion with Moon Image */}
+        {/* Orion with Earth Image */}
         <div
           style={{
             position: 'relative',
@@ -155,8 +155,8 @@ export default function ArtemisPage() {
           }}
         >
           <img
-            src={ARTEMIS_IMAGES.orionMoon.url}
-            alt={ARTEMIS_IMAGES.orionMoon.alt}
+            src={ARTEMIS_IMAGES.orionEarth.url}
+            alt={ARTEMIS_IMAGES.orionEarth.alt}
             style={{
               width: '100%',
               height: 280,
@@ -196,7 +196,7 @@ export default function ArtemisPage() {
               ORION SPACECRAFT
             </div>
             <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.6)', fontFamily: 'monospace' }}>
-              {ARTEMIS_IMAGES.orionMoon.caption}
+              {ARTEMIS_IMAGES.orionEarth.caption}
             </div>
           </div>
         </div>

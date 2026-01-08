@@ -17,28 +17,16 @@ export const ARTEMIS_PROGRAM = {
 
 export const ARTEMIS_IMAGES = {
   slsLaunch: {
-    url: 'https://www.nasa.gov/wp-content/uploads/2022/11/artemis-i-launch-nhq202211160029.jpg',
+    url: '/images/artemis/sls-launch.jpg',
     alt: 'Artemis I SLS Launch',
     caption: 'Space Launch System lifts off from Kennedy Space Center',
-    credit: 'NASA/Bill Ingalls',
-  },
-  orionMoon: {
-    url: 'https://www.nasa.gov/wp-content/uploads/2022/11/art001e000672-orig.jpg',
-    alt: 'Orion spacecraft with Moon',
-    caption: 'Orion spacecraft captures the Moon during Artemis I',
-    credit: 'NASA',
+    credit: 'NASA/Joel Kowsky',
   },
   orionEarth: {
-    url: 'https://www.nasa.gov/wp-content/uploads/2022/11/art001e002132-orig.jpg',
-    alt: 'Orion spacecraft with Earth',
-    caption: 'Earth rises behind Orion during lunar flyby',
+    url: '/images/artemis/orion-earth.jpg',
+    alt: 'Orion spacecraft with Earth and Moon',
+    caption: 'Orion at maximum distance from Earth during Artemis I',
     credit: 'NASA',
-  },
-  slsRollout: {
-    url: 'https://www.nasa.gov/wp-content/uploads/2022/08/ksc-20220816-ph-kls01-0001orig.jpg',
-    alt: 'SLS on launch pad',
-    caption: 'SLS and Orion on Launch Pad 39B',
-    credit: 'NASA/Kim Shiflett',
   },
 }
 
