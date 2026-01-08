@@ -16,6 +16,11 @@ import RocketsHubPage from './pages/rockets/RocketsHubPage.jsx'
 import RocketDetailPage from './pages/rockets/RocketDetailPage.jsx'
 import SpacecraftHubPage from './pages/rockets/SpacecraftHubPage.jsx'
 import SpacecraftDetailPage from './pages/rockets/SpacecraftDetailPage.jsx'
+import UpdatesHubPage from './pages/updates/UpdatesHubPage.jsx'
+import NewsPage from './pages/updates/NewsPage.jsx'
+import BlogListPage from './pages/updates/BlogListPage.jsx'
+import BlogDetailPage from './pages/updates/BlogDetailPage.jsx'
+import LivePage from './pages/updates/LivePage.jsx'
 
 export default function App() {
   return (
@@ -117,19 +122,31 @@ export default function App() {
               >
                 Beyond Our Solar System
               </NavLink>
-              <NavLink
-                to="/rockets"
-                className={({ isActive }) =>
-                  `px-3 py-1.5 rounded border transition-all ${
-                    isActive 
-                      ? 'bg-orange-500/30 border-orange-400 text-orange-200 shadow-md shadow-orange-500/30' 
-                      : 'bg-black/40 border-orange-500/40 text-orange-300 hover:bg-orange-500/10'
-                  }`
-                }
-              >
-                Rocket Science
-              </NavLink>
-            </nav>
+                          <NavLink
+                            to="/rockets"
+                            className={({ isActive }) =>
+                              `px-3 py-1.5 rounded border transition-all ${
+                                isActive 
+                                  ? 'bg-orange-500/30 border-orange-400 text-orange-200 shadow-md shadow-orange-500/30' 
+                                  : 'bg-black/40 border-orange-500/40 text-orange-300 hover:bg-orange-500/10'
+                              }`
+                            }
+                          >
+                            Rocket Science
+                          </NavLink>
+                          <NavLink
+                            to="/updates"
+                            className={({ isActive }) =>
+                              `px-3 py-1.5 rounded border transition-all ${
+                                isActive 
+                                  ? 'bg-cyan-500/30 border-cyan-400 text-cyan-200 shadow-md shadow-cyan-500/30' 
+                                  : 'bg-black/40 border-cyan-500/40 text-cyan-300 hover:bg-cyan-500/10'
+                              }`
+                            }
+                          >
+                            Updates
+                          </NavLink>
+                        </nav>
           </div>
         </header>
 
@@ -150,9 +167,14 @@ export default function App() {
                     <Route path="/rockets" element={<RocketsSectionPage />} />
                     <Route path="/rockets/launch-vehicles" element={<RocketsHubPage />} />
                     <Route path="/rockets/launch-vehicles/:rocketId" element={<RocketDetailPage />} />
-                    <Route path="/rockets/spacecraft" element={<SpacecraftHubPage />} />
-                    <Route path="/rockets/spacecraft/:spacecraftId" element={<SpacecraftDetailPage />} />
-                  </Routes>
+                                      <Route path="/rockets/spacecraft" element={<SpacecraftHubPage />} />
+                                      <Route path="/rockets/spacecraft/:spacecraftId" element={<SpacecraftDetailPage />} />
+                                      <Route path="/updates" element={<UpdatesHubPage />} />
+                                      <Route path="/updates/news" element={<NewsPage />} />
+                                      <Route path="/updates/blog" element={<BlogListPage />} />
+                                      <Route path="/updates/blog/:slug" element={<BlogDetailPage />} />
+                                      <Route path="/updates/live" element={<LivePage />} />
+                                    </Routes>
                 </main>
 
         <footer className="p-4 text-center bg-gradient-to-r from-black to-zinc-900 border-t border-cyan-800 text-xs text-cyan-300">
