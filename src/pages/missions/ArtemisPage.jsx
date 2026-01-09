@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useState, useEffect } from 'react'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import {
   ARTEMIS_PROGRAM,
   ARTEMIS_IMAGES,
@@ -11,881 +11,364 @@ import {
   MISSION_STATUS_COLORS,
 } from '../../config/missions/artemis'
 
+const STATUS_DOT_STYLES = `
+@keyframes telemetryPulse {
+  0%, 100% { opacity: 0.6; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.15); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .status-dot { animation: none !important; }
+}
+`
+
+function StatusDot({ status, size = 8 }) {
+  const colors = MISSION_STATUS_COLORS[status] || MISSION_STATUS_COLORS.TBD
+  return (
+    <span
+      className="status-dot"
+      style={{
+        display: 'inline-block',
+        width: size,
+        height: size,
+        borderRadius: '50%',
+        background: colors.text,
+        animation: status === 'ACTIVE' || status === 'PLANNED' ? 'telemetryPulse 2s ease-in-out infinite' : 'none',
+      }}
+    />
+  )
+}
+
+function StatusBadge({ status, small = false }) {
+  const colors = MISSION_STATUS_COLORS[status] || MISSION_STATUS_COLORS.TBD
+  return (
+    <span
+      style={{
+        display: 'inline-flex',
+        alignItems: 'center',
+        gap: 6,
+        padding: small ? '2px 8px' : '4px 12px',
+        borderRadius: 4,
+        background: colors.bg,
+        border: `1px solid ${colors.border}`,
+        color: colors.text,
+        fontSize: small ? 10 : 11,
+        fontWeight: 700,
+        fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace',
+      }}
+    >
+      <StatusDot status={status} size={small ? 6 : 8} />
+      {status}
+    </span>
+  )
+}
+
+function ModuleCard({ title, status, children, accentColor = '#22d3ee' }) {
+  const getAccentRgb = () => {
+    if (accentColor === '#22d3ee') return '34, 211, 238'
+    if (accentColor === '#f97316') return '249, 115, 22'
+    if (accentColor === '#a855f7') return '168, 85, 247'
+    return '34, 211, 238'
+  }
+  return (
+    <div style={{ padding: 20, borderRadius: 12, background: 'rgba(0,0,0,0.4)', border: `1px solid rgba(${getAccentRgb()}, 0.2)`, backdropFilter: 'blur(8px)' }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+        <div style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.5)', fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace', letterSpacing: '0.05em' }}>MODULE: {title}</div>
+        {status && <StatusDot status={status} />}
+      </div>
+      {children}
+    </div>
+  )
+}
+
+function KeyValueRow({ label, value, tooltip }) {
+  return (
+    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '6px 0', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+      <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.5)', fontFamily: 'monospace' }} title={tooltip}>{label}</span>
+      <span style={{ fontSize: 12, color: '#fff', fontFamily: 'monospace', fontWeight: 500 }}>{value}</span>
+    </div>
+  )
+}
+
+function MissionPathDiagram({ mission }) {
+  const hasLander = mission.lander
+  const hasGateway = mission.gateway
+  const nodes = [
+    { id: 'earth', label: 'EARTH', x: 10 },
+    { id: 'tli', label: 'TLI', x: 25, tooltip: 'Trans-Lunar Injection' },
+    { id: 'lunar-orbit', label: hasGateway ? 'GATEWAY' : 'LUNAR ORBIT', x: 50 },
+  ]
+  if (hasLander) nodes.push({ id: 'surface', label: 'SURFACE', x: 65 })
+  nodes.push({ id: 'return', label: 'RETURN', x: hasLander ? 80 : 75 })
+  nodes.push({ id: 'splashdown', label: 'SPLASHDOWN', x: hasLander ? 95 : 90 })
+  return (
+    <div style={{ position: 'relative', height: 60, marginTop: 8 }}>
+      <div style={{ position: 'absolute', top: 20, left: '5%', right: '5%', height: 2, background: 'linear-gradient(90deg, #22d3ee, #a855f7)', borderRadius: 1 }} />
+      {nodes.map((node, i) => (
+        <div key={node.id} style={{ position: 'absolute', left: `${node.x}%`, top: 12, transform: 'translateX(-50%)', textAlign: 'center' }} title={node.tooltip}>
+          <div style={{ width: 16, height: 16, borderRadius: '50%', background: i === 0 ? '#22c55e' : i === nodes.length - 1 ? '#3b82f6' : '#22d3ee', border: '2px solid rgba(0,0,0,0.5)', margin: '0 auto 4px' }} />
+          <div style={{ fontSize: 8, color: 'rgba(255,255,255,0.6)', fontFamily: 'monospace', whiteSpace: 'nowrap' }}>{node.label}</div>
+        </div>
+      ))}
+    </div>
+  )
+}
+
 export default function ArtemisPage() {
   const navigate = useNavigate()
-  const [selectedMissionId, setSelectedMissionId] = useState('artemis-1')
+  const [searchParams, setSearchParams] = useSearchParams()
+  const [viewMode, setViewMode] = useState('ops')
   const [expandedKnowledge, setExpandedKnowledge] = useState(null)
+  const [lastRefresh, setLastRefresh] = useState(new Date())
+  const missionParam = searchParams.get('mission')
+  const initialMissionId = ARTEMIS_MISSIONS.find(m => m.id === missionParam)?.id || 'artemis-1'
+  const [selectedMissionId, setSelectedMissionId] = useState(initialMissionId)
+
+  useEffect(() => {
+    if (missionParam && ARTEMIS_MISSIONS.find(m => m.id === missionParam)) {
+      setSelectedMissionId(missionParam)
+    }
+  }, [missionParam])
+
+  const handleMissionSelect = (missionId) => {
+    setSelectedMissionId(missionId)
+    setSearchParams({ mission: missionId }, { replace: true })
+  }
 
   const selectedMission = ARTEMIS_MISSIONS.find((m) => m.id === selectedMissionId)
   const rocketData = selectedMission ? ARTEMIS_ROCKETS[selectedMission.rocket] : null
   const rocketConfig = rocketData?.configurations?.[selectedMission?.rocketConfig]
-
-  const getStatusStyle = (status) => {
-    const colors = MISSION_STATUS_COLORS[status] || MISSION_STATUS_COLORS.TBD
-    return {
-      background: colors.bg,
-      border: `1px solid ${colors.border}`,
-      color: colors.text,
-    }
-  }
+  const handleRefresh = () => setLastRefresh(new Date())
+  const formatTime = (date) => date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false })
 
   return (
     <div className="p-4" style={{ maxWidth: 1400, margin: '0 auto' }}>
-      {/* Back Button */}
-      <button
-        onClick={() => navigate('/explore')}
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: 8,
-          padding: '8px 16px',
-          borderRadius: 8,
-          border: '1px solid rgba(34, 211, 238, 0.3)',
-          background: 'rgba(34, 211, 238, 0.1)',
-          cursor: 'pointer',
-          color: '#22d3ee',
-          fontSize: 12,
-          fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace',
-          marginBottom: 24,
-        }}
-      >
-        ← BACK TO EXPLORE
-      </button>
-
-      {/* Program Header */}
-      <div style={{ marginBottom: 32 }}>
-        <h1
-          style={{
-            fontSize: 32,
-            fontWeight: 700,
-            color: '#fff',
-            margin: '0 0 8px',
-            fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace',
-            letterSpacing: '0.1em',
-          }}
-        >
-          {ARTEMIS_PROGRAM.name}
-        </h1>
-        <p
-          style={{
-            fontSize: 14,
-            color: 'rgba(255,255,255,0.6)',
-            margin: 0,
-            fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace',
-          }}
-        >
-          {ARTEMIS_PROGRAM.subtitle}
-        </p>
-      </div>
-
-      {/* Hero Image Gallery */}
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
-          gap: 16,
-          marginBottom: 32,
-        }}
-      >
-        {/* SLS Launch Image */}
-        <div
-          onClick={() => navigate('/missions/artemis/sls')}
-          style={{
-            position: 'relative',
-            borderRadius: 16,
-            overflow: 'hidden',
-            background: 'rgba(0,0,0,0.4)',
-            border: '1px solid rgba(249, 115, 22, 0.3)',
-            cursor: 'pointer',
-            transition: 'all 0.2s ease',
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.transform = 'scale(1.02)'
-            e.currentTarget.style.borderColor = 'rgba(249, 115, 22, 0.6)'
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.transform = 'scale(1)'
-            e.currentTarget.style.borderColor = 'rgba(249, 115, 22, 0.3)'
-          }}
-        >
-          <img
-            src={ARTEMIS_IMAGES.slsLaunch.url}
-            alt={ARTEMIS_IMAGES.slsLaunch.alt}
-            style={{
-              width: '100%',
-              height: 280,
-              objectFit: 'cover',
-              display: 'block',
-            }}
-            onError={(e) => {
-              e.target.style.display = 'none'
-              e.target.nextSibling.style.display = 'flex'
-            }}
-          />
-          <div
-            style={{
-              display: 'none',
-              height: 280,
-              alignItems: 'center',
-              justifyContent: 'center',
-              background: 'linear-gradient(135deg, rgba(249, 115, 22, 0.1), rgba(249, 115, 22, 0.05))',
-              color: 'rgba(255,255,255,0.4)',
-              fontSize: 14,
-              fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace',
-            }}
-          >
-            SLS LAUNCH IMAGE
-          </div>
-          <div
-            style={{
-              position: 'absolute',
-              bottom: 0,
-              left: 0,
-              right: 0,
-              padding: '12px 16px',
-              background: 'linear-gradient(transparent, rgba(0,0,0,0.9))',
-            }}
-          >
-            <div style={{ fontSize: 12, fontWeight: 600, color: '#f97316', marginBottom: 2 }}>
-              SPACE LAUNCH SYSTEM
-            </div>
-            <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.6)', fontFamily: 'monospace' }}>
-              {ARTEMIS_IMAGES.slsLaunch.caption}
-            </div>
-            <div style={{ fontSize: 10, color: '#f97316', marginTop: 8, fontFamily: 'monospace' }}>
-              CLICK FOR DETAILS →
-            </div>
-          </div>
+      <style>{STATUS_DOT_STYLES}</style>
+      <div style={{ position: 'sticky', top: 0, zIndex: 100, marginBottom: 24, padding: '12px 20px', borderRadius: 12, background: 'rgba(0,0,0,0.8)', backdropFilter: 'blur(12px)', border: '1px solid rgba(34, 211, 238, 0.3)', display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 24 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)', fontFamily: 'monospace' }}>PROGRAM:</span>
+          <span style={{ fontSize: 14, color: '#fff', fontWeight: 700, fontFamily: 'monospace' }}>ARTEMIS</span>
         </div>
-
-        {/* Orion with Earth Image */}
-        <div
-          onClick={() => navigate('/missions/artemis/orion')}
-          style={{
-            position: 'relative',
-            borderRadius: 16,
-            overflow: 'hidden',
-            background: 'rgba(0,0,0,0.4)',
-            border: '1px solid rgba(34, 211, 238, 0.3)',
-            cursor: 'pointer',
-            transition: 'all 0.2s ease',
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.transform = 'scale(1.02)'
-            e.currentTarget.style.borderColor = 'rgba(34, 211, 238, 0.6)'
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.transform = 'scale(1)'
-            e.currentTarget.style.borderColor = 'rgba(34, 211, 238, 0.3)'
-          }}
-        >
-          <img
-            src={ARTEMIS_IMAGES.orionEarth.url}
-            alt={ARTEMIS_IMAGES.orionEarth.alt}
-            style={{
-              width: '100%',
-              height: 280,
-              objectFit: 'cover',
-              display: 'block',
-            }}
-            onError={(e) => {
-              e.target.style.display = 'none'
-              e.target.nextSibling.style.display = 'flex'
-            }}
-          />
-          <div
-            style={{
-              display: 'none',
-              height: 280,
-              alignItems: 'center',
-              justifyContent: 'center',
-              background: 'linear-gradient(135deg, rgba(34, 211, 238, 0.1), rgba(34, 211, 238, 0.05))',
-              color: 'rgba(255,255,255,0.4)',
-              fontSize: 14,
-              fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace',
-            }}
-          >
-            ORION SPACECRAFT IMAGE
-          </div>
-          <div
-            style={{
-              position: 'absolute',
-              bottom: 0,
-              left: 0,
-              right: 0,
-              padding: '12px 16px',
-              background: 'linear-gradient(transparent, rgba(0,0,0,0.9))',
-            }}
-          >
-            <div style={{ fontSize: 12, fontWeight: 600, color: '#22d3ee', marginBottom: 2 }}>
-              ORION SPACECRAFT
-            </div>
-            <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.6)', fontFamily: 'monospace' }}>
-              {ARTEMIS_IMAGES.orionEarth.caption}
-            </div>
-            <div style={{ fontSize: 10, color: '#22d3ee', marginTop: 8, fontFamily: 'monospace' }}>
-              CLICK FOR DETAILS →
-            </div>
-          </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)', fontFamily: 'monospace' }}>STATUS:</span>
+          <StatusBadge status="ACTIVE" small />
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)', fontFamily: 'monospace' }}>MISSION:</span>
+          <span style={{ fontSize: 12, color: '#22d3ee', fontWeight: 600, fontFamily: 'monospace' }}>{selectedMission?.name}</span>
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)', fontFamily: 'monospace' }}>HARDWARE:</span>
+          <span style={{ fontSize: 11, color: '#fff', fontFamily: 'monospace' }}>SLS + ORION{selectedMission?.lander ? ' + HLS' : ''}{selectedMission?.gateway ? ' + GATEWAY' : ''}</span>
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)', fontFamily: 'monospace' }}>DESTINATION:</span>
+          <span style={{ fontSize: 11, color: '#fff', fontFamily: 'monospace' }}>{selectedMission?.gateway ? 'LUNAR GATEWAY' : selectedMission?.lander ? 'LUNAR SURFACE' : 'LUNAR ORBIT'}</span>
+        </div>
+        <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 8 }}>
+          <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)', fontFamily: 'monospace' }}>LAST REFRESH:</span>
+          <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.6)', fontFamily: 'monospace' }}>{formatTime(lastRefresh)}</span>
+          <button onClick={handleRefresh} style={{ background: 'transparent', border: 'none', color: '#22d3ee', cursor: 'pointer', padding: 4, fontSize: 14 }} title="Refresh data">↻</button>
         </div>
       </div>
-
-      {/* Program Status Panel */}
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-          gap: 16,
-          marginBottom: 32,
-          padding: 20,
-          borderRadius: 16,
-          background: 'rgba(0,0,0,0.4)',
-          border: '1px solid rgba(34, 211, 238, 0.2)',
-        }}
-      >
-        {[
-          { label: 'PROGRAM STATUS', value: ARTEMIS_PROGRAM.status },
-          { label: 'LEAD AGENCY', value: ARTEMIS_PROGRAM.leadAgency },
-          { label: 'PRIMARY ROCKET', value: 'SLS' },
-          { label: 'CREW VEHICLE', value: 'Orion' },
-          { label: 'DESTINATION', value: ARTEMIS_PROGRAM.destination },
-          { label: 'FIRST MISSION', value: ARTEMIS_PROGRAM.firstMission },
-        ].map((item) => (
-          <div key={item.label}>
-            <div
-              style={{
-                fontSize: 10,
-                color: 'rgba(255,255,255,0.4)',
-                marginBottom: 4,
-                fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace',
-              }}
-            >
-              {item.label}
-            </div>
-            <div
-              style={{
-                fontSize: 14,
-                color: item.label === 'PROGRAM STATUS' ? '#22c55e' : '#fff',
-                fontWeight: 600,
-                fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace',
-              }}
-            >
-              {item.value}
-            </div>
-          </div>
-        ))}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24, flexWrap: 'wrap', gap: 12 }}>
+        <button onClick={() => navigate('/explore')} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 16px', borderRadius: 8, border: '1px solid rgba(34, 211, 238, 0.3)', background: 'rgba(34, 211, 238, 0.1)', cursor: 'pointer', color: '#22d3ee', fontSize: 12, fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace' }}>← BACK TO EXPLORE</button>
+        <div style={{ display: 'flex', gap: 4, padding: 4, borderRadius: 8, background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(255,255,255,0.1)' }}>
+          <button onClick={() => setViewMode('ops')} style={{ padding: '8px 16px', borderRadius: 6, border: 'none', background: viewMode === 'ops' ? 'rgba(34, 211, 238, 0.3)' : 'transparent', color: viewMode === 'ops' ? '#22d3ee' : 'rgba(255,255,255,0.5)', cursor: 'pointer', fontSize: 11, fontWeight: 700, fontFamily: 'monospace' }}>OPS VIEW</button>
+          <button onClick={() => setViewMode('learn')} style={{ padding: '8px 16px', borderRadius: 6, border: 'none', background: viewMode === 'learn' ? 'rgba(168, 85, 247, 0.3)' : 'transparent', color: viewMode === 'learn' ? '#a855f7' : 'rgba(255,255,255,0.5)', cursor: 'pointer', fontSize: 11, fontWeight: 700, fontFamily: 'monospace' }}>LEARN VIEW</button>
+        </div>
       </div>
-
-      {/* Mission Selector */}
       <div style={{ marginBottom: 32 }}>
-        <h2
-          style={{
-            fontSize: 14,
-            fontWeight: 700,
-            color: 'rgba(255,255,255,0.5)',
-            marginBottom: 16,
-            fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace',
-          }}
-        >
-          MISSION SELECTOR
-        </h2>
-        <div
-          style={{
-            display: 'flex',
-            flexWrap: 'wrap',
-            gap: 12,
-          }}
-        >
-          {ARTEMIS_MISSIONS.map((mission) => (
-            <button
-              key={mission.id}
-              onClick={() => setSelectedMissionId(mission.id)}
-              style={{
-                padding: '12px 20px',
-                borderRadius: 12,
-                border: selectedMissionId === mission.id
-                  ? '2px solid #22d3ee'
-                  : '1px solid rgba(255,255,255,0.2)',
-                background: selectedMissionId === mission.id
-                  ? 'rgba(34, 211, 238, 0.2)'
-                  : 'rgba(0,0,0,0.4)',
-                cursor: 'pointer',
-                transition: 'all 0.2s',
-              }}
-            >
-              <div
-                style={{
-                  fontSize: 16,
-                  fontWeight: 700,
-                  color: selectedMissionId === mission.id ? '#22d3ee' : '#fff',
-                  marginBottom: 4,
-                  fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace',
-                }}
-              >
-                {mission.name}
-              </div>
-              <span
-                style={{
-                  ...getStatusStyle(mission.status),
-                  padding: '2px 8px',
-                  borderRadius: 4,
-                  fontSize: 10,
-                  fontWeight: 700,
-                  fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace',
-                }}
-              >
-                {mission.status}
-              </span>
+        <div style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.4)', marginBottom: 12, fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace' }}>MISSION TIMELINE</div>
+        <div style={{ display: 'flex', gap: 8, overflowX: 'auto', paddingBottom: 8 }}>
+          {ARTEMIS_MISSIONS.map((mission, index) => (
+            <button key={mission.id} onClick={() => handleMissionSelect(mission.id)} style={{ flex: '0 0 auto', minWidth: 160, padding: '16px 20px', borderRadius: 12, border: selectedMissionId === mission.id ? '2px solid #22d3ee' : '1px solid rgba(255,255,255,0.15)', background: selectedMissionId === mission.id ? 'rgba(34, 211, 238, 0.15)' : 'rgba(0,0,0,0.4)', cursor: 'pointer', transition: 'all 0.2s', position: 'relative' }}>
+              {index < ARTEMIS_MISSIONS.length - 1 && <div style={{ position: 'absolute', right: -8, top: '50%', transform: 'translateY(-50%)', width: 16, height: 2, background: 'rgba(255,255,255,0.2)', zIndex: 1 }} />}
+              <div style={{ fontSize: 16, fontWeight: 700, color: selectedMissionId === mission.id ? '#22d3ee' : '#fff', marginBottom: 8, fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace' }}>{mission.name}</div>
+              <StatusBadge status={mission.status} small />
+              <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.5)', marginTop: 8, fontFamily: 'monospace' }}>{mission.missionType}</div>
             </button>
           ))}
         </div>
       </div>
-
-      {/* Selected Mission Detail */}
       {selectedMission && (
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))',
-            gap: 24,
-            marginBottom: 32,
-          }}
-        >
-          {/* Mission Overview */}
-          <div
-            style={{
-              padding: 24,
-              borderRadius: 16,
-              background: 'rgba(0,0,0,0.4)',
-              border: '1px solid rgba(34, 211, 238, 0.2)',
-            }}
-          >
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))', gap: 20, marginBottom: 32 }}>
+          <ModuleCard title="MISSION BRIEF" status={selectedMission.status}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
-              <h3
-                style={{
-                  fontSize: 20,
-                  fontWeight: 700,
-                  color: '#fff',
-                  margin: 0,
-                  fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace',
-                }}
-              >
-                {selectedMission.name}
-              </h3>
-              <span
-                style={{
-                  ...getStatusStyle(selectedMission.status),
-                  padding: '4px 10px',
-                  borderRadius: 6,
-                  fontSize: 11,
-                  fontWeight: 700,
-                  fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace',
-                }}
-              >
-                {selectedMission.status}
-              </span>
+              <h2 style={{ fontSize: 24, fontWeight: 700, color: '#fff', margin: 0, fontFamily: 'monospace' }}>{selectedMission.name}</h2>
+              <StatusBadge status={selectedMission.status} />
             </div>
-
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 20 }}>
-              <div>
-                <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)', marginBottom: 2, fontFamily: 'monospace' }}>
-                  MISSION TYPE
-                </div>
-                <div style={{ fontSize: 13, color: '#fff', fontFamily: 'monospace' }}>
-                  {selectedMission.missionType}
-                </div>
-              </div>
-              <div>
-                <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)', marginBottom: 2, fontFamily: 'monospace' }}>
-                  {selectedMission.launchDate ? 'LAUNCH DATE' : 'TARGET LAUNCH'}
-                </div>
-                <div style={{ fontSize: 13, color: '#fff', fontFamily: 'monospace' }}>
-                  {selectedMission.launchDate || selectedMission.targetLaunch}
-                </div>
-              </div>
-              <div>
-                <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)', marginBottom: 2, fontFamily: 'monospace' }}>
-                  DURATION
-                </div>
-                <div style={{ fontSize: 13, color: '#fff', fontFamily: 'monospace' }}>
-                  {selectedMission.duration}
-                </div>
-              </div>
-              <div>
-                <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)', marginBottom: 2, fontFamily: 'monospace' }}>
-                  ROCKET
-                </div>
-                <div style={{ fontSize: 13, color: '#fff', fontFamily: 'monospace' }}>
-                  SLS {rocketConfig?.name}
-                </div>
-              </div>
+            <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.8)', lineHeight: 1.6, margin: '0 0 16px', fontFamily: 'system-ui' }}>{selectedMission.summary}</p>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+              <KeyValueRow label="TYPE" value={selectedMission.missionType} />
+              <KeyValueRow label="DURATION" value={selectedMission.duration} />
             </div>
-
-            {/* Mission Highlights */}
-            {selectedMission.highlights && (
-              <div
-                style={{
-                  display: 'grid',
-                  gridTemplateColumns: 'repeat(2, 1fr)',
-                  gap: 8,
-                  padding: 12,
-                  borderRadius: 8,
-                  background: 'rgba(34, 211, 238, 0.05)',
-                  border: '1px solid rgba(34, 211, 238, 0.1)',
-                }}
-              >
-                {selectedMission.highlights.map((h) => (
-                  <div key={h.label}>
-                    <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.4)', fontFamily: 'monospace' }}>
-                      {h.label.toUpperCase()}
-                    </div>
-                    <div style={{ fontSize: 12, color: '#22d3ee', fontWeight: 600, fontFamily: 'monospace' }}>
-                      {h.value}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-
-          {/* Mission Objectives */}
-          <div
-            style={{
-              padding: 24,
-              borderRadius: 16,
-              background: 'rgba(0,0,0,0.4)',
-              border: '1px solid rgba(34, 211, 238, 0.2)',
-            }}
-          >
-            <h3
-              style={{
-                fontSize: 14,
-                fontWeight: 700,
-                color: 'rgba(255,255,255,0.5)',
-                marginBottom: 16,
-                fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace',
-              }}
-            >
-              PRIMARY OBJECTIVES
-            </h3>
+          </ModuleCard>
+          <ModuleCard title="PRIMARY OBJECTIVES" status="NOMINAL">
             <ul style={{ margin: 0, padding: 0, listStyle: 'none' }}>
-              {selectedMission.objectives.map((obj, i) => (
-                <li
-                  key={i}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'flex-start',
-                    gap: 8,
-                    marginBottom: 10,
-                    fontSize: 13,
-                    color: 'rgba(255,255,255,0.8)',
-                    lineHeight: 1.5,
-                  }}
-                >
-                  <span style={{ color: '#22d3ee', fontWeight: 700 }}>•</span>
+              {selectedMission.objectives.slice(0, viewMode === 'ops' ? 4 : undefined).map((obj, i) => (
+                <li key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 10, marginBottom: 10, fontSize: 13, color: 'rgba(255,255,255,0.8)', lineHeight: 1.5 }}>
+                  <span style={{ color: '#22d3ee', fontWeight: 700, fontFamily: 'monospace' }}>{String(i + 1).padStart(2, '0')}</span>
                   {obj}
                 </li>
               ))}
             </ul>
-
-            {/* Achievements (for completed missions) */}
-            {selectedMission.achievements && (
-              <>
-                <h3
-                  style={{
-                    fontSize: 14,
-                    fontWeight: 700,
-                    color: '#22c55e',
-                    marginTop: 24,
-                    marginBottom: 16,
-                    fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace',
-                  }}
-                >
-                  ACHIEVEMENTS
-                </h3>
-                <ul style={{ margin: 0, padding: 0, listStyle: 'none' }}>
-                  {selectedMission.achievements.map((ach, i) => (
-                    <li
-                      key={i}
-                      style={{
-                        display: 'flex',
-                        alignItems: 'flex-start',
-                        gap: 8,
-                        marginBottom: 10,
-                        fontSize: 13,
-                        color: 'rgba(255,255,255,0.8)',
-                        lineHeight: 1.5,
-                      }}
-                    >
-                      <span style={{ color: '#22c55e', fontWeight: 700 }}>+</span>
-                      {ach}
-                    </li>
-                  ))}
-                </ul>
-              </>
+            {selectedMission.achievements && viewMode === 'learn' && (
+              <div style={{ marginTop: 16, paddingTop: 16, borderTop: '1px solid rgba(255,255,255,0.1)' }}>
+                <div style={{ fontSize: 11, color: '#22c55e', fontWeight: 700, marginBottom: 8, fontFamily: 'monospace' }}>ACHIEVEMENTS</div>
+                {selectedMission.achievements.map((ach, i) => (
+                  <div key={i} style={{ fontSize: 12, color: 'rgba(255,255,255,0.7)', marginBottom: 6, paddingLeft: 12, borderLeft: '2px solid #22c55e' }}>{ach}</div>
+                ))}
+              </div>
             )}
-          </div>
-        </div>
-      )}
-
-      {/* Crew Section (only for crewed missions) */}
-      {selectedMission?.crew && (
-        <div
-          style={{
-            marginBottom: 32,
-            padding: 24,
-            borderRadius: 16,
-            background: 'rgba(0,0,0,0.4)',
-            border: '1px solid rgba(34, 211, 238, 0.2)',
-          }}
-        >
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 20 }}>
-            <h3
-              style={{
-                fontSize: 14,
-                fontWeight: 700,
-                color: 'rgba(255,255,255,0.5)',
-                margin: 0,
-                fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace',
-              }}
-            >
-              CREW MODULE
-            </h3>
-            <span
-              style={{
-                ...getStatusStyle(selectedMission.crew.status),
-                padding: '3px 8px',
-                borderRadius: 4,
-                fontSize: 10,
-                fontWeight: 700,
-                fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace',
-              }}
-            >
-              {selectedMission.crew.status}
-            </span>
-            <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', fontFamily: 'monospace' }}>
-              {selectedMission.crew.size} ASTRONAUTS
-            </span>
-          </div>
-
-          {selectedMission.crew.members ? (
-            <div
-              style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
-                gap: 16,
-              }}
-            >
-              {selectedMission.crew.members.map((member) => (
-                <div
-                  key={member.name}
-                  style={{
-                    padding: 16,
-                    borderRadius: 12,
-                    background: 'rgba(34, 211, 238, 0.05)',
-                    border: '1px solid rgba(34, 211, 238, 0.15)',
-                  }}
-                >
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 8 }}>
-                    <div
-                      style={{
-                        width: 40,
-                        height: 40,
-                        borderRadius: '50%',
-                        background: 'rgba(34, 211, 238, 0.2)',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        fontSize: 16,
-                        fontWeight: 700,
-                        color: '#22d3ee',
-                      }}
-                    >
-                      {member.name.charAt(0)}
-                    </div>
-                    <div>
-                      <div style={{ fontSize: 14, fontWeight: 700, color: '#fff' }}>
-                        {member.name}
-                      </div>
-                      <div style={{ fontSize: 11, color: '#22d3ee', fontFamily: 'monospace' }}>
-                        {member.role}
-                      </div>
-                    </div>
+          </ModuleCard>
+          <ModuleCard title="KEY DATES" status={selectedMission.status === 'COMPLETED' ? 'COMPLETED' : 'PLANNED'}>
+            <KeyValueRow label="LAUNCH WINDOW" value={selectedMission.dates?.launchWindow || selectedMission.launchDate || selectedMission.targetLaunch} />
+            {selectedMission.dates?.milestones && (
+              <div style={{ marginTop: 12 }}>
+                <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)', marginBottom: 8, fontFamily: 'monospace' }}>MILESTONES</div>
+                {selectedMission.dates.milestones.slice(0, viewMode === 'ops' ? 4 : undefined).map((m, i) => (
+                  <div key={i} style={{ display: 'flex', gap: 12, padding: '6px 0', borderBottom: '1px solid rgba(255,255,255,0.05)', fontSize: 11 }}>
+                    <span style={{ color: '#22d3ee', fontFamily: 'monospace', minWidth: 80 }}>{m.date}</span>
+                    <span style={{ color: 'rgba(255,255,255,0.7)' }}>{m.event}</span>
                   </div>
-                  <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.5)', fontFamily: 'monospace' }}>
-                    {member.agency}
-                    {member.previousMissions.length > 0 && (
-                      <span> • {member.previousMissions.length} prior mission(s)</span>
-                    )}
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div
-              style={{
-                padding: 20,
-                textAlign: 'center',
-                color: 'rgba(255,255,255,0.4)',
-                fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace',
-                fontSize: 12,
-              }}
-            >
-              CREW ASSIGNMENTS PENDING
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* Rocket & Spacecraft Section */}
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))',
-          gap: 24,
-          marginBottom: 32,
-        }}
-      >
-        {/* Rocket */}
-        {rocketData && (
-          <div
-            style={{
-              padding: 24,
-              borderRadius: 16,
-              background: 'rgba(0,0,0,0.4)',
-              border: '1px solid rgba(249, 115, 22, 0.3)',
-            }}
-          >
-            <h3
-              style={{
-                fontSize: 14,
-                fontWeight: 700,
-                color: '#f97316',
-                marginBottom: 16,
-                fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace',
-              }}
-            >
-              LAUNCH VEHICLE
-            </h3>
-            <div style={{ fontSize: 18, fontWeight: 700, color: '#fff', marginBottom: 4 }}>
-              {rocketData.name}
-            </div>
-            <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)', marginBottom: 16, fontFamily: 'monospace' }}>
-              {rocketConfig?.name} Configuration
-            </div>
-
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-              {[
-                { label: 'THRUST', value: rocketConfig?.thrust },
-                { label: 'HEIGHT', value: rocketConfig?.height },
-                { label: 'PAYLOAD (LEO)', value: rocketConfig?.payload_leo },
-                { label: 'PAYLOAD (TLI)', value: rocketConfig?.payload_tli },
-                { label: 'STAGES', value: rocketConfig?.stages },
-                { label: 'FIRST FLIGHT', value: rocketData.firstFlight },
-              ].map((item) => (
-                <div key={item.label}>
-                  <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.4)', fontFamily: 'monospace' }}>
-                    {item.label}
-                  </div>
-                  <div style={{ fontSize: 13, color: '#fff', fontFamily: 'monospace' }}>
-                    {item.value}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Spacecraft */}
-        <div
-          style={{
-            padding: 24,
-            borderRadius: 16,
-            background: 'rgba(0,0,0,0.4)',
-            border: '1px solid rgba(34, 211, 238, 0.3)',
-          }}
-        >
-          <h3
-            style={{
-              fontSize: 14,
-              fontWeight: 700,
-              color: '#22d3ee',
-              marginBottom: 16,
-              fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace',
-            }}
-          >
-            SPACECRAFT
-          </h3>
-
-          {selectedMission?.spacecraft.map((scId) => {
-            const sc = ARTEMIS_SPACECRAFT[scId]
-            if (!sc) return null
-            return (
-              <div key={sc.id} style={{ marginBottom: 16 }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
-                  <div style={{ fontSize: 16, fontWeight: 700, color: '#fff' }}>
-                    {sc.name}
-                  </div>
-                  <span
-                    style={{
-                      ...getStatusStyle(sc.status),
-                      padding: '2px 6px',
-                      borderRadius: 4,
-                      fontSize: 9,
-                      fontWeight: 700,
-                      fontFamily: 'monospace',
-                    }}
-                  >
-                    {sc.status}
-                  </span>
-                </div>
-                <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)', marginBottom: 8, fontFamily: 'monospace' }}>
-                  {sc.manufacturer || sc.type}
-                </div>
-                {sc.capabilities && (
-                  <ul style={{ margin: 0, padding: 0, listStyle: 'none' }}>
-                    {sc.capabilities.slice(0, 3).map((cap, i) => (
-                      <li
-                        key={i}
-                        style={{
-                          fontSize: 11,
-                          color: 'rgba(255,255,255,0.6)',
-                          marginBottom: 4,
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: 6,
-                        }}
-                      >
-                        <span style={{ color: '#22d3ee' }}>•</span>
-                        {cap}
-                      </li>
-                    ))}
-                  </ul>
-                )}
+                ))}
               </div>
-            )
-          })}
-        </div>
-      </div>
-
-      {/* Systems Section */}
-      <div style={{ marginBottom: 32 }}>
-        <h2
-          style={{
-            fontSize: 14,
-            fontWeight: 700,
-            color: 'rgba(255,255,255,0.5)',
-            marginBottom: 16,
-            fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace',
-          }}
-        >
-          MISSION SYSTEMS
-        </h2>
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
-            gap: 16,
-          }}
-        >
-          {ARTEMIS_SYSTEMS.map((sys) => (
-            <div
-              key={sys.id}
-              style={{
-                padding: 16,
-                borderRadius: 12,
-                background: 'rgba(0,0,0,0.4)',
-                border: '1px solid rgba(34, 211, 238, 0.15)',
-              }}
-            >
-              <div
-                style={{
-                  fontSize: 13,
-                  fontWeight: 700,
-                  color: '#22d3ee',
-                  marginBottom: 8,
-                  fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace',
-                }}
-              >
-                {sys.name}
+            )}
+          </ModuleCard>
+          <ModuleCard title="HARDWARE STACK" status="NOMINAL" accentColor="#f97316">
+            <div style={{ marginBottom: 16 }}>
+              <div onClick={() => navigate('/missions/artemis/sls')} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 12px', borderRadius: 8, background: 'rgba(249, 115, 22, 0.1)', border: '1px solid rgba(249, 115, 22, 0.2)', cursor: 'pointer', marginBottom: 8 }}>
+                <div>
+                  <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)', fontFamily: 'monospace' }}>ROCKET</div>
+                  <div style={{ fontSize: 13, color: '#f97316', fontWeight: 600, fontFamily: 'monospace' }}>SLS {rocketConfig?.name}</div>
+                </div>
+                <span style={{ color: '#f97316', fontSize: 14 }}>→</span>
               </div>
-              <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.7)', marginBottom: 8, lineHeight: 1.5 }}>
-                {sys.description}
+              <div onClick={() => navigate('/missions/artemis/orion')} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 12px', borderRadius: 8, background: 'rgba(34, 211, 238, 0.1)', border: '1px solid rgba(34, 211, 238, 0.2)', cursor: 'pointer', marginBottom: 8 }}>
+                <div>
+                  <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)', fontFamily: 'monospace' }}>SPACECRAFT</div>
+                  <div style={{ fontSize: 13, color: '#22d3ee', fontWeight: 600, fontFamily: 'monospace' }}>Orion MPCV</div>
+                </div>
+                <span style={{ color: '#22d3ee', fontSize: 14 }}>→</span>
               </div>
-              <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', fontStyle: 'italic' }}>
-                {sys.importance}
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Knowledge Panels */}
-      <div style={{ marginBottom: 32 }}>
-        <h2
-          style={{
-            fontSize: 14,
-            fontWeight: 700,
-            color: 'rgba(255,255,255,0.5)',
-            marginBottom: 16,
-            fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace',
-          }}
-        >
-          KNOWLEDGE BASE
-        </h2>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-          {ARTEMIS_KNOWLEDGE.map((item) => (
-            <div
-              key={item.id}
-              style={{
-                borderRadius: 12,
-                background: 'rgba(0,0,0,0.4)',
-                border: '1px solid rgba(34, 211, 238, 0.15)',
-                overflow: 'hidden',
-              }}
-            >
-              <button
-                onClick={() => setExpandedKnowledge(expandedKnowledge === item.id ? null : item.id)}
-                style={{
-                  width: '100%',
-                  padding: 16,
-                  background: 'transparent',
-                  border: 'none',
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                }}
-              >
-                <span
-                  style={{
-                    fontSize: 14,
-                    fontWeight: 600,
-                    color: '#fff',
-                    fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace',
-                  }}
-                >
-                  {item.title}
-                </span>
-                <span style={{ color: '#22d3ee', fontSize: 18 }}>
-                  {expandedKnowledge === item.id ? '−' : '+'}
-                </span>
-              </button>
-              {expandedKnowledge === item.id && (
-                <div
-                  style={{
-                    padding: '0 16px 16px',
-                    fontSize: 13,
-                    color: 'rgba(255,255,255,0.7)',
-                    lineHeight: 1.6,
-                  }}
-                >
-                  {item.content}
+              {selectedMission.lander && (
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 12px', borderRadius: 8, background: 'rgba(168, 85, 247, 0.1)', border: '1px solid rgba(168, 85, 247, 0.2)', marginBottom: 8 }}>
+                  <div>
+                    <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)', fontFamily: 'monospace' }}>LANDER</div>
+                    <div style={{ fontSize: 13, color: '#a855f7', fontWeight: 600, fontFamily: 'monospace' }}>Starship HLS</div>
+                  </div>
+                  <StatusBadge status="IN DEVELOPMENT" small />
+                </div>
+              )}
+              {selectedMission.gateway && (
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 12px', borderRadius: 8, background: 'rgba(234, 179, 8, 0.1)', border: '1px solid rgba(234, 179, 8, 0.2)' }}>
+                  <div>
+                    <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)', fontFamily: 'monospace' }}>STATION</div>
+                    <div style={{ fontSize: 13, color: '#eab308', fontWeight: 600, fontFamily: 'monospace' }}>Lunar Gateway</div>
+                  </div>
+                  <StatusBadge status="IN DEVELOPMENT" small />
                 </div>
               )}
             </div>
-          ))}
+          </ModuleCard>
+          <ModuleCard title="CREW ROSTER" status={selectedMission.crew?.status || 'TBD'}>
+            {selectedMission.crew?.members ? (
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 12 }}>
+                {selectedMission.crew.members.map((member, i) => (
+                  <div key={i} style={{ padding: 12, borderRadius: 8, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
+                      <span style={{ fontSize: 16 }}>{member.country === 'USA' ? '🇺🇸' : member.country === 'CAN' ? '🇨🇦' : '🌍'}</span>
+                      <span style={{ fontSize: 13, color: '#fff', fontWeight: 600 }}>{member.name}</span>
+                    </div>
+                    <div style={{ fontSize: 10, color: '#22d3ee', fontFamily: 'monospace', marginBottom: 2 }}>{member.role}</div>
+                    <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)', fontFamily: 'monospace' }}>{member.agency}</div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div style={{ textAlign: 'center', padding: 24 }}>
+                <div style={{ fontSize: 32, marginBottom: 8 }}>👨‍🚀</div>
+                <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)', fontFamily: 'monospace' }}>{selectedMission.crew === null ? 'UNCREWED MISSION' : 'CREW: TBD'}</div>
+                {selectedMission.crew?.landingCrew && (
+                  <div style={{ fontSize: 11, color: '#a855f7', marginTop: 8, fontFamily: 'monospace' }}>{selectedMission.crew.landingCrew} astronauts will land on the Moon</div>
+                )}
+              </div>
+            )}
+          </ModuleCard>
+          <ModuleCard title="MISSION PATH" status="NOMINAL">
+            <MissionPathDiagram mission={selectedMission} />
+            {viewMode === 'learn' && (
+              <div style={{ marginTop: 16, fontSize: 11, color: 'rgba(255,255,255,0.6)', lineHeight: 1.6 }}>
+                <strong style={{ color: '#22d3ee' }}>TLI</strong> = Trans-Lunar Injection: The burn that sends the spacecraft from Earth orbit toward the Moon.
+                {selectedMission.gateway && <span> <strong style={{ color: '#eab308' }}>Gateway</strong> orbits in a near-rectilinear halo orbit (NRHO).</span>}
+              </div>
+            )}
+          </ModuleCard>
+          <ModuleCard title="SYSTEMS SNAPSHOT" status="NOMINAL">
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 8 }}>
+              {ARTEMIS_SYSTEMS.slice(0, viewMode === 'ops' ? 4 : 6).map((system) => (
+                <div key={system.id} style={{ padding: 10, borderRadius: 6, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)' }} title={system.importance}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
+                    <StatusDot status="ACTIVE" size={6} />
+                    <span style={{ fontSize: 10, color: '#22d3ee', fontWeight: 600, fontFamily: 'monospace' }}>{system.name.toUpperCase()}</span>
+                  </div>
+                  {viewMode === 'learn' && <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.5)', lineHeight: 1.4 }}>{system.description}</div>}
+                </div>
+              ))}
+            </div>
+          </ModuleCard>
+          <ModuleCard title="KNOWLEDGE BASE" status="NOMINAL" accentColor="#a855f7">
+            {selectedMission.facts && (
+              <div style={{ marginBottom: viewMode === 'learn' ? 16 : 0 }}>
+                <div style={{ fontSize: 10, color: '#a855f7', fontWeight: 700, marginBottom: 8, fontFamily: 'monospace' }}>DID YOU KNOW?</div>
+                {selectedMission.facts.slice(0, viewMode === 'ops' ? 2 : undefined).map((fact, i) => (
+                  <div key={i} style={{ fontSize: 12, color: 'rgba(255,255,255,0.7)', marginBottom: 8, paddingLeft: 12, borderLeft: '2px solid #a855f7', lineHeight: 1.5 }}>{fact}</div>
+                ))}
+              </div>
+            )}
+            {viewMode === 'learn' && (
+              <div>
+                {ARTEMIS_KNOWLEDGE.map((item) => (
+                  <div key={item.id} style={{ marginBottom: 8, borderRadius: 8, background: 'rgba(255,255,255,0.03)', overflow: 'hidden' }}>
+                    <button onClick={() => setExpandedKnowledge(expandedKnowledge === item.id ? null : item.id)} style={{ width: '100%', padding: '12px 16px', background: 'transparent', border: 'none', cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center', color: '#fff', fontSize: 13, fontWeight: 500, textAlign: 'left' }}>
+                      {item.title}
+                      <span style={{ color: '#a855f7' }}>{expandedKnowledge === item.id ? '−' : '+'}</span>
+                    </button>
+                    {expandedKnowledge === item.id && <div style={{ padding: '0 16px 16px', fontSize: 12, color: 'rgba(255,255,255,0.7)', lineHeight: 1.6 }}>{item.content}</div>}
+                  </div>
+                ))}
+              </div>
+            )}
+          </ModuleCard>
         </div>
+      )}
+      <div style={{ marginBottom: 32 }}>
+        <div style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.4)', marginBottom: 12, fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace' }}>VEHICLE GALLERY</div>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 16 }}>
+          <div onClick={() => navigate('/missions/artemis/sls')} style={{ position: 'relative', borderRadius: 12, overflow: 'hidden', background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(249, 115, 22, 0.3)', cursor: 'pointer', transition: 'all 0.2s ease' }}>
+            <img src={ARTEMIS_IMAGES.slsLaunch.url} alt={ARTEMIS_IMAGES.slsLaunch.alt} style={{ width: '100%', height: 200, objectFit: 'cover', display: 'block' }} />
+            <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: '12px 16px', background: 'linear-gradient(transparent, rgba(0,0,0,0.9))' }}>
+              <div style={{ fontSize: 12, fontWeight: 600, color: '#f97316' }}>SPACE LAUNCH SYSTEM</div>
+              <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.5)', fontFamily: 'monospace' }}>VIEW DETAILS →</div>
+            </div>
+          </div>
+          <div onClick={() => navigate('/missions/artemis/orion')} style={{ position: 'relative', borderRadius: 12, overflow: 'hidden', background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(34, 211, 238, 0.3)', cursor: 'pointer', transition: 'all 0.2s ease' }}>
+            <img src={ARTEMIS_IMAGES.orionEarth.url} alt={ARTEMIS_IMAGES.orionEarth.alt} style={{ width: '100%', height: 200, objectFit: 'cover', display: 'block' }} />
+            <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: '12px 16px', background: 'linear-gradient(transparent, rgba(0,0,0,0.9))' }}>
+              <div style={{ fontSize: 12, fontWeight: 600, color: '#22d3ee' }}>ORION SPACECRAFT</div>
+              <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.5)', fontFamily: 'monospace' }}>VIEW DETAILS →</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div style={{ padding: 16, borderRadius: 12, background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.1)' }}>
+        <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)', marginBottom: 8, fontFamily: 'monospace' }}>DATA SOURCES</div>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 16, fontSize: 11 }}>
+          <a href="https://www.nasa.gov/artemis" target="_blank" rel="noopener noreferrer" style={{ color: '#22d3ee', textDecoration: 'none' }}>NASA Artemis Program →</a>
+          <a href="https://www.nasa.gov/humans-in-space/orion-spacecraft/" target="_blank" rel="noopener noreferrer" style={{ color: '#22d3ee', textDecoration: 'none' }}>NASA Orion →</a>
+          <a href="https://www.nasa.gov/exploration/systems/sls/index.html" target="_blank" rel="noopener noreferrer" style={{ color: '#22d3ee', textDecoration: 'none' }}>NASA SLS →</a>
+        </div>
+        <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)', marginTop: 8, fontFamily: 'monospace' }}>LAST REVIEWED: January 2025</div>
       </div>
     </div>
   )
