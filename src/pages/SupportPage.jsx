@@ -4,7 +4,7 @@ export default function SupportPage() {
   const navigate = useNavigate()
 
   return (
-    <div className="p-4" style={{ maxWidth: 900, margin: '0 auto' }}>
+    <div className="p-4" style={{ maxWidth: 800, margin: '0 auto' }}>
       <button
         onClick={() => navigate('/explore')}
         style={{
@@ -19,229 +19,137 @@ export default function SupportPage() {
           color: '#22d3ee',
           fontSize: 12,
           fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace',
-          marginBottom: 24,
+          marginBottom: 32,
         }}
       >
-        ← BACK TO EXPLORE
+        Back to Explore
       </button>
 
       <h1
         style={{
-          fontSize: 32,
+          fontSize: 28,
           fontWeight: 700,
           color: '#fff',
-          marginBottom: 8,
+          marginBottom: 48,
           fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace',
         }}
       >
-        SUPPORT THE MISSION
+        Support the Mission
       </h1>
-      <p
-        style={{
-          fontSize: 14,
-          color: 'rgba(255,255,255,0.6)',
-          marginBottom: 32,
-          fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace',
-        }}
-      >
-        Help keep StarKid Command running and growing.
-      </p>
 
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 32 }}>
-        <section
-          style={{
-            padding: 24,
-            borderRadius: 16,
-            background: 'rgba(0,0,0,0.4)',
-            border: '1px solid rgba(34, 211, 238, 0.2)',
-          }}
-        >
-          <h2
-            style={{
-              fontSize: 16,
-              fontWeight: 700,
-              color: '#22d3ee',
-              marginBottom: 16,
-              fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace',
-            }}
-          >
-            WHY STARKID COMMAND EXISTS
-          </h2>
-          <div style={{ fontSize: 14, color: 'rgba(255,255,255,0.8)', lineHeight: 1.7 }}>
-            <p style={{ marginBottom: 12 }}>
-              StarKid Command was built to make space exploration accessible and engaging for everyone — 
-              from curious kids to lifelong enthusiasts.
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 40 }}>
+        <section>
+          <div style={{ fontSize: 15, color: 'rgba(255,255,255,0.85)', lineHeight: 1.8 }}>
+            <p style={{ marginBottom: 16 }}>
+              StarKid Command is free and open for everyone.
             </p>
-            <ul style={{ margin: 0, padding: '0 0 0 20px', listStyle: 'disc' }}>
-              <li style={{ marginBottom: 8 }}>Enthusiast-driven: Built by space fans, for space fans</li>
-              <li style={{ marginBottom: 8 }}>Educational: Real data from NASA, ESA, and space agencies worldwide</li>
-              <li style={{ marginBottom: 8 }}>No ads: Your attention stays on the stars, not sponsors</li>
-              <li style={{ marginBottom: 8 }}>Public access: Free for everyone, always</li>
-            </ul>
-          </div>
-        </section>
-
-        <section
-          style={{
-            padding: 24,
-            borderRadius: 16,
-            background: 'rgba(0,0,0,0.4)',
-            border: '1px solid rgba(249, 115, 22, 0.2)',
-          }}
-        >
-          <h2
-            style={{
-              fontSize: 16,
-              fontWeight: 700,
-              color: '#f97316',
-              marginBottom: 16,
-              fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace',
-            }}
-          >
-            WHAT IT TAKES TO RUN
-          </h2>
-          <div style={{ fontSize: 14, color: 'rgba(255,255,255,0.8)', lineHeight: 1.7 }}>
-            <p style={{ marginBottom: 12 }}>
-              Keeping StarKid Command online and up-to-date requires ongoing resources:
+            <p style={{ marginBottom: 16 }}>
+              If you find value in this project and would like to support its continued development and hosting, you can choose to contribute.
             </p>
-            <ul style={{ margin: 0, padding: '0 0 0 20px', listStyle: 'disc' }}>
-              <li style={{ marginBottom: 8 }}>Hosting and infrastructure costs</li>
-              <li style={{ marginBottom: 8 }}>API access and data services</li>
-              <li style={{ marginBottom: 8 }}>Development time for new features and maintenance</li>
-              <li style={{ marginBottom: 8 }}>Research and verification of space data</li>
-            </ul>
+            <p>
+              Contributions help cover infrastructure costs and allow the platform to remain ad-free and publicly accessible.
+            </p>
           </div>
         </section>
 
         <section
           style={{
             padding: 24,
-            borderRadius: 16,
-            background: 'rgba(0,0,0,0.4)',
-            border: '1px solid rgba(168, 85, 247, 0.2)',
+            borderRadius: 12,
+            background: 'rgba(0,0,0,0.3)',
+            border: '1px solid rgba(255,255,255,0.1)',
           }}
         >
           <h2
             style={{
               fontSize: 16,
-              fontWeight: 700,
-              color: '#a855f7',
+              fontWeight: 600,
+              color: '#fff',
               marginBottom: 16,
-              fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace',
             }}
           >
-            HOW YOU CAN HELP
+            How You Can Help
           </h2>
-          <div style={{ fontSize: 14, color: 'rgba(255,255,255,0.8)', lineHeight: 1.7 }}>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 16, marginBottom: 16 }}>
-              <div
-                style={{
-                  padding: 16,
-                  borderRadius: 12,
-                  background: 'rgba(168, 85, 247, 0.1)',
-                  border: '1px solid rgba(168, 85, 247, 0.3)',
-                  textAlign: 'center',
-                }}
-              >
-                <div style={{ fontSize: 24, marginBottom: 8 }}>💜</div>
-                <div style={{ fontSize: 13, fontWeight: 600, color: '#a855f7', marginBottom: 4 }}>Donate</div>
-                <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.5)' }}>Coming soon</div>
-              </div>
-              <div
-                style={{
-                  padding: 16,
-                  borderRadius: 12,
-                  background: 'rgba(34, 211, 238, 0.1)',
-                  border: '1px solid rgba(34, 211, 238, 0.3)',
-                  textAlign: 'center',
-                }}
-              >
-                <div style={{ fontSize: 24, marginBottom: 8 }}>📚</div>
-                <div style={{ fontSize: 13, fontWeight: 600, color: '#22d3ee', marginBottom: 4 }}>Share with Educators</div>
-                <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.5)' }}>Teachers, parents, clubs</div>
-              </div>
-              <div
-                style={{
-                  padding: 16,
-                  borderRadius: 12,
-                  background: 'rgba(34, 197, 94, 0.1)',
-                  border: '1px solid rgba(34, 197, 94, 0.3)',
-                  textAlign: 'center',
-                }}
-              >
-                <div style={{ fontSize: 24, marginBottom: 8 }}>💬</div>
-                <div style={{ fontSize: 13, fontWeight: 600, color: '#22c55e', marginBottom: 4 }}>Send Feedback</div>
-                <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.5)' }}>Ideas and suggestions</div>
-              </div>
-            </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+            <button
+              disabled
+              style={{
+                padding: '12px 20px',
+                borderRadius: 8,
+                border: '1px solid rgba(34, 211, 238, 0.3)',
+                background: 'rgba(34, 211, 238, 0.1)',
+                color: 'rgba(34, 211, 238, 0.6)',
+                fontSize: 14,
+                fontWeight: 600,
+                cursor: 'not-allowed',
+                opacity: 0.7,
+              }}
+            >
+              Support the Mission (Coming Soon)
+            </button>
+            <button
+              disabled
+              style={{
+                padding: '12px 20px',
+                borderRadius: 8,
+                border: '1px solid rgba(255,255,255,0.15)',
+                background: 'rgba(255,255,255,0.05)',
+                color: 'rgba(255,255,255,0.5)',
+                fontSize: 14,
+                fontWeight: 600,
+                cursor: 'not-allowed',
+                opacity: 0.7,
+              }}
+            >
+              Make a Contribution (Coming Soon)
+            </button>
           </div>
+          <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', marginTop: 16 }}>
+            Donation options will be available after the platform has supported its first major launch event.
+          </p>
+        </section>
+
+        <section>
+          <h2
+            style={{
+              fontSize: 16,
+              fontWeight: 600,
+              color: '#fff',
+              marginBottom: 16,
+            }}
+          >
+            Other Ways to Help
+          </h2>
+          <ul style={{ fontSize: 15, color: 'rgba(255,255,255,0.85)', lineHeight: 1.8, margin: 0, padding: '0 0 0 24px' }}>
+            <li style={{ marginBottom: 8 }}>Share StarKid Command with educators, students, and space enthusiasts</li>
+            <li style={{ marginBottom: 8 }}>Send feedback and suggestions to help improve the platform</li>
+            <li>Spread the word during launch events and space milestones</li>
+          </ul>
         </section>
 
         <section
           style={{
             padding: 24,
-            borderRadius: 16,
-            background: 'rgba(0,0,0,0.4)',
-            border: '1px solid rgba(34, 197, 94, 0.2)',
+            borderRadius: 12,
+            background: 'rgba(0,0,0,0.3)',
+            border: '1px solid rgba(255,255,255,0.1)',
           }}
         >
           <h2
             style={{
               fontSize: 16,
-              fontWeight: 700,
-              color: '#22c55e',
+              fontWeight: 600,
+              color: '#fff',
               marginBottom: 16,
-              fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace',
             }}
           >
-            OUR COMMITMENT
+            Our Commitment
           </h2>
-          <div style={{ fontSize: 14, color: 'rgba(255,255,255,0.8)', lineHeight: 1.7 }}>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 16 }}>
-              <div
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 8,
-                  padding: '8px 16px',
-                  borderRadius: 8,
-                  background: 'rgba(34, 197, 94, 0.1)',
-                  border: '1px solid rgba(34, 197, 94, 0.3)',
-                }}
-              >
-                <span style={{ color: '#22c55e' }}>●</span>
-                <span>No ads</span>
-              </div>
-              <div
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 8,
-                  padding: '8px 16px',
-                  borderRadius: 8,
-                  background: 'rgba(34, 197, 94, 0.1)',
-                  border: '1px solid rgba(34, 197, 94, 0.3)',
-                }}
-              >
-                <span style={{ color: '#22c55e' }}>●</span>
-                <span>No tracking</span>
-              </div>
-              <div
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 8,
-                  padding: '8px 16px',
-                  borderRadius: 8,
-                  background: 'rgba(34, 197, 94, 0.1)',
-                  border: '1px solid rgba(34, 197, 94, 0.3)',
-                }}
-              >
-                <span style={{ color: '#22c55e' }}>●</span>
-                <span>Open access</span>
-              </div>
-            </div>
-          </div>
+          <ul style={{ fontSize: 15, color: 'rgba(255,255,255,0.85)', lineHeight: 1.8, margin: 0, padding: '0 0 0 24px' }}>
+            <li style={{ marginBottom: 8 }}>No ads</li>
+            <li style={{ marginBottom: 8 }}>No invasive tracking</li>
+            <li>Open access for everyone</li>
+          </ul>
         </section>
       </div>
     </div>

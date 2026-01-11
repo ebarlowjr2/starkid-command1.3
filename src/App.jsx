@@ -26,6 +26,7 @@ import ArtemisPage from './pages/missions/ArtemisPage.jsx'
 import SLSDetailPage from './pages/missions/SLSDetailPage.jsx'
 import OrionDetailPage from './pages/missions/OrionDetailPage.jsx'
 import SupportPage from './pages/SupportPage.jsx'
+import AboutPage from './pages/AboutPage.jsx'
 
 export default function App() {
   return (
@@ -184,6 +185,7 @@ export default function App() {
                                                                           <Route path="/missions/artemis/sls" element={<SLSDetailPage />} />
                                                                           <Route path="/missions/artemis/orion" element={<OrionDetailPage />} />
                                                                           <Route path="/support" element={<SupportPage />} />
+                                                                          <Route path="/about" element={<AboutPage />} />
                                                                         </Routes>
                 </main>
 
@@ -197,6 +199,8 @@ export default function App() {
                       <a href="/explore" className="hover:text-cyan-200 transition-colors">Explore</a>
                       <span className="opacity-30">|</span>
                       <a href="/support" className="hover:text-cyan-200 transition-colors">Support the Mission</a>
+                      <span className="opacity-30">|</span>
+                      <a href="/about" className="hover:text-cyan-200 transition-colors">About</a>
                     </div>
                     <p className="text-center opacity-50">© {new Date().getFullYear()} StarKid Command</p>
                   </div>
