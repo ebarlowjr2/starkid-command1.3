@@ -19,6 +19,13 @@ const STATUS_DOT_STYLES = `
 @media (prefers-reduced-motion: reduce) {
   .status-dot { animation: none !important; }
 }
+@media (max-width: 768px) {
+  .artemis-status-bar { flex-direction: column; gap: 12px !important; align-items: flex-start !important; }
+  .artemis-status-bar > div { width: 100%; justify-content: space-between; }
+  .artemis-module-grid { grid-template-columns: 1fr !important; }
+  .artemis-timeline { flex-direction: column !important; }
+  .artemis-timeline button { min-width: 100% !important; }
+}
 `
 
 function StatusDot({ status, size = 8 }) {
@@ -143,7 +150,7 @@ export default function ArtemisPage() {
   return (
     <div className="p-4" style={{ maxWidth: 1400, margin: '0 auto' }}>
       <style>{STATUS_DOT_STYLES}</style>
-      <div style={{ position: 'sticky', top: 0, zIndex: 100, marginBottom: 24, padding: '12px 20px', borderRadius: 12, background: 'rgba(0,0,0,0.8)', backdropFilter: 'blur(12px)', border: '1px solid rgba(34, 211, 238, 0.3)', display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 24 }}>
+      <div className="artemis-status-bar" style={{ position: 'sticky', top: 0, zIndex: 100, marginBottom: 24, padding: '12px 20px', borderRadius: 12, background: 'rgba(0,0,0,0.8)', backdropFilter: 'blur(12px)', border: '1px solid rgba(34, 211, 238, 0.3)', display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 24 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)', fontFamily: 'monospace' }}>PROGRAM:</span>
           <span style={{ fontSize: 14, color: '#fff', fontWeight: 700, fontFamily: 'monospace' }}>ARTEMIS</span>
@@ -179,7 +186,7 @@ export default function ArtemisPage() {
       </div>
       <div style={{ marginBottom: 32 }}>
         <div style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.4)', marginBottom: 12, fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace' }}>MISSION TIMELINE</div>
-        <div style={{ display: 'flex', gap: 8, overflowX: 'auto', paddingBottom: 8 }}>
+        <div className="artemis-timeline" style={{ display: 'flex', gap: 8, overflowX: 'auto', paddingBottom: 8 }}>
           {ARTEMIS_MISSIONS.map((mission, index) => (
             <button key={mission.id} onClick={() => handleMissionSelect(mission.id)} style={{ flex: '0 0 auto', minWidth: 160, padding: '16px 20px', borderRadius: 12, border: selectedMissionId === mission.id ? '2px solid #22d3ee' : '1px solid rgba(255,255,255,0.15)', background: selectedMissionId === mission.id ? 'rgba(34, 211, 238, 0.15)' : 'rgba(0,0,0,0.4)', cursor: 'pointer', transition: 'all 0.2s', position: 'relative' }}>
               {index < ARTEMIS_MISSIONS.length - 1 && <div style={{ position: 'absolute', right: -8, top: '50%', transform: 'translateY(-50%)', width: 16, height: 2, background: 'rgba(255,255,255,0.2)', zIndex: 1 }} />}
@@ -191,7 +198,7 @@ export default function ArtemisPage() {
         </div>
       </div>
       {selectedMission && (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))', gap: 20, marginBottom: 32 }}>
+        <div className="artemis-module-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))', gap: 20, marginBottom: 32 }}>
           <ModuleCard title="MISSION BRIEF" status={selectedMission.status}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
               <h2 style={{ fontSize: 24, fontWeight: 700, color: '#fff', margin: 0, fontFamily: 'monospace' }}>{selectedMission.name}</h2>

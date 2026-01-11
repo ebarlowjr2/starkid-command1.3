@@ -118,20 +118,45 @@ export default function ExploreHubPage() {
   const nav = useNavigate()
 
   return (
-    <div className="p-4">
-      <div className="mb-6">
-        <h1
-          className="text-2xl md:text-3xl font-bold tracking-wider text-cyan-400 font-mono"
-          style={{ marginBottom: 8 }}
-        >
-          EXPLORE
-        </h1>
-        <p className="text-sm text-cyan-200/70 font-mono">
-          SELECT A MISSION MODULE TO BEGIN
-        </p>
-      </div>
+        <div className="p-4">
+          <div className="mb-6">
+            <h1
+              className="text-2xl md:text-3xl font-bold tracking-wider text-cyan-400 font-mono"
+              style={{ marginBottom: 8 }}
+            >
+              EXPLORE
+            </h1>
+            <p className="text-sm text-cyan-200/70 font-mono">
+              SELECT A MISSION MODULE TO BEGIN
+            </p>
+          </div>
 
-      <div
+          <div
+            onClick={() => nav('/missions/artemis')}
+            style={{
+              marginBottom: 24,
+              padding: 20,
+              borderRadius: 16,
+              background: 'linear-gradient(135deg, rgba(34, 211, 238, 0.15), rgba(168, 85, 247, 0.1))',
+              border: '2px solid rgba(34, 211, 238, 0.4)',
+              cursor: 'pointer',
+              transition: 'all 0.2s ease',
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+              <span style={{ fontSize: 10, padding: '2px 8px', borderRadius: 4, background: 'rgba(34, 211, 238, 0.3)', color: '#22d3ee', fontFamily: 'monospace', fontWeight: 700 }}>FEATURED EXPERIENCE</span>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+              <span style={{ fontSize: 32 }}>🌙</span>
+              <div>
+                <div style={{ fontSize: 20, fontWeight: 700, color: '#22d3ee', marginBottom: 4 }}>Artemis Program</div>
+                <div style={{ fontSize: 14, color: 'rgba(255,255,255,0.7)' }}>Track NASA's return to the Moon — mission control dashboard with live status, crew info, and hardware specs.</div>
+              </div>
+              <div style={{ marginLeft: 'auto', fontSize: 24, color: '#22d3ee' }}>→</div>
+            </div>
+          </div>
+
+          <div
         className="features-grid"
         style={{
           display: "grid",

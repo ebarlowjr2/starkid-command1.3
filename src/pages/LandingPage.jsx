@@ -48,7 +48,7 @@ export default function LandingPage() {
               color: "rgba(255,255,255,0.8)",
             }}
           >
-            Explore the solar system, missions, rockets, and beyond — built like a command console.
+            StarKid Command is a live mission-control interface for tracking, understanding, and exploring space — built for enthusiasts and learners alike.
           </div>
 
           <div style={{ marginTop: 18 }}>

@@ -25,6 +25,7 @@ import XPage from './pages/updates/XPage.jsx'
 import ArtemisPage from './pages/missions/ArtemisPage.jsx'
 import SLSDetailPage from './pages/missions/SLSDetailPage.jsx'
 import OrionDetailPage from './pages/missions/OrionDetailPage.jsx'
+import SupportPage from './pages/SupportPage.jsx'
 
 export default function App() {
   return (
@@ -180,14 +181,26 @@ export default function App() {
                                       <Route path="/updates/live" element={<LivePage />} />
                                       <Route path="/updates/x" element={<XPage />} />
                                       <Route path="/missions/artemis" element={<ArtemisPage />} />
-                                      <Route path="/missions/artemis/sls" element={<SLSDetailPage />} />
-                                      <Route path="/missions/artemis/orion" element={<OrionDetailPage />} />
-                                    </Routes>
+                                                                          <Route path="/missions/artemis/sls" element={<SLSDetailPage />} />
+                                                                          <Route path="/missions/artemis/orion" element={<OrionDetailPage />} />
+                                                                          <Route path="/support" element={<SupportPage />} />
+                                                                        </Routes>
                 </main>
 
-        <footer className="p-4 text-center bg-gradient-to-r from-black to-zinc-900 border-t border-cyan-800 text-xs text-cyan-300">
-          <p>Built with NASA, SpaceX and astronomy APIs. For kids &amp; learning.</p>
-        </footer>
+                <footer className="p-4 bg-gradient-to-r from-black to-zinc-900 border-t border-cyan-800 text-xs text-cyan-300">
+                  <div className="max-w-4xl mx-auto">
+                    <div className="text-center mb-3">
+                      <p className="font-semibold">StarKid Command — A live mission-control interface for space exploration.</p>
+                      <p className="opacity-60 mt-1">No ads • No tracking • Open access</p>
+                    </div>
+                    <div className="flex flex-wrap justify-center gap-4 mb-3">
+                      <a href="/explore" className="hover:text-cyan-200 transition-colors">Explore</a>
+                      <span className="opacity-30">|</span>
+                      <a href="/support" className="hover:text-cyan-200 transition-colors">Support the Mission</a>
+                    </div>
+                    <p className="text-center opacity-50">© {new Date().getFullYear()} StarKid Command</p>
+                  </div>
+                </footer>
       </div>
     </BrowserRouter>
   )
