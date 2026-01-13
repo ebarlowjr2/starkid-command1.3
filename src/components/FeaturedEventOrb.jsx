@@ -10,8 +10,11 @@ export function FeaturedEventOrb() {
   const nav = useNavigate();
   const cd = useCountdown(FEATURED_EVENT.targetIso);
 
-  const label = cd.done ? "WINDOW OPEN" : "COUNTDOWN";
-  const timeStr = cd.done
+  const isWindowOpen = cd.done;
+  const label = isWindowOpen ? "WINDOW OPEN" : "COUNTDOWN";
+  const ctaLabel = isWindowOpen ? "GO TO LIVE →" : "OPEN BRIEF →";
+  const targetRoute = isWindowOpen ? "/updates/live" : FEATURED_EVENT.route;
+  const timeStr = isWindowOpen
     ? "00:00:00"
     : `${pad2(cd.hours)}:${pad2(cd.minutes)}:${pad2(cd.seconds)}`;
 
@@ -29,11 +32,11 @@ export function FeaturedEventOrb() {
         backdropFilter: "blur(6px)",
         cursor: "pointer",
       }}
-      onClick={() => nav(FEATURED_EVENT.route)}
+      onClick={() => nav(targetRoute)}
       role="button"
-      aria-label="Open Artemis II page"
+      aria-label={isWindowOpen ? "Go to live updates" : "Open Artemis II page"}
       tabIndex={0}
-      onKeyDown={(e) => e.key === "Enter" && nav(FEATURED_EVENT.route)}
+      onKeyDown={(e) => e.key === "Enter" && nav(targetRoute)}
     >
       <div
         style={{
@@ -42,8 +45,9 @@ export function FeaturedEventOrb() {
           borderRadius: 999,
           background:
             "radial-gradient(circle at 30% 30%, rgba(255,255,255,0.9), rgba(120,180,255,0.55) 35%, rgba(40,90,200,0.25) 60%, rgba(0,0,0,0) 70%)",
-          boxShadow:
-            "0 0 18px rgba(120,180,255,0.55), 0 0 42px rgba(80,140,255,0.35), 0 0 80px rgba(60,110,255,0.18)",
+                    boxShadow: isWindowOpen
+                      ? "0 0 26px rgba(120,200,255,0.9), 0 0 60px rgba(80,160,255,0.6), 0 0 100px rgba(60,130,255,0.35)"
+                      : "0 0 18px rgba(120,180,255,0.55), 0 0 42px rgba(80,140,255,0.35), 0 0 80px rgba(60,110,255,0.18)",
           border: "1px solid rgba(255,255,255,0.14)",
           position: "relative",
           overflow: "hidden",
@@ -110,7 +114,7 @@ export function FeaturedEventOrb() {
               letterSpacing: "0.08em",
             }}
           >
-            OPEN BRIEF →
+            {ctaLabel}
           </div>
         </div>
 
