@@ -1,4 +1,4 @@
-import crypto from 'crypto';
+import { createHash } from 'node:crypto';
 
 const OFFICIAL_RSS_FEEDS = [
   {
@@ -45,7 +45,7 @@ let lastWatchTime = 0;
 const WATCH_COOLDOWN = 5 * 60 * 1000;
 
 function generateHash(content) {
-  return crypto.createHash('sha256').update(content).digest('hex').slice(0, 16);
+  return createHash('sha256').update(content).digest('hex').slice(0, 16);
 }
 
 function generateEventHash(title, url, publishedAt) {
