@@ -1,11 +1,5 @@
 {
   "rewrites": [
     { "source": "/((?!api/).*)", "destination": "/" }
-  ],
-  "crons": [
-    {
-      "path": "/api/watch/events",
-      "schedule": "0 * * * *"
-    }
   ]
 }
