@@ -3,15 +3,23 @@ import { useNavigate } from 'react-router-dom'
 export default function UpdatesHubPage() {
   const navigate = useNavigate()
 
-  const sections = [
-    {
-      id: 'news',
-      title: 'News',
-      description: 'Latest space news from NASA, ESA, SpaceX, and more. Aggregated from trusted sources.',
-      route: '/updates/news',
-      icon: '📰',
-      status: 'live',
-    },
+    const sections = [
+      {
+        id: 'official',
+        title: 'Official Updates',
+        description: 'Mission events from NASA RSS feeds and page monitors. Hourly automated checks for Artemis and other programs.',
+        route: '/updates/official',
+        icon: '🛰️',
+        status: 'live',
+      },
+      {
+        id: 'news',
+        title: 'News',
+        description: 'Latest space news from NASA, ESA, SpaceX, and more. Aggregated from trusted sources.',
+        route: '/updates/news',
+        icon: '📰',
+        status: 'live',
+      },
     {
       id: 'blog',
       title: 'Blog',

@@ -22,6 +22,7 @@ import BlogListPage from './pages/updates/BlogListPage.jsx'
 import BlogDetailPage from './pages/updates/BlogDetailPage.jsx'
 import LivePage from './pages/updates/LivePage.jsx'
 import XPage from './pages/updates/XPage.jsx'
+import OfficialUpdatesPage from './pages/updates/OfficialUpdatesPage.jsx'
 import ArtemisPage from './pages/missions/ArtemisPage.jsx'
 import SLSDetailPage from './pages/missions/SLSDetailPage.jsx'
 import OrionDetailPage from './pages/missions/OrionDetailPage.jsx'
@@ -175,8 +176,9 @@ export default function App() {
                     <Route path="/rockets/launch-vehicles/:rocketId" element={<RocketDetailPage />} />
                                       <Route path="/rockets/spacecraft" element={<SpacecraftHubPage />} />
                                       <Route path="/rockets/spacecraft/:spacecraftId" element={<SpacecraftDetailPage />} />
-                                      <Route path="/updates" element={<UpdatesHubPage />} />
-                                      <Route path="/updates/news" element={<NewsPage />} />
+                                                                            <Route path="/updates" element={<UpdatesHubPage />} />
+                                                                            <Route path="/updates/official" element={<OfficialUpdatesPage />} />
+                                                                            <Route path="/updates/news" element={<NewsPage />} />
                                       <Route path="/updates/blog" element={<BlogListPage />} />
                                       <Route path="/updates/blog/:slug" element={<BlogDetailPage />} />
                                       <Route path="/updates/live" element={<LivePage />} />
