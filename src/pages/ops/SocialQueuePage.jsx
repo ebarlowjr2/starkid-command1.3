@@ -1,26 +1,88 @@
 import { useState, useEffect } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
-
-const OPS_KEY = process.env.VITE_OPS_KEY || 'starkid-ops-2024';
+import { useNavigate } from 'react-router-dom';
 
 export default function SocialQueuePage() {
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
   const [drafts, setDrafts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [authorized, setAuthorized] = useState(false);
   const [copiedId, setCopiedId] = useState(null);
+  const [opsKey, setOpsKey] = useState('');
+  const [authError, setAuthError] = useState(null);
+  const [authLoading, setAuthLoading] = useState(false);
+  const [lockoutSeconds, setLockoutSeconds] = useState(0);
 
   useEffect(() => {
-    const key = searchParams.get('key');
-    if (key === OPS_KEY || key === 'starkid-ops-2024') {
-      setAuthorized(true);
+    if (lockoutSeconds > 0) {
+      const timer = setTimeout(() => setLockoutSeconds(lockoutSeconds - 1), 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [lockoutSeconds]);
+
+  async function handleAuth() {
+    if (!opsKey.trim()) {
+      setAuthError('Enter ops key');
+      return;
+    }
+
+    setAuthLoading(true);
+    setAuthError(null);
+
+    try {
+      const res = await fetch('/api/ops/auth', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-OPS-KEY': opsKey.trim(),
+        },
+      });
+
+      const data = await res.json();
+
+      if (data.authorized) {
+        setAuthorized(true);
+        sessionStorage.setItem('ops_session', opsKey.trim());
+      } else {
+        setAuthError(data.message || 'Access denied');
+        if (data.waitSeconds) {
+          setLockoutSeconds(data.waitSeconds);
+        }
+      }
+    } catch (e) {
+      setAuthError('Connection failed');
+    } finally {
+      setAuthLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    const savedKey = sessionStorage.getItem('ops_session');
+    if (savedKey) {
+      setOpsKey(savedKey);
+      fetch('/api/ops/auth', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-OPS-KEY': savedKey,
+        },
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.authorized) {
+            setAuthorized(true);
+          } else {
+            sessionStorage.removeItem('ops_session');
+            setLoading(false);
+          }
+        })
+        .catch(() => {
+          setLoading(false);
+        });
     } else {
-      setAuthorized(false);
       setLoading(false);
     }
-  }, [searchParams]);
+  }, []);
 
   useEffect(() => {
     if (!authorized) return;
@@ -85,76 +147,173 @@ export default function SocialQueuePage() {
     }
   }
 
-  if (!authorized) {
-    return (
-      <div
-        style={{
-          minHeight: '100vh',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          background: '#0a0a0f',
-        }}
-      >
+    function handleLogout() {
+      sessionStorage.removeItem('ops_session');
+      setAuthorized(false);
+      setOpsKey('');
+      setDrafts([]);
+    }
+
+    if (!authorized) {
+      return (
         <div
           style={{
-            padding: 40,
-            borderRadius: 16,
-            background: 'rgba(239, 68, 68, 0.1)',
-            border: '1px solid rgba(239, 68, 68, 0.3)',
-            textAlign: 'center',
+            minHeight: '100vh',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            background: '#0a0a0f',
           }}
         >
-          <h1
+          <div
             style={{
-              fontSize: 24,
-              fontWeight: 700,
-              color: '#ef4444',
-              fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace',
-              marginBottom: 16,
+              padding: 40,
+              borderRadius: 16,
+              background: 'rgba(34, 211, 238, 0.05)',
+              border: '1px solid rgba(34, 211, 238, 0.2)',
+              textAlign: 'center',
+              maxWidth: 400,
+              width: '100%',
             }}
           >
-            ACCESS DENIED
-          </h1>
-          <p
-            style={{
-              fontSize: 14,
-              color: 'rgba(255,255,255,0.6)',
-              fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace',
-            }}
-          >
-            Invalid or missing ops key
-          </p>
-        </div>
-      </div>
-    );
-  }
+            <h1
+              style={{
+                fontSize: 20,
+                fontWeight: 700,
+                color: '#22d3ee',
+                fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace',
+                marginBottom: 8,
+              }}
+            >
+              OPS AUTHENTICATION
+            </h1>
+            <p
+              style={{
+                fontSize: 12,
+                color: 'rgba(255,255,255,0.5)',
+                fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace',
+                marginBottom: 24,
+              }}
+            >
+              Enter ops access key to continue
+            </p>
 
-  return (
-    <div style={{ padding: 24, maxWidth: 1000, margin: '0 auto' }}>
-      <div style={{ marginBottom: 24 }}>
-        <h1
-          style={{
-            fontSize: 28,
-            fontWeight: 700,
-            color: '#22d3ee',
-            fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace',
-            letterSpacing: '0.05em',
-            marginBottom: 8,
-          }}
-        >
-          SOCIAL QUEUE
-        </h1>
-        <p
-          style={{
-            fontSize: 14,
-            color: 'rgba(255,255,255,0.6)',
-            fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace',
-          }}
-        >
-          C.O.M.E.T. DRAFT MANAGEMENT • INTERNAL OPS
-        </p>
-      </div>
+            <input
+              type="password"
+              value={opsKey}
+              onChange={(e) => setOpsKey(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && handleAuth()}
+              placeholder="OPS ACCESS KEY"
+              disabled={lockoutSeconds > 0 || authLoading}
+              style={{
+                width: '100%',
+                padding: '12px 16px',
+                borderRadius: 8,
+                border: '1px solid rgba(255,255,255,0.2)',
+                background: 'rgba(0,0,0,0.4)',
+                color: '#fff',
+                fontSize: 14,
+                fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace',
+                marginBottom: 16,
+                outline: 'none',
+                boxSizing: 'border-box',
+              }}
+            />
+
+            {authError && (
+              <p
+                style={{
+                  fontSize: 12,
+                  color: '#ef4444',
+                  fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace',
+                  marginBottom: 16,
+                }}
+              >
+                {authError}
+              </p>
+            )}
+
+            {lockoutSeconds > 0 && (
+              <p
+                style={{
+                  fontSize: 12,
+                  color: '#f59e0b',
+                  fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace',
+                  marginBottom: 16,
+                }}
+              >
+                LOCKOUT ACTIVE: {lockoutSeconds}s remaining
+              </p>
+            )}
+
+            <button
+              onClick={handleAuth}
+              disabled={lockoutSeconds > 0 || authLoading}
+              style={{
+                width: '100%',
+                padding: '12px 20px',
+                borderRadius: 8,
+                border: '1px solid rgba(34, 211, 238, 0.4)',
+                background:
+                  lockoutSeconds > 0
+                    ? 'rgba(148, 163, 184, 0.2)'
+                    : 'rgba(34, 211, 238, 0.2)',
+                color: lockoutSeconds > 0 ? '#94a3b8' : '#22d3ee',
+                fontSize: 12,
+                fontWeight: 700,
+                fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace',
+                cursor: lockoutSeconds > 0 ? 'not-allowed' : 'pointer',
+              }}
+            >
+              {authLoading ? 'AUTHENTICATING...' : 'AUTHENTICATE'}
+            </button>
+          </div>
+        </div>
+      );
+    }
+
+    return (
+      <div style={{ padding: 24, maxWidth: 1000, margin: '0 auto' }}>
+        <div style={{ marginBottom: 24, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+          <div>
+            <h1
+              style={{
+                fontSize: 28,
+                fontWeight: 700,
+                color: '#22d3ee',
+                fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace',
+                letterSpacing: '0.05em',
+                marginBottom: 8,
+              }}
+            >
+              SOCIAL QUEUE
+            </h1>
+            <p
+              style={{
+                fontSize: 14,
+                color: 'rgba(255,255,255,0.6)',
+                fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace',
+              }}
+            >
+              C.O.M.E.T. DRAFT MANAGEMENT
+            </p>
+          </div>
+          <button
+            onClick={handleLogout}
+            style={{
+              padding: '8px 16px',
+              borderRadius: 6,
+              border: '1px solid rgba(239, 68, 68, 0.3)',
+              background: 'transparent',
+              color: '#ef4444',
+              fontSize: 11,
+              fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace',
+              cursor: 'pointer',
+            }}
+          >
+            LOGOUT
+          </button>
+        </div>
 
       <div style={{ marginBottom: 24, display: 'flex', gap: 12 }}>
         <button

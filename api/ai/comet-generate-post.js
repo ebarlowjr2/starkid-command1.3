@@ -1,12 +1,14 @@
 const SYSTEM_PROMPT = `You are C.O.M.E.T. (Command Operations & Mission Event Technician) generating social media posts for StarKid Command.
 
-Rules for drafting posts:
-1. Must mention the source (NASA/ESA/etc.) in the text
-2. Must not claim confirmation beyond what the event says
-3. Must link to the original event URL if available
-4. Use professional, enthusiast-friendly tone
-5. Include relevant hashtags sparingly
-6. Never invent dates, specs, or details not in the source
+STRICT RULES for drafting posts:
+1. MUST mention the source (NASA/ESA/etc.) in the text - format as "Source: NASA" or "via NASA"
+2. MUST NOT claim "confirmed" or "official" unless the source explicitly says so
+3. MUST include the original event URL if available
+4. If the event mentions "NET", "window", or "subject to change" - you MUST include that language
+5. NEVER claim "launch confirmed" unless the source explicitly confirms it
+6. Use professional, enthusiast-friendly tone
+7. Include relevant hashtags sparingly (max 3)
+8. Never invent dates, specs, or details not in the source
 
 Generate 3 versions:
 1. SHORT (under 100 chars) - Quick headline style
@@ -33,6 +35,87 @@ const SAMPLE_EVENTS = [
 ];
 
 let draftsStore = [];
+const processedEventIds = new Set();
+
+function computeEventHash(event) {
+  return `${event.id}-${event.title.slice(0, 50)}`;
+}
+
+function isDuplicateEvent(event) {
+  const hash = computeEventHash(event);
+  return processedEventIds.has(hash);
+}
+
+function markEventProcessed(event) {
+  const hash = computeEventHash(event);
+  processedEventIds.add(hash);
+  if (processedEventIds.size > 1000) {
+    const firstKey = processedEventIds.values().next().value;
+    processedEventIds.delete(firstKey);
+  }
+}
+
+function validateDraft(draft, event) {
+  const issues = [];
+  const content = draft.content.toLowerCase();
+  
+  const sourceTag = event.source.includes('NASA') ? 'nasa' : event.source.split(' ')[0].toLowerCase();
+  if (!content.includes(sourceTag) && !content.includes('source:')) {
+    issues.push('Missing source attribution');
+  }
+  
+  if (event.url && !draft.content.includes(event.url) && draft.variant !== 'short') {
+    issues.push('Missing source URL');
+  }
+  
+  const eventText = (event.title + ' ' + event.summary).toLowerCase();
+  const hasNETLanguage = eventText.includes('net') || eventText.includes('window') || eventText.includes('subject to change');
+  if (hasNETLanguage && !content.includes('net') && !content.includes('window') && !content.includes('subject to change')) {
+    issues.push('Missing NET/window language');
+  }
+  
+  if (content.includes('confirmed') || content.includes('official')) {
+    if (!eventText.includes('confirmed') && !eventText.includes('official')) {
+      issues.push('Claims confirmation not in source');
+    }
+  }
+  
+  return {
+    valid: issues.length === 0,
+    issues,
+  };
+}
+
+function fixDraft(draft, event) {
+  let content = draft.content;
+  const sourceTag = event.source.includes('NASA') ? 'NASA' : event.source.split(' ')[0];
+  
+  if (!content.toLowerCase().includes(sourceTag.toLowerCase()) && !content.toLowerCase().includes('source:')) {
+    if (draft.variant === 'short') {
+      content = content.replace(/\s*#/, ` via ${sourceTag} #`);
+      if (!content.includes(sourceTag)) {
+        content += ` via ${sourceTag}`;
+      }
+    } else {
+      content += `\n\nSource: ${sourceTag}`;
+    }
+  }
+  
+  if (event.url && !content.includes(event.url) && draft.variant !== 'short') {
+    content += `\n${event.url}`;
+  }
+  
+  const eventText = (event.title + ' ' + event.summary).toLowerCase();
+  const hasNETLanguage = eventText.includes('net') || eventText.includes('window') || eventText.includes('subject to change');
+  if (hasNETLanguage && !content.toLowerCase().includes('net') && !content.toLowerCase().includes('window') && !content.toLowerCase().includes('subject to change')) {
+    content = content.replace(/launch/gi, 'launch (NET)');
+  }
+  
+  content = content.replace(/\bconfirmed\b/gi, 'reported');
+  content = content.replace(/\bofficial\b/gi, 'announced');
+  
+  return { ...draft, content };
+}
 
 function generateFallbackDrafts(event) {
   const sourceTag = event.source.includes('NASA') ? 'NASA' : event.source.split(' ')[0];
@@ -166,41 +249,64 @@ export default async function handler(req, res) {
     return;
   }
 
-  try {
-    const { eventId } = req.body;
+    try {
+      const { eventId, forceDuplicate } = req.body;
 
-    if (!eventId) {
-      res.status(400).json({ error: 'eventId required' });
-      return;
+      if (!eventId) {
+        res.status(400).json({ error: 'eventId required' });
+        return;
+      }
+
+      let event = SAMPLE_EVENTS.find((e) => e.id === eventId);
+
+      if (!event) {
+        event = {
+          id: eventId,
+          title: 'Mission Update',
+          source: 'StarKid Command',
+          url: '',
+          summary: 'New mission event detected.',
+          category: 'official',
+        };
+      }
+
+      if (!forceDuplicate && isDuplicateEvent(event)) {
+        res.status(200).json({
+          success: false,
+          error: 'DUPLICATE_EVENT',
+          message: 'Drafts already generated for this event. Use forceDuplicate: true to override.',
+          draftsCreated: 0,
+          drafts: [],
+        });
+        return;
+      }
+
+      let drafts = await generateWithOpenAI(event);
+
+      drafts = drafts.map(draft => {
+        const validation = validateDraft(draft, event);
+        if (!validation.valid) {
+          console.log(`Draft validation issues for ${draft.variant}:`, validation.issues);
+          return fixDraft(draft, event);
+        }
+        return draft;
+      });
+
+      markEventProcessed(event);
+
+      draftsStore = [...drafts, ...draftsStore].slice(0, 100);
+
+      res.status(200).json({
+        success: true,
+        draftsCreated: drafts.length,
+        drafts,
+        eventHash: computeEventHash(event),
+      });
+    } catch (error) {
+      console.error('Generate post error:', error);
+      res.status(500).json({
+        success: false,
+        error: 'Failed to generate drafts',
+      });
     }
-
-    let event = SAMPLE_EVENTS.find((e) => e.id === eventId);
-
-    if (!event) {
-      event = {
-        id: eventId,
-        title: 'Mission Update',
-        source: 'StarKid Command',
-        url: '',
-        summary: 'New mission event detected.',
-        category: 'official',
-      };
-    }
-
-    const drafts = await generateWithOpenAI(event);
-
-    draftsStore = [...drafts, ...draftsStore].slice(0, 100);
-
-    res.status(200).json({
-      success: true,
-      draftsCreated: drafts.length,
-      drafts,
-    });
-  } catch (error) {
-    console.error('Generate post error:', error);
-    res.status(500).json({
-      success: false,
-      error: 'Failed to generate drafts',
-    });
-  }
 }

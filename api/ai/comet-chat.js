@@ -23,6 +23,42 @@ Available routes in StarKid Command:
 
 When suggesting navigation, format your response to include the route suggestion naturally in your text.`;
 
+const rateLimitStore = new Map();
+const RATE_LIMIT_WINDOW = 10 * 60 * 1000;
+const MAX_REQUESTS = 30;
+
+function getClientIP(req) {
+  const forwarded = req.headers['x-forwarded-for'];
+  if (forwarded) {
+    return forwarded.split(',')[0].trim();
+  }
+  return req.socket?.remoteAddress || 'unknown';
+}
+
+function checkRateLimit(ip) {
+  const now = Date.now();
+  const record = rateLimitStore.get(ip);
+
+  if (!record) {
+    rateLimitStore.set(ip, { count: 1, windowStart: now });
+    return { allowed: true, remaining: MAX_REQUESTS - 1 };
+  }
+
+  if (now - record.windowStart > RATE_LIMIT_WINDOW) {
+    rateLimitStore.set(ip, { count: 1, windowStart: now });
+    return { allowed: true, remaining: MAX_REQUESTS - 1 };
+  }
+
+  if (record.count >= MAX_REQUESTS) {
+    const waitSeconds = Math.ceil((record.windowStart + RATE_LIMIT_WINDOW - now) / 1000);
+    return { allowed: false, waitSeconds };
+  }
+
+  record.count += 1;
+  rateLimitStore.set(ip, record);
+  return { allowed: true, remaining: MAX_REQUESTS - record.count };
+}
+
 const FEATURED_EVENT = {
   title: 'ARTEMIS II',
   subtitle: 'LAUNCH WINDOW OPENS',
@@ -232,7 +268,52 @@ function generateFallbackResponse(userMessage) {
   };
 }
 
+async function fetchLiveContext() {
+  const liveContext = {
+    recentEvents: [],
+    featuredEventState: 'COUNTDOWN',
+    liveStreams: [],
+  };
+
+  try {
+    const targetDate = new Date(FEATURED_EVENT.targetIso);
+    const now = new Date();
+    liveContext.featuredEventState = now >= targetDate ? 'WINDOW_OPEN' : 'COUNTDOWN';
+    
+    const timeRemaining = targetDate - now;
+    if (timeRemaining > 0) {
+      const days = Math.floor(timeRemaining / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((timeRemaining % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      liveContext.countdownDisplay = `${days}d ${hours}h remaining`;
+    }
+  } catch (e) {
+    console.error('Failed to compute countdown:', e);
+  }
+
+  return liveContext;
+}
+
+function buildEnhancedContextPacket(liveContext) {
+  let packet = buildContextPacket();
+  
+  packet += `\nLIVE STATUS:
+- Featured Event State: ${liveContext.featuredEventState}
+${liveContext.countdownDisplay ? `- Countdown: ${liveContext.countdownDisplay}` : '- Launch window is OPEN'}
+`;
+
+  if (liveContext.recentEvents.length > 0) {
+    packet += `\nLATEST MISSION EVENTS:\n`;
+    liveContext.recentEvents.forEach(e => {
+      packet += `- ${e.title} (${e.source})\n`;
+    });
+  }
+
+  return packet;
+}
+
 export default async function handler(req, res) {
+  const startTime = Date.now();
+  
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
@@ -247,29 +328,64 @@ export default async function handler(req, res) {
     return;
   }
 
+  const ip = getClientIP(req);
+  const rateCheck = checkRateLimit(ip);
+
+  if (!rateCheck.allowed) {
+    res.status(429).json({
+      reply: `COMET THROTTLE ACTIVE — Try again in ${rateCheck.waitSeconds} seconds.`,
+      actions: [],
+      throttled: true,
+      waitSeconds: rateCheck.waitSeconds,
+    });
+    return;
+  }
+
   try {
     const { messages, context } = req.body;
 
     if (!messages || !Array.isArray(messages) || messages.length === 0) {
-      res.status(400).json({ error: 'Messages array required' });
+      res.status(400).json({ error: 'Messages array required', actions: [] });
       return;
     }
 
     const lastUserMessage = messages.filter(m => m.role === 'user').pop();
     if (!lastUserMessage) {
-      res.status(400).json({ error: 'No user message found' });
+      res.status(400).json({ error: 'No user message found', actions: [] });
       return;
     }
 
-    const contextPacket = buildContextPacket();
+    const liveContext = await fetchLiveContext();
+    const contextPacket = buildEnhancedContextPacket(liveContext);
+    
+    let result;
+    let mode = 'fallback';
+    let intent = detectIntent(lastUserMessage.content);
 
     if (process.env.OPENAI_API_KEY) {
-      const result = await callOpenAI(messages, contextPacket);
-      res.status(200).json(result);
+      mode = 'openai';
+      result = await callOpenAI(messages, contextPacket);
     } else {
-      const fallback = generateFallbackResponse(lastUserMessage.content);
-      res.status(200).json(fallback);
+      result = generateFallbackResponse(lastUserMessage.content);
     }
+
+    const latency = Date.now() - startTime;
+    
+    console.log(JSON.stringify({
+      type: 'comet_request',
+      timestamp: new Date().toISOString(),
+      route: context?.route || 'unknown',
+      intent,
+      mode,
+      hasActions: result.actions?.length > 0,
+      actionCount: result.actions?.length || 0,
+      latencyMs: latency,
+    }));
+
+    res.status(200).json({
+      ...result,
+      actions: result.actions || [],
+    });
   } catch (error) {
     console.error('COMET chat error:', error);
     res.status(500).json({
@@ -277,4 +393,17 @@ export default async function handler(req, res) {
       actions: [],
     });
   }
+}
+
+function detectIntent(message) {
+  const msg = message.toLowerCase();
+  if (msg.includes('artemis') && (msg.includes('brief') || msg.includes('about'))) return 'artemis_brief';
+  if (msg.includes('live') || msg.includes('stream')) return 'live_now';
+  if (msg.includes('update') || msg.includes('news') || msg.includes('official')) return 'latest_updates';
+  if (msg.includes('rocket') || msg.includes('launch vehicle')) return 'rockets';
+  if (msg.includes('spacecraft') || msg.includes('capsule')) return 'spacecraft';
+  if (msg.includes('planet') || msg.includes('mars')) return 'planets';
+  if (msg.includes('exoplanet') || msg.includes('beyond')) return 'exoplanets';
+  if (msg.includes('explore') || msg.includes('what can') || msg.includes('features')) return 'explore';
+  return 'general';
 }

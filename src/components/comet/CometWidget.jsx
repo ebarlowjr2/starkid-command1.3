@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const GREETING_KEY = 'comet_greeted_v1';
 
@@ -22,11 +23,16 @@ const GREETING_MESSAGES = [
 ];
 
 export default function CometWidget() {
+  const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(false);
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [hasGreeted, setHasGreeted] = useState(false);
+  const [lastSync, setLastSync] = useState(null);
+  const [showSettings, setShowSettings] = useState(false);
+  const [pendingActions, setPendingActions] = useState([]);
   const messagesEndRef = useRef(null);
 
   useEffect(() => {
@@ -48,59 +54,93 @@ export default function CometWidget() {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  async function sendMessage(content) {
-    if (!content.trim()) return;
+    async function sendMessage(content) {
+      if (!content.trim()) return;
 
-    const userMessage = { role: 'user', content: content.trim() };
-    const newMessages = [...messages, userMessage];
-    setMessages(newMessages);
-    setInput('');
-    setIsLoading(true);
+      const userMessage = { role: 'user', content: content.trim() };
+      const newMessages = [...messages, userMessage];
+      setMessages(newMessages);
+      setInput('');
+      setIsLoading(true);
+      setPendingActions([]);
 
-    try {
-      const response = await fetch('/api/ai/comet-chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          messages: newMessages.filter((m) => m.role !== 'system'),
-          context: {
-            route: window.location.pathname,
-          },
-        }),
-      });
+      try {
+        const response = await fetch('/api/ai/comet-chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            messages: newMessages.filter((m) => m.role !== 'system'),
+            context: {
+              route: window.location.pathname,
+            },
+          }),
+        });
 
-      const data = await response.json();
+        const data = await response.json();
+        setLastSync(new Date());
 
-      if (data.reply) {
-        setMessages((prev) => [...prev, { role: 'assistant', content: data.reply }]);
+        if (data.throttled) {
+          setMessages((prev) => [
+            ...prev,
+            { role: 'assistant', content: data.reply, isThrottled: true },
+          ]);
+        } else if (data.reply) {
+          setMessages((prev) => [
+            ...prev,
+            { role: 'assistant', content: data.reply, actions: data.actions || [] },
+          ]);
 
-        if (data.actions && data.actions.length > 0) {
-          for (const action of data.actions) {
-            if (action.type === 'NAVIGATE') {
-              setTimeout(() => {
-                window.location.href = action.to;
-              }, 1500);
-            } else if (action.type === 'OPEN_URL') {
-              window.open(action.url, '_blank');
-            }
+          if (data.actions && data.actions.length > 0) {
+            setPendingActions(data.actions);
           }
+        } else {
+          setMessages((prev) => [
+            ...prev,
+            { role: 'assistant', content: 'SIGNAL DISRUPTED. Unable to process request.' },
+          ]);
         }
-      } else {
+      } catch (error) {
+        console.error('COMET chat error:', error);
         setMessages((prev) => [
           ...prev,
-          { role: 'assistant', content: 'SIGNAL DISRUPTED. Unable to process request.' },
+          { role: 'assistant', content: 'SIGNAL LOST. Connection to ship systems failed.' },
         ]);
+      } finally {
+        setIsLoading(false);
       }
-    } catch (error) {
-      console.error('COMET chat error:', error);
-      setMessages((prev) => [
-        ...prev,
-        { role: 'assistant', content: 'SIGNAL LOST. Connection to ship systems failed.' },
-      ]);
-    } finally {
-      setIsLoading(false);
     }
-  }
+
+    function handleAction(action) {
+      if (action.type === 'NAVIGATE') {
+        setIsOpen(false);
+        navigate(action.to);
+      } else if (action.type === 'OPEN_URL') {
+        window.open(action.url, '_blank');
+      }
+      setPendingActions([]);
+    }
+
+    function handleClearChat() {
+      setMessages([]);
+      setPendingActions([]);
+      setShowSettings(false);
+    }
+
+    function handleResetGreeting() {
+      localStorage.removeItem(GREETING_KEY);
+      setHasGreeted(false);
+      setMessages([]);
+      setPendingActions([]);
+      setShowSettings(false);
+    }
+
+    function getTimeSinceSync() {
+      if (!lastSync) return null;
+      const seconds = Math.floor((new Date() - lastSync) / 1000);
+      if (seconds < 60) return `${seconds}s ago`;
+      const minutes = Math.floor(seconds / 60);
+      return `${minutes}m ago`;
+    }
 
   function handleQuickAction(message) {
     sendMessage(message);
@@ -153,73 +193,163 @@ export default function CometWidget() {
         </span>
       </button>
 
-      {isOpen && (
-        <div
-          style={{
-            position: 'fixed',
-            bottom: 0,
-            right: 0,
-            width: '100%',
-            maxWidth: 420,
-            height: '100vh',
-            maxHeight: 600,
-            background: 'linear-gradient(180deg, #0a0a0f 0%, #0f172a 100%)',
-            border: '1px solid rgba(34, 211, 238, 0.3)',
-            borderRadius: '16px 0 0 0',
-            display: 'flex',
-            flexDirection: 'column',
-            zIndex: 9998,
-            boxShadow: '0 0 40px rgba(0,0,0,0.8), 0 0 20px rgba(34, 211, 238, 0.2)',
-          }}
-        >
-          <div
-            style={{
-              padding: '16px 20px',
-              borderBottom: '1px solid rgba(34, 211, 238, 0.2)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-            }}
-          >
-            <div>
-              <h2
+            {isOpen && (
+              <div
                 style={{
-                  fontSize: 14,
-                  fontWeight: 700,
-                  color: '#22d3ee',
-                  fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace',
-                  letterSpacing: '0.1em',
-                  margin: 0,
+                  position: 'fixed',
+                  bottom: isFullscreen ? 0 : 0,
+                  right: isFullscreen ? 0 : 0,
+                  left: isFullscreen ? 0 : 'auto',
+                  top: isFullscreen ? 0 : 'auto',
+                  width: isFullscreen ? '100%' : '100%',
+                  maxWidth: isFullscreen ? '100%' : 420,
+                  height: isFullscreen ? '100%' : '100vh',
+                  maxHeight: isFullscreen ? '100%' : 600,
+                  background: 'linear-gradient(180deg, #0a0a0f 0%, #0f172a 100%)',
+                  border: isFullscreen ? 'none' : '1px solid rgba(34, 211, 238, 0.3)',
+                  borderRadius: isFullscreen ? 0 : '16px 0 0 0',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  zIndex: 9998,
+                  boxShadow: isFullscreen ? 'none' : '0 0 40px rgba(0,0,0,0.8), 0 0 20px rgba(34, 211, 238, 0.2)',
                 }}
               >
-                C.O.M.E.T. CONSOLE
-              </h2>
-              <p
-                style={{
-                  fontSize: 10,
-                  color: 'rgba(34, 211, 238, 0.7)',
-                  fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace',
-                  margin: '4px 0 0 0',
-                }}
-              >
-                SIGNAL: STABLE
-              </p>
-            </div>
-            <button
-              onClick={() => setIsOpen(false)}
-              style={{
-                background: 'transparent',
-                border: 'none',
-                color: 'rgba(255,255,255,0.5)',
-                fontSize: 20,
-                cursor: 'pointer',
-                padding: 4,
-              }}
-              aria-label="Close COMET console"
-            >
-              ×
-            </button>
-          </div>
+                    <div
+                      style={{
+                        padding: '12px 16px',
+                        borderBottom: '1px solid rgba(34, 211, 238, 0.2)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                      }}
+                    >
+                      <div>
+                        <h2
+                          style={{
+                            fontSize: 14,
+                            fontWeight: 700,
+                            color: '#22d3ee',
+                            fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace',
+                            letterSpacing: '0.1em',
+                            margin: 0,
+                          }}
+                        >
+                          C.O.M.E.T. CONSOLE
+                        </h2>
+                        <div style={{ display: 'flex', gap: 12, marginTop: 4 }}>
+                          <span
+                            style={{
+                              fontSize: 9,
+                              color: 'rgba(34, 211, 238, 0.7)',
+                              fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace',
+                            }}
+                          >
+                            UPLINK: READY
+                          </span>
+                          {lastSync && (
+                            <span
+                              style={{
+                                fontSize: 9,
+                                color: 'rgba(255,255,255,0.4)',
+                                fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace',
+                              }}
+                            >
+                              LAST SYNC: {getTimeSinceSync()}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                      <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                        <button
+                          onClick={() => setShowSettings(!showSettings)}
+                          style={{
+                            background: 'transparent',
+                            border: 'none',
+                            color: 'rgba(255,255,255,0.5)',
+                            fontSize: 14,
+                            cursor: 'pointer',
+                            padding: 4,
+                          }}
+                          aria-label="Settings"
+                        >
+                          ⚙
+                        </button>
+                        {!isFullscreen && (
+                          <button
+                            onClick={() => setIsFullscreen(true)}
+                            style={{
+                              background: 'transparent',
+                              border: 'none',
+                              color: 'rgba(255,255,255,0.5)',
+                              fontSize: 14,
+                              cursor: 'pointer',
+                              padding: 4,
+                              display: window.innerWidth <= 768 ? 'block' : 'none',
+                            }}
+                            aria-label="Fullscreen"
+                          >
+                            ⛶
+                          </button>
+                        )}
+                        <button
+                          onClick={() => { setIsOpen(false); setIsFullscreen(false); }}
+                          style={{
+                            background: 'transparent',
+                            border: 'none',
+                            color: 'rgba(255,255,255,0.5)',
+                            fontSize: 20,
+                            cursor: 'pointer',
+                            padding: 4,
+                          }}
+                          aria-label="Close COMET console"
+                        >
+                          ×
+                        </button>
+                      </div>
+                    </div>
+
+                    {showSettings && (
+                      <div
+                        style={{
+                          padding: '12px 16px',
+                          borderBottom: '1px solid rgba(34, 211, 238, 0.1)',
+                          background: 'rgba(0,0,0,0.3)',
+                          display: 'flex',
+                          gap: 8,
+                        }}
+                      >
+                        <button
+                          onClick={handleClearChat}
+                          style={{
+                            padding: '6px 12px',
+                            borderRadius: 6,
+                            border: '1px solid rgba(255,255,255,0.2)',
+                            background: 'transparent',
+                            color: 'rgba(255,255,255,0.7)',
+                            fontSize: 10,
+                            fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace',
+                            cursor: 'pointer',
+                          }}
+                        >
+                          CLEAR CHAT
+                        </button>
+                        <button
+                          onClick={handleResetGreeting}
+                          style={{
+                            padding: '6px 12px',
+                            borderRadius: 6,
+                            border: '1px solid rgba(255,255,255,0.2)',
+                            background: 'transparent',
+                            color: 'rgba(255,255,255,0.7)',
+                            fontSize: 10,
+                            fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace',
+                            cursor: 'pointer',
+                          }}
+                        >
+                          RESET GREETING
+                        </button>
+                      </div>
+                    )}
 
           <div
             style={{
@@ -277,37 +407,80 @@ export default function CometWidget() {
             <div ref={messagesEndRef} />
           </div>
 
-          {showQuickActions && (
-            <div
-              style={{
-                padding: '12px 16px',
-                borderTop: '1px solid rgba(34, 211, 238, 0.1)',
-                display: 'flex',
-                flexWrap: 'wrap',
-                gap: 8,
-              }}
-            >
-              {QUICK_ACTIONS.map((action, idx) => (
-                <button
-                  key={idx}
-                  onClick={() => handleQuickAction(action.message)}
-                  style={{
-                    padding: '6px 12px',
-                    borderRadius: 8,
-                    border: '1px solid rgba(34, 211, 238, 0.3)',
-                    background: 'rgba(34, 211, 238, 0.1)',
-                    color: '#22d3ee',
-                    fontSize: 11,
-                    fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace',
-                    cursor: 'pointer',
-                    transition: 'all 0.2s',
-                  }}
-                >
-                  {action.label}
-                </button>
-              ))}
-            </div>
-          )}
+                    {pendingActions.length > 0 && (
+                      <div
+                        style={{
+                          padding: '12px 16px',
+                          borderTop: '1px solid rgba(34, 211, 238, 0.1)',
+                          background: 'rgba(34, 211, 238, 0.05)',
+                        }}
+                      >
+                        <p
+                          style={{
+                            fontSize: 10,
+                            color: 'rgba(255,255,255,0.5)',
+                            fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace',
+                            marginBottom: 8,
+                          }}
+                        >
+                          SUGGESTED ACTIONS:
+                        </p>
+                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+                          {pendingActions.map((action, idx) => (
+                            <button
+                              key={idx}
+                              onClick={() => handleAction(action)}
+                              style={{
+                                padding: '8px 14px',
+                                borderRadius: 8,
+                                border: '1px solid rgba(34, 211, 238, 0.4)',
+                                background: 'rgba(34, 211, 238, 0.15)',
+                                color: '#22d3ee',
+                                fontSize: 11,
+                                fontWeight: 600,
+                                fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace',
+                                cursor: 'pointer',
+                                transition: 'all 0.2s',
+                              }}
+                            >
+                              {action.label || (action.type === 'NAVIGATE' ? `Go to ${action.to}` : 'Open Link')}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {showQuickActions && pendingActions.length === 0 && (
+                      <div
+                        style={{
+                          padding: '12px 16px',
+                          borderTop: '1px solid rgba(34, 211, 238, 0.1)',
+                          display: 'flex',
+                          flexWrap: 'wrap',
+                          gap: 8,
+                        }}
+                      >
+                        {QUICK_ACTIONS.map((action, idx) => (
+                          <button
+                            key={idx}
+                            onClick={() => handleQuickAction(action.message)}
+                            style={{
+                              padding: '6px 12px',
+                              borderRadius: 8,
+                              border: '1px solid rgba(34, 211, 238, 0.3)',
+                              background: 'rgba(34, 211, 238, 0.1)',
+                              color: '#22d3ee',
+                              fontSize: 11,
+                              fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace',
+                              cursor: 'pointer',
+                              transition: 'all 0.2s',
+                            }}
+                          >
+                            {action.label}
+                          </button>
+                        ))}
+                      </div>
+                    )}
 
           <div
             style={{
