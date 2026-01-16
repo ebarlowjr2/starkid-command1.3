@@ -1,6 +1,13 @@
+// AI Configuration - locked for cost control and safety (same as comet-chat)
+const AI_CONFIG = {
+  model: 'gpt-4o-mini',
+  temperature: 0.4, // Slightly higher than chat for creative drafts, but still controlled
+  maxTokens: 600,
+};
+
 const SYSTEM_PROMPT = `You are C.O.M.E.T. (Command Operations & Mission Event Technician) generating social media posts for StarKid Command.
 
-STRICT RULES for drafting posts:
+STRICT RULES for drafting posts (MUST FOLLOW):
 1. MUST mention the source (NASA/ESA/etc.) in the text - format as "Source: NASA" or "via NASA"
 2. MUST NOT claim "confirmed" or "official" unless the source explicitly says so
 3. MUST include the original event URL if available
@@ -9,6 +16,7 @@ STRICT RULES for drafting posts:
 6. Use professional, enthusiast-friendly tone
 7. Include relevant hashtags sparingly (max 3)
 8. Never invent dates, specs, or details not in the source
+9. ONLY use information provided in the event data - do NOT add external knowledge
 
 Generate 3 versions:
 1. SHORT (under 100 chars) - Quick headline style
@@ -155,9 +163,21 @@ function generateFallbackDrafts(event) {
 async function generateWithOpenAI(event) {
   const apiKey = process.env.OPENAI_API_KEY;
   
-  if (!apiKey) {
-    return generateFallbackDrafts(event);
+  // Check kill switch
+  if (process.env.COMET_AI_ENABLED === 'false') {
+    console.log(JSON.stringify({
+      type: 'comet_social_ai_disabled',
+      timestamp: new Date().toISOString(),
+      message: 'COMET AI DISABLED — Using fallback drafts',
+    }));
+    return { drafts: generateFallbackDrafts(event), mode: 'fallback_disabled' };
   }
+  
+  if (!apiKey) {
+    return { drafts: generateFallbackDrafts(event), mode: 'fallback_no_key' };
+  }
+
+  const startTime = Date.now();
 
   try {
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
@@ -167,7 +187,7 @@ async function generateWithOpenAI(event) {
         'Authorization': `Bearer ${apiKey}`,
       },
       body: JSON.stringify({
-        model: 'gpt-4o-mini',
+        model: AI_CONFIG.model,
         messages: [
           { role: 'system', content: SYSTEM_PROMPT },
           {
@@ -188,24 +208,40 @@ Return as JSON array with format:
 ]`,
           },
         ],
-        max_tokens: 800,
-        temperature: 0.8,
+        max_tokens: AI_CONFIG.maxTokens,
+        temperature: AI_CONFIG.temperature,
       }),
     });
 
+    const apiLatency = Date.now() - startTime;
+
     if (!response.ok) {
       console.error('OpenAI API error');
-      return generateFallbackDrafts(event);
+      return { drafts: generateFallbackDrafts(event), mode: 'openai_error' };
     }
 
     const data = await response.json();
     const content = data.choices?.[0]?.message?.content;
 
+    // Log OpenAI call details (server-side only)
+    console.log(JSON.stringify({
+      type: 'comet_social_openai_call',
+      timestamp: new Date().toISOString(),
+      model: AI_CONFIG.model,
+      temperature: AI_CONFIG.temperature,
+      maxTokens: AI_CONFIG.maxTokens,
+      apiLatencyMs: apiLatency,
+      promptTokens: data.usage?.prompt_tokens,
+      completionTokens: data.usage?.completion_tokens,
+      totalTokens: data.usage?.total_tokens,
+      eventId: event.id,
+    }));
+
     try {
       const jsonMatch = content.match(/\[[\s\S]*\]/);
       if (jsonMatch) {
         const variants = JSON.parse(jsonMatch[0]);
-        return variants.map((v, idx) => ({
+        const drafts = variants.map((v, idx) => ({
           id: `draft-${Date.now()}-${idx}`,
           platform: 'x',
           eventId: event.id,
@@ -214,15 +250,16 @@ Return as JSON array with format:
           content: v.content,
           createdAt: new Date().toISOString(),
         }));
+        return { drafts, mode: 'openai', apiLatencyMs: apiLatency };
       }
     } catch (parseError) {
       console.error('Failed to parse OpenAI response:', parseError);
     }
 
-    return generateFallbackDrafts(event);
+    return { drafts: generateFallbackDrafts(event), mode: 'openai_parse_error' };
   } catch (error) {
     console.error('OpenAI API error:', error);
-    return generateFallbackDrafts(event);
+    return { drafts: generateFallbackDrafts(event), mode: 'openai_error' };
   }
 }
 
@@ -281,12 +318,22 @@ export default async function handler(req, res) {
         return;
       }
 
-      let drafts = await generateWithOpenAI(event);
+      const result = await generateWithOpenAI(event);
+      let drafts = result.drafts;
+      const mode = result.mode;
+      const apiLatencyMs = result.apiLatencyMs;
 
+      // Apply guardrails: validate and fix all drafts
       drafts = drafts.map(draft => {
         const validation = validateDraft(draft, event);
         if (!validation.valid) {
-          console.log(`Draft validation issues for ${draft.variant}:`, validation.issues);
+          console.log(JSON.stringify({
+            type: 'comet_social_draft_validation',
+            timestamp: new Date().toISOString(),
+            variant: draft.variant,
+            issues: validation.issues,
+            eventId: event.id,
+          }));
           return fixDraft(draft, event);
         }
         return draft;
@@ -296,11 +343,22 @@ export default async function handler(req, res) {
 
       draftsStore = [...drafts, ...draftsStore].slice(0, 100);
 
+      // Log draft generation summary
+      console.log(JSON.stringify({
+        type: 'comet_social_drafts_generated',
+        timestamp: new Date().toISOString(),
+        mode,
+        eventId: event.id,
+        draftsCreated: drafts.length,
+        apiLatencyMs,
+      }));
+
       res.status(200).json({
         success: true,
         draftsCreated: drafts.length,
         drafts,
         eventHash: computeEventHash(event),
+        mode,
       });
     } catch (error) {
       console.error('Generate post error:', error);

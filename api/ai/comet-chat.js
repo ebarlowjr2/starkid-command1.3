@@ -1,3 +1,10 @@
+// AI Configuration - locked for cost control and safety
+const AI_CONFIG = {
+  model: 'gpt-4o-mini',
+  temperature: 0.3,
+  maxTokens: 350,
+};
+
 const COMET_PERSONA = {
   name: 'C.O.M.E.T.',
   fullName: 'Command Operations & Mission Event Technician',
@@ -27,13 +34,16 @@ const SYSTEM_PROMPT = `You are ${COMET_PERSONA.name} (${COMET_PERSONA.fullName})
 
 VOICE & TONE: ${COMET_PERSONA.voice.tone}, ${COMET_PERSONA.voice.style}
 
-SAFETY RULES (CRITICAL):
+SAFETY RULES (CRITICAL - MUST FOLLOW):
 ${COMET_PERSONA.safety.forbiddenClaims.map(r => `- ${r}`).join('\n')}
 
 REQUIRED LANGUAGE:
 ${COMET_PERSONA.safety.requiredLanguage.map(r => `- ${r}`).join('\n')}
 
-You must only use the provided context data. If the user asks for details not present in context, say you do not have that information in the ship's database yet.
+CONTEXT-ONLY RULE (CRITICAL):
+You MUST ONLY answer questions using the provided context data below. Do NOT use any external knowledge.
+If the user asks for details not present in context, you MUST reply: "I don't have that information in the ship's database yet."
+Do NOT fill gaps with general knowledge. Do NOT make up information. Do NOT speculate.
 
 RESPONSE FORMAT - You MUST return valid JSON with this structure:
 {
@@ -228,11 +238,22 @@ function parseOpenAIResponse(content) {
 async function callOpenAI(messages, contextPacket) {
   const apiKey = process.env.OPENAI_API_KEY;
   
+  // Kill switch - check if AI is disabled
+  if (process.env.COMET_AI_ENABLED === 'false') {
+    console.log(JSON.stringify({
+      type: 'comet_ai_disabled',
+      timestamp: new Date().toISOString(),
+      message: 'COMET AI DISABLED — FALLBACK MODE ACTIVE',
+    }));
+    return null; // Signal to use fallback
+  }
+  
   if (!apiKey) {
     return {
       reply: "SYSTEM OFFLINE. AI core not configured. Please check ship systems.",
       actions: [],
       sources: [],
+      mode: 'no_key',
     };
   }
 
@@ -249,6 +270,8 @@ async function callOpenAI(messages, contextPacket) {
     })),
   ];
 
+  const startTime = Date.now();
+  
   try {
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
@@ -257,13 +280,15 @@ async function callOpenAI(messages, contextPacket) {
         'Authorization': `Bearer ${apiKey}`,
       },
       body: JSON.stringify({
-        model: 'gpt-4o-mini',
+        model: AI_CONFIG.model,
         messages: apiMessages,
-        max_tokens: 600,
-        temperature: 0.7,
+        max_tokens: AI_CONFIG.maxTokens,
+        temperature: AI_CONFIG.temperature,
         response_format: { type: 'json_object' },
       }),
     });
+
+    const apiLatency = Date.now() - startTime;
 
     if (!response.ok) {
       const errorText = await response.text();
@@ -272,19 +297,38 @@ async function callOpenAI(messages, contextPacket) {
         reply: "SIGNAL DISRUPTED. Unable to process request at this time.",
         actions: [],
         sources: [],
+        mode: 'openai_error',
       };
     }
 
     const data = await response.json();
     const content = data.choices?.[0]?.message?.content || "SIGNAL LOST. No response received.";
     
-    return parseOpenAIResponse(content);
+    // Log OpenAI call details (server-side only)
+    console.log(JSON.stringify({
+      type: 'comet_openai_call',
+      timestamp: new Date().toISOString(),
+      model: AI_CONFIG.model,
+      temperature: AI_CONFIG.temperature,
+      maxTokens: AI_CONFIG.maxTokens,
+      apiLatencyMs: apiLatency,
+      promptTokens: data.usage?.prompt_tokens,
+      completionTokens: data.usage?.completion_tokens,
+      totalTokens: data.usage?.total_tokens,
+    }));
+    
+    const result = parseOpenAIResponse(content);
+    result.mode = 'openai';
+    result.model = AI_CONFIG.model;
+    result.apiLatencyMs = apiLatency;
+    return result;
   } catch (error) {
     console.error('OpenAI API error:', error);
     return {
       reply: "SIGNAL LOST. Connection to AI core failed.",
       actions: [],
       sources: [],
+      mode: 'openai_error',
     };
   }
 }
@@ -501,28 +545,48 @@ export default async function handler(req, res) {
     
     let result;
     let mode = 'fallback';
+    let model = null;
+    let apiLatencyMs = null;
     let intent = detectIntent(lastUserMessage.content);
 
-    if (process.env.OPENAI_API_KEY) {
-      mode = 'openai';
+    // Check if AI is enabled and API key exists
+    const aiEnabled = process.env.COMET_AI_ENABLED !== 'false';
+    const hasApiKey = !!process.env.OPENAI_API_KEY;
+
+    if (aiEnabled && hasApiKey) {
       result = await callOpenAI(messages, contextPacket);
+      // If callOpenAI returns null, it means the kill switch was activated mid-request
+      if (result === null) {
+        mode = 'fallback_killswitch';
+        result = generateFallbackResponse(lastUserMessage.content, liveContext);
+      } else {
+        mode = result.mode || 'openai';
+        model = result.model;
+        apiLatencyMs = result.apiLatencyMs;
+      }
     } else {
+      mode = aiEnabled ? 'fallback_no_key' : 'fallback_disabled';
       result = generateFallbackResponse(lastUserMessage.content, liveContext);
     }
 
     const latency = Date.now() - startTime;
     
+    // Privacy-safe logging (no raw messages)
     console.log(JSON.stringify({
       type: 'comet_request',
       timestamp: new Date().toISOString(),
       route: context?.route || 'unknown',
       intent,
       mode,
+      model,
+      aiEnabled,
+      hasApiKey,
       hasActions: result.actions?.length > 0,
       actionCount: result.actions?.length || 0,
       hasSources: result.sources?.length > 0,
       sourceCount: result.sources?.length || 0,
       latencyMs: latency,
+      apiLatencyMs,
     }));
 
     res.status(200).json({
