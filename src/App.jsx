@@ -28,6 +28,8 @@ import SLSDetailPage from './pages/missions/SLSDetailPage.jsx'
 import OrionDetailPage from './pages/missions/OrionDetailPage.jsx'
 import SupportPage from './pages/SupportPage.jsx'
 import AboutPage from './pages/AboutPage.jsx'
+import SocialQueuePage from './pages/ops/SocialQueuePage.jsx'
+import CometWidget from './components/comet/CometWidget.jsx'
 
 export default function App() {
   return (
@@ -186,9 +188,10 @@ export default function App() {
                                       <Route path="/missions/artemis" element={<ArtemisPage />} />
                                                                           <Route path="/missions/artemis/sls" element={<SLSDetailPage />} />
                                                                           <Route path="/missions/artemis/orion" element={<OrionDetailPage />} />
-                                                                          <Route path="/support" element={<SupportPage />} />
-                                                                          <Route path="/about" element={<AboutPage />} />
-                                                                        </Routes>
+                                                                                                                                                  <Route path="/support" element={<SupportPage />} />
+                                                                                                                                                  <Route path="/about" element={<AboutPage />} />
+                                                                                                                                                  <Route path="/ops/social-queue" element={<SocialQueuePage />} />
+                                                                                                                                                </Routes>
                 </main>
 
                 <footer className="p-4 bg-gradient-to-r from-black to-zinc-900 border-t border-cyan-800 text-xs text-cyan-300">
@@ -207,6 +210,7 @@ export default function App() {
                     <p className="text-center opacity-50">© {new Date().getFullYear()} StarKid Command</p>
                   </div>
                 </footer>
+        <CometWidget />
       </div>
     </BrowserRouter>
   )
