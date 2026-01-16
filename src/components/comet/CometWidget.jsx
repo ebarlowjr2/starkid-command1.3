@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 const GREETING_KEY = 'comet_greeted_v1';
+const LAUNCH_NIGHT_KEY = 'comet_launch_night_mode';
 
 const QUICK_ACTIONS = [
   { label: 'Artemis II brief', message: 'Give me a brief on Artemis II' },
@@ -9,6 +10,12 @@ const QUICK_ACTIONS = [
   { label: 'Latest official updates', message: 'What are the latest official updates?' },
   { label: 'Explore rockets', message: 'Tell me about rockets I can explore' },
   { label: 'Explore planets', message: 'Tell me about planets I can explore' },
+];
+
+const LAUNCH_NIGHT_QUICK_ACTIONS = [
+  { label: 'Open Live', message: "What's live now?" },
+  { label: 'Mission Brief', message: 'Give me the Artemis II mission brief' },
+  { label: 'Timeline', message: 'Show me the launch timeline' },
 ];
 
 const GREETING_MESSAGES = [
@@ -33,12 +40,19 @@ export default function CometWidget() {
   const [lastSync, setLastSync] = useState(null);
   const [showSettings, setShowSettings] = useState(false);
   const [pendingActions, setPendingActions] = useState([]);
+  const [maybeActions, setMaybeActions] = useState([]);
+  const [pendingSources, setPendingSources] = useState([]);
+  const [launchNightMode, setLaunchNightMode] = useState(false);
   const messagesEndRef = useRef(null);
 
   useEffect(() => {
     const greeted = localStorage.getItem(GREETING_KEY);
     if (greeted) {
       setHasGreeted(true);
+    }
+    const launchNight = localStorage.getItem(LAUNCH_NIGHT_KEY);
+    if (launchNight === 'true') {
+      setLaunchNightMode(true);
     }
   }, []);
 
@@ -63,6 +77,8 @@ export default function CometWidget() {
       setInput('');
       setIsLoading(true);
       setPendingActions([]);
+      setMaybeActions([]);
+      setPendingSources([]);
 
       try {
         const response = await fetch('/api/ai/comet-chat', {
@@ -72,6 +88,7 @@ export default function CometWidget() {
             messages: newMessages.filter((m) => m.role !== 'system'),
             context: {
               route: window.location.pathname,
+              launchNightMode,
             },
           }),
         });
@@ -87,11 +104,17 @@ export default function CometWidget() {
         } else if (data.reply) {
           setMessages((prev) => [
             ...prev,
-            { role: 'assistant', content: data.reply, actions: data.actions || [] },
+            { role: 'assistant', content: data.reply, actions: data.actions || [], sources: data.sources || [] },
           ]);
 
           if (data.actions && data.actions.length > 0) {
             setPendingActions(data.actions);
+          }
+          if (data.maybeActions && data.maybeActions.length > 0) {
+            setMaybeActions(data.maybeActions);
+          }
+          if (data.sources && data.sources.length > 0) {
+            setPendingSources(data.sources);
           }
         } else {
           setMessages((prev) => [
@@ -132,6 +155,12 @@ export default function CometWidget() {
       setMessages([]);
       setPendingActions([]);
       setShowSettings(false);
+    }
+
+    function handleToggleLaunchNight() {
+      const newValue = !launchNightMode;
+      setLaunchNightMode(newValue);
+      localStorage.setItem(LAUNCH_NIGHT_KEY, newValue ? 'true' : 'false');
     }
 
     function getTimeSinceSync() {
@@ -315,6 +344,7 @@ export default function CometWidget() {
                           borderBottom: '1px solid rgba(34, 211, 238, 0.1)',
                           background: 'rgba(0,0,0,0.3)',
                           display: 'flex',
+                          flexWrap: 'wrap',
                           gap: 8,
                         }}
                       >
@@ -347,6 +377,21 @@ export default function CometWidget() {
                           }}
                         >
                           RESET GREETING
+                        </button>
+                        <button
+                          onClick={handleToggleLaunchNight}
+                          style={{
+                            padding: '6px 12px',
+                            borderRadius: 6,
+                            border: launchNightMode ? '1px solid rgba(251, 146, 60, 0.5)' : '1px solid rgba(255,255,255,0.2)',
+                            background: launchNightMode ? 'rgba(251, 146, 60, 0.2)' : 'transparent',
+                            color: launchNightMode ? '#fb923c' : 'rgba(255,255,255,0.7)',
+                            fontSize: 10,
+                            fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace',
+                            cursor: 'pointer',
+                          }}
+                        >
+                          {launchNightMode ? 'LAUNCH NIGHT: ON' : 'LAUNCH NIGHT: OFF'}
                         </button>
                       </div>
                     )}
@@ -450,6 +495,94 @@ export default function CometWidget() {
                       </div>
                     )}
 
+                    {maybeActions.length > 0 && pendingActions.length === 0 && (
+                      <div
+                        style={{
+                          padding: '12px 16px',
+                          borderTop: '1px solid rgba(255, 255, 255, 0.05)',
+                          background: 'rgba(255, 255, 255, 0.02)',
+                        }}
+                      >
+                        <p
+                          style={{
+                            fontSize: 10,
+                            color: 'rgba(255,255,255,0.4)',
+                            fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace',
+                            marginBottom: 8,
+                          }}
+                        >
+                          MAYBE TRY:
+                        </p>
+                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+                          {maybeActions.map((action, idx) => (
+                            <button
+                              key={idx}
+                              onClick={() => handleAction(action)}
+                              style={{
+                                padding: '6px 12px',
+                                borderRadius: 8,
+                                border: '1px solid rgba(255, 255, 255, 0.15)',
+                                background: 'transparent',
+                                color: 'rgba(255, 255, 255, 0.5)',
+                                fontSize: 10,
+                                fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace',
+                                cursor: 'pointer',
+                                transition: 'all 0.2s',
+                              }}
+                            >
+                              {action.label || (action.type === 'NAVIGATE' ? `Go to ${action.to}` : 'Open Link')}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {pendingSources.length > 0 && (
+                      <div
+                        style={{
+                          padding: '8px 16px',
+                          borderTop: '1px solid rgba(255, 255, 255, 0.05)',
+                          background: 'rgba(0, 0, 0, 0.2)',
+                        }}
+                      >
+                        <p
+                          style={{
+                            fontSize: 9,
+                            color: 'rgba(255,255,255,0.3)',
+                            fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace',
+                            marginBottom: 4,
+                          }}
+                        >
+                          SOURCE LINKS:
+                        </p>
+                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+                          {pendingSources.map((source, idx) => (
+                            <a
+                              key={idx}
+                              href={source.url}
+                              target={source.url?.startsWith('/') ? '_self' : '_blank'}
+                              rel="noopener noreferrer"
+                              onClick={(e) => {
+                                if (source.url?.startsWith('/')) {
+                                  e.preventDefault();
+                                  setIsOpen(false);
+                                  navigate(source.url);
+                                }
+                              }}
+                              style={{
+                                fontSize: 9,
+                                color: 'rgba(34, 211, 238, 0.6)',
+                                fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace',
+                                textDecoration: 'none',
+                              }}
+                            >
+                              {source.label}
+                            </a>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
                     {showQuickActions && pendingActions.length === 0 && (
                       <div
                         style={{
@@ -460,16 +593,16 @@ export default function CometWidget() {
                           gap: 8,
                         }}
                       >
-                        {QUICK_ACTIONS.map((action, idx) => (
+                        {(launchNightMode ? LAUNCH_NIGHT_QUICK_ACTIONS : QUICK_ACTIONS).map((action, idx) => (
                           <button
                             key={idx}
                             onClick={() => handleQuickAction(action.message)}
                             style={{
                               padding: '6px 12px',
                               borderRadius: 8,
-                              border: '1px solid rgba(34, 211, 238, 0.3)',
-                              background: 'rgba(34, 211, 238, 0.1)',
-                              color: '#22d3ee',
+                              border: launchNightMode ? '1px solid rgba(251, 146, 60, 0.4)' : '1px solid rgba(34, 211, 238, 0.3)',
+                              background: launchNightMode ? 'rgba(251, 146, 60, 0.15)' : 'rgba(34, 211, 238, 0.1)',
+                              color: launchNightMode ? '#fb923c' : '#22d3ee',
                               fontSize: 11,
                               fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace',
                               cursor: 'pointer',

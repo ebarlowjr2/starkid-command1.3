@@ -1,9 +1,50 @@
-const SYSTEM_PROMPT = `You are C.O.M.E.T. (Command Operations & Mission Event Technician) inside StarKid Command, a mission-control style space dashboard.
+const COMET_PERSONA = {
+  name: 'C.O.M.E.T.',
+  fullName: 'Command Operations & Mission Event Technician',
+  voice: {
+    tone: 'calm, technical, professional',
+    style: 'mission-control telemetry readout',
+  },
+  safety: {
+    forbiddenClaims: [
+      'Never invent or confirm specific launch dates beyond what is in context',
+      'Never invent crew assignments not in context',
+      'Never invent hardware specifications not in context',
+      'Never claim "confirmed" or "official" unless source explicitly says so',
+    ],
+    requiredLanguage: [
+      'Use "NET" (No Earlier Than) for all future dates',
+      'Use "subject to change" for schedules',
+      'Always cite source when providing mission data',
+    ],
+  },
+  actions: {
+    confidenceThreshold: 0.65,
+  },
+};
+
+const SYSTEM_PROMPT = `You are ${COMET_PERSONA.name} (${COMET_PERSONA.fullName}) inside StarKid Command, a mission-control style space dashboard.
+
+VOICE & TONE: ${COMET_PERSONA.voice.tone}, ${COMET_PERSONA.voice.style}
+
+SAFETY RULES (CRITICAL):
+${COMET_PERSONA.safety.forbiddenClaims.map(r => `- ${r}`).join('\n')}
+
+REQUIRED LANGUAGE:
+${COMET_PERSONA.safety.requiredLanguage.map(r => `- ${r}`).join('\n')}
+
 You must only use the provided context data. If the user asks for details not present in context, say you do not have that information in the ship's database yet.
-Never guess or invent: dates, launch times, crew lists, hardware specs, or mission status.
-For schedules, use NET/window language and remind that timelines can change.
-Keep replies concise, calm, and technical.
-When helpful, propose an action like navigating to a relevant page (return an action object).
+
+RESPONSE FORMAT - You MUST return valid JSON with this structure:
+{
+  "reply": "Your response text here",
+  "actions": [
+    { "type": "NAVIGATE", "to": "/route", "label": "Button Label", "confidence": 0.9 }
+  ],
+  "sources": [
+    { "label": "Source Name", "url": "https://..." }
+  ]
+}
 
 Available routes in StarKid Command:
 - /explore - Feature directory hub
@@ -21,7 +62,9 @@ Available routes in StarKid Command:
 - /sky-events - Sky Events
 - /comets - Comets tracker
 
-When suggesting navigation, format your response to include the route suggestion naturally in your text.`;
+When suggesting navigation, include it as an action with appropriate confidence (0.0-1.0).
+Only include actions with confidence >= ${COMET_PERSONA.actions.confidenceThreshold}.
+Always include sources for any data you reference.`;
 
 const rateLimitStore = new Map();
 const RATE_LIMIT_WINDOW = 10 * 60 * 1000;
@@ -142,6 +185,46 @@ function extractActions(reply) {
   return actions;
 }
 
+function parseOpenAIResponse(content) {
+  try {
+    const jsonMatch = content.match(/\{[\s\S]*\}/);
+    if (jsonMatch) {
+      const parsed = JSON.parse(jsonMatch[0]);
+      const actions = (parsed.actions || [])
+        .filter(a => (a.confidence || 1) >= COMET_PERSONA.actions.confidenceThreshold)
+        .map(a => ({
+          type: a.type,
+          to: a.to,
+          url: a.url,
+          label: a.label,
+          confidence: a.confidence || 1,
+        }));
+      
+      const lowConfidenceActions = (parsed.actions || [])
+        .filter(a => (a.confidence || 1) < COMET_PERSONA.actions.confidenceThreshold && (a.confidence || 0) >= 0.4)
+        .map(a => ({
+          type: a.type,
+          to: a.to,
+          url: a.url,
+          label: a.label,
+          confidence: a.confidence || 0.5,
+        }));
+
+      return {
+        reply: parsed.reply || content,
+        actions,
+        maybeActions: lowConfidenceActions,
+        sources: parsed.sources || [],
+      };
+    }
+  } catch (e) {
+    console.error('Failed to parse OpenAI JSON response:', e);
+  }
+  
+  const actions = extractActions(content);
+  return { reply: content, actions, sources: [] };
+}
+
 async function callOpenAI(messages, contextPacket) {
   const apiKey = process.env.OPENAI_API_KEY;
   
@@ -149,6 +232,7 @@ async function callOpenAI(messages, contextPacket) {
     return {
       reply: "SYSTEM OFFLINE. AI core not configured. Please check ship systems.",
       actions: [],
+      sources: [],
     };
   }
 
@@ -175,8 +259,9 @@ async function callOpenAI(messages, contextPacket) {
       body: JSON.stringify({
         model: 'gpt-4o-mini',
         messages: apiMessages,
-        max_tokens: 500,
+        max_tokens: 600,
         temperature: 0.7,
+        response_format: { type: 'json_object' },
       }),
     });
 
@@ -186,85 +271,103 @@ async function callOpenAI(messages, contextPacket) {
       return {
         reply: "SIGNAL DISRUPTED. Unable to process request at this time.",
         actions: [],
+        sources: [],
       };
     }
 
     const data = await response.json();
-    const reply = data.choices?.[0]?.message?.content || "SIGNAL LOST. No response received.";
-    const actions = extractActions(reply);
-
-    return { reply, actions };
+    const content = data.choices?.[0]?.message?.content || "SIGNAL LOST. No response received.";
+    
+    return parseOpenAIResponse(content);
   } catch (error) {
     console.error('OpenAI API error:', error);
     return {
       reply: "SIGNAL LOST. Connection to AI core failed.",
       actions: [],
+      sources: [],
     };
   }
 }
 
-function generateFallbackResponse(userMessage) {
+function generateFallbackResponse(userMessage, liveContext) {
   const msg = userMessage.toLowerCase();
 
   if (msg.includes('artemis') && (msg.includes('brief') || msg.includes('about') || msg.includes('tell'))) {
     return {
-      reply: `ARTEMIS II MISSION BRIEF: NASA's Artemis II will be the first crewed mission of the Artemis program, sending four astronauts on a lunar flyby. Launch window opens NET February 2026 (subject to change). Crew: Reid Wiseman (Commander), Victor Glover (Pilot), Christina Koch (Mission Specialist), Jeremy Hansen (Mission Specialist - CSA). Hardware: SLS rocket + Orion spacecraft. Navigate to /missions/artemis for full mission control dashboard.`,
-      actions: [{ type: 'NAVIGATE', to: '/missions/artemis?mission=artemis-2' }],
+      reply: `ARTEMIS II MISSION BRIEF: NASA's Artemis II will be the first crewed mission of the Artemis program, sending four astronauts on a lunar flyby. Launch window opens NET February 2026 (subject to change). Crew: Reid Wiseman (Commander), Victor Glover (Pilot), Christina Koch (Mission Specialist), Jeremy Hansen (Mission Specialist - CSA). Hardware: SLS rocket + Orion spacecraft.`,
+      actions: [{ type: 'NAVIGATE', to: '/missions/artemis?mission=artemis-2', label: 'Open Artemis II Brief', confidence: 0.95 }],
+      sources: [{ label: 'Artemis Mission Data', url: '/missions/artemis' }],
     };
   }
 
   if (msg.includes('live') || msg.includes('stream') || msg.includes('youtube')) {
     return {
-      reply: `LIVE COVERAGE: Check the Live page for active streams from Everyday Astronaut, NASA, SpaceX, and other space channels. Navigate to /updates/live to see what's broadcasting now.`,
-      actions: [{ type: 'NAVIGATE', to: '/updates/live' }],
+      reply: `LIVE COVERAGE: Check the Live page for active streams from Everyday Astronaut, NASA, SpaceX, and other space channels.`,
+      actions: [{ type: 'NAVIGATE', to: '/updates/live', label: 'Check Live Streams', confidence: 0.9 }],
+      sources: [{ label: 'Live Streams', url: '/updates/live' }],
     };
   }
 
-  if (msg.includes('update') || msg.includes('news') || msg.includes('official')) {
+  if (msg.includes('update') || msg.includes('news') || msg.includes('official') || msg.includes('latest')) {
+    let reply = `OFFICIAL UPDATES: The Official Updates page aggregates mission events from NASA RSS feeds.`;
+    if (liveContext?.timeSinceLastEvent) {
+      reply += ` Last update: ${liveContext.timeSinceLastEvent}.`;
+    }
+    if (liveContext?.recentEvents?.length > 0) {
+      reply += ` Latest: "${liveContext.recentEvents[0].title}" (${liveContext.recentEvents[0].source}).`;
+    }
     return {
-      reply: `OFFICIAL UPDATES: The Official Updates page aggregates mission events from NASA RSS feeds. Navigate to /updates/official for the latest. For broader space news, check /updates/news.`,
-      actions: [{ type: 'NAVIGATE', to: '/updates/official' }],
+      reply,
+      actions: [{ type: 'NAVIGATE', to: '/updates/official', label: 'View Official Updates', confidence: 0.9 }],
+      sources: [{ label: 'Official Updates', url: '/updates/official' }],
     };
   }
 
   if (msg.includes('rocket') || msg.includes('launch vehicle')) {
     return {
-      reply: `ROCKET DATABASE: StarKid Command tracks 167+ active launch vehicles from the Launch Library 2 API. Browse by manufacturer, payload capacity, or reusability. Navigate to /rockets/launch-vehicles to explore.`,
-      actions: [{ type: 'NAVIGATE', to: '/rockets/launch-vehicles' }],
+      reply: `ROCKET DATABASE: StarKid Command tracks 167+ active launch vehicles from the Launch Library 2 API. Browse by manufacturer, payload capacity, or reusability.`,
+      actions: [{ type: 'NAVIGATE', to: '/rockets/launch-vehicles', label: 'Browse Launch Vehicles', confidence: 0.9 }],
+      sources: [{ label: 'Launch Library 2 API', url: 'https://thespacedevs.com/llapi' }],
     };
   }
 
   if (msg.includes('spacecraft') || msg.includes('capsule')) {
     return {
-      reply: `SPACECRAFT DATABASE: Explore active spacecraft including Crew Dragon, Starliner, Soyuz, and more. Navigate to /rockets/spacecraft for the full catalog.`,
-      actions: [{ type: 'NAVIGATE', to: '/rockets/spacecraft' }],
+      reply: `SPACECRAFT DATABASE: Explore active spacecraft including Crew Dragon, Starliner, Soyuz, and more.`,
+      actions: [{ type: 'NAVIGATE', to: '/rockets/spacecraft', label: 'Browse Spacecraft', confidence: 0.9 }],
+      sources: [{ label: 'Launch Library 2 API', url: 'https://thespacedevs.com/llapi' }],
     };
   }
 
   if (msg.includes('planet') || msg.includes('mars')) {
     return {
-      reply: `PLANETARY EXPLORATION: Mars Command Center is online with rover photos, weather data, and mission facts. Venus, Jupiter, and Saturn are coming soon. Navigate to /planets to explore.`,
-      actions: [{ type: 'NAVIGATE', to: '/planets' }],
+      reply: `PLANETARY EXPLORATION: Mars Command Center is online with rover photos, weather data, and mission facts. Venus, Jupiter, and Saturn are coming soon.`,
+      actions: [{ type: 'NAVIGATE', to: '/planets', label: 'Explore Planets', confidence: 0.85 }],
+      sources: [{ label: 'NASA Mars Data', url: 'https://mars.nasa.gov' }],
     };
   }
 
   if (msg.includes('exoplanet') || msg.includes('beyond')) {
     return {
-      reply: `EXOPLANET EXPLORER: Discover 70+ confirmed exoplanets including the TRAPPIST-1 system and Proxima Centauri b. Navigate to /beyond to explore worlds beyond our solar system.`,
-      actions: [{ type: 'NAVIGATE', to: '/beyond' }],
+      reply: `EXOPLANET EXPLORER: Discover 70+ confirmed exoplanets including the TRAPPIST-1 system and Proxima Centauri b.`,
+      actions: [{ type: 'NAVIGATE', to: '/beyond', label: 'Explore Exoplanets', confidence: 0.9 }],
+      sources: [{ label: 'NASA Exoplanet Archive', url: 'https://exoplanetarchive.ipac.caltech.edu' }],
     };
   }
 
   if (msg.includes('explore') || msg.includes('what can') || msg.includes('features')) {
     return {
-      reply: `AVAILABLE SYSTEMS: Artemis Program (/missions/artemis), Live Streams (/updates/live), Rockets (/rockets), Planets (/planets), Exoplanets (/beyond), Command Center (/command), Sky Events (/sky-events), Comets (/comets). Navigate to /explore for the full feature directory.`,
-      actions: [{ type: 'NAVIGATE', to: '/explore' }],
+      reply: `AVAILABLE SYSTEMS: Artemis Program, Live Streams, Rockets, Planets, Exoplanets, Command Center, Sky Events, Comets.`,
+      actions: [{ type: 'NAVIGATE', to: '/explore', label: 'Open Feature Directory', confidence: 0.95 }],
+      sources: [{ label: 'StarKid Command', url: '/explore' }],
     };
   }
 
   return {
-    reply: `I don't have specific information about that in the ship's database yet. Try asking about Artemis missions, rockets, spacecraft, planets, or live coverage. Navigate to /explore to see all available systems.`,
+    reply: `I don't have specific information about that in the ship's database yet. Try asking about Artemis missions, rockets, spacecraft, planets, or live coverage.`,
     actions: [],
+    maybeActions: [{ type: 'NAVIGATE', to: '/explore', label: 'Browse All Features', confidence: 0.5 }],
+    sources: [],
   };
 }
 
@@ -273,6 +376,7 @@ async function fetchLiveContext() {
     recentEvents: [],
     featuredEventState: 'COUNTDOWN',
     liveStreams: [],
+    timeSinceLastEvent: null,
   };
 
   try {
@@ -288,6 +392,43 @@ async function fetchLiveContext() {
     }
   } catch (e) {
     console.error('Failed to compute countdown:', e);
+  }
+
+  try {
+    const baseUrl = process.env.VERCEL_URL 
+      ? `https://${process.env.VERCEL_URL}` 
+      : 'http://localhost:3000';
+    const eventsResponse = await fetch(`${baseUrl}/api/events/recent?limit=5`);
+    if (eventsResponse.ok) {
+      const eventsData = await eventsResponse.json();
+      if (eventsData.events && eventsData.events.length > 0) {
+        liveContext.recentEvents = eventsData.events.slice(0, 5).map(e => ({
+          title: e.title,
+          source: e.source || 'NASA',
+          url: e.url || e.link,
+          publishedAt: e.publishedAt || e.pubDate,
+        }));
+        
+        const lastEventDate = new Date(liveContext.recentEvents[0].publishedAt);
+        const hoursSince = Math.floor((Date.now() - lastEventDate) / (1000 * 60 * 60));
+        if (hoursSince < 1) {
+          liveContext.timeSinceLastEvent = 'less than 1 hour ago';
+        } else if (hoursSince < 24) {
+          liveContext.timeSinceLastEvent = `${hoursSince} hour${hoursSince > 1 ? 's' : ''} ago`;
+        } else {
+          const daysSince = Math.floor(hoursSince / 24);
+          liveContext.timeSinceLastEvent = `${daysSince} day${daysSince > 1 ? 's' : ''} ago`;
+        }
+      }
+    }
+  } catch (e) {
+    console.error('Failed to fetch recent events:', e);
+    liveContext.recentEvents = SAMPLE_EVENTS.map(e => ({
+      title: e.title,
+      source: e.source,
+      url: null,
+      publishedAt: null,
+    }));
   }
 
   return liveContext;
@@ -366,7 +507,7 @@ export default async function handler(req, res) {
       mode = 'openai';
       result = await callOpenAI(messages, contextPacket);
     } else {
-      result = generateFallbackResponse(lastUserMessage.content);
+      result = generateFallbackResponse(lastUserMessage.content, liveContext);
     }
 
     const latency = Date.now() - startTime;
@@ -379,12 +520,16 @@ export default async function handler(req, res) {
       mode,
       hasActions: result.actions?.length > 0,
       actionCount: result.actions?.length || 0,
+      hasSources: result.sources?.length > 0,
+      sourceCount: result.sources?.length || 0,
       latencyMs: latency,
     }));
 
     res.status(200).json({
-      ...result,
+      reply: result.reply,
       actions: result.actions || [],
+      maybeActions: result.maybeActions || [],
+      sources: result.sources || [],
     });
   } catch (error) {
     console.error('COMET chat error:', error);

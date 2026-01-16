@@ -12,6 +12,9 @@ export default function SocialQueuePage() {
   const [authError, setAuthError] = useState(null);
   const [authLoading, setAuthLoading] = useState(false);
   const [lockoutSeconds, setLockoutSeconds] = useState(0);
+  const [previewDraft, setPreviewDraft] = useState(null);
+  const [schedulingDraft, setSchedulingDraft] = useState(null);
+  const [scheduleDate, setScheduleDate] = useState('');
 
   useEffect(() => {
     if (lockoutSeconds > 0) {
@@ -132,12 +135,37 @@ export default function SocialQueuePage() {
     );
   }
 
+  function handleSchedule(draftId) {
+    const draft = drafts.find(d => d.id === draftId);
+    setSchedulingDraft(draft);
+    setScheduleDate('');
+  }
+
+  function handleConfirmSchedule() {
+    if (!schedulingDraft || !scheduleDate) return;
+    setDrafts((prev) =>
+      prev.map((d) => 
+        d.id === schedulingDraft.id 
+          ? { ...d, status: 'SCHEDULED', scheduled_for: scheduleDate } 
+          : d
+      )
+    );
+    setSchedulingDraft(null);
+    setScheduleDate('');
+  }
+
+  function handlePreview(draft) {
+    setPreviewDraft(draft);
+  }
+
   function getStatusColor(status) {
     switch (status) {
       case 'DRAFT':
         return { bg: 'rgba(234, 179, 8, 0.2)', text: '#eab308' };
       case 'APPROVED':
         return { bg: 'rgba(34, 197, 94, 0.2)', text: '#22c55e' };
+      case 'SCHEDULED':
+        return { bg: 'rgba(168, 85, 247, 0.2)', text: '#a855f7' };
       case 'POSTED':
         return { bg: 'rgba(59, 130, 246, 0.2)', text: '#3b82f6' };
       case 'FAILED':
@@ -145,6 +173,18 @@ export default function SocialQueuePage() {
       default:
         return { bg: 'rgba(148, 163, 184, 0.2)', text: '#94a3b8' };
     }
+  }
+
+  function formatScheduledTime(isoString) {
+    if (!isoString) return '';
+    const date = new Date(isoString);
+    return date.toLocaleString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      hour: 'numeric',
+      minute: '2-digit',
+      hour12: true,
+    });
   }
 
     function handleLogout() {
@@ -457,7 +497,44 @@ export default function SocialQueuePage() {
                   </p>
                 </div>
 
-                <div style={{ display: 'flex', gap: 8 }}>
+                {draft.scheduled_for && (
+                  <div
+                    style={{
+                      marginBottom: 12,
+                      padding: '8px 12px',
+                      borderRadius: 6,
+                      background: 'rgba(168, 85, 247, 0.1)',
+                      border: '1px solid rgba(168, 85, 247, 0.2)',
+                    }}
+                  >
+                    <span
+                      style={{
+                        fontSize: 10,
+                        color: '#a855f7',
+                        fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace',
+                      }}
+                    >
+                      SCHEDULED FOR: {formatScheduledTime(draft.scheduled_for)}
+                    </span>
+                  </div>
+                )}
+
+                <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                  <button
+                    onClick={() => handlePreview(draft)}
+                    style={{
+                      padding: '8px 16px',
+                      borderRadius: 6,
+                      border: '1px solid rgba(34, 211, 238, 0.3)',
+                      background: 'rgba(34, 211, 238, 0.1)',
+                      color: '#22d3ee',
+                      fontSize: 11,
+                      fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace',
+                      cursor: 'pointer',
+                    }}
+                  >
+                    PREVIEW
+                  </button>
                   <button
                     onClick={() => handleCopy(draft)}
                     style={{
@@ -473,6 +550,23 @@ export default function SocialQueuePage() {
                   >
                     {copiedId === draft.id ? 'COPIED!' : 'COPY'}
                   </button>
+                  {(draft.status === 'DRAFT' || draft.status === 'APPROVED') && !draft.scheduled_for && (
+                    <button
+                      onClick={() => handleSchedule(draft.id)}
+                      style={{
+                        padding: '8px 16px',
+                        borderRadius: 6,
+                        border: '1px solid rgba(168, 85, 247, 0.4)',
+                        background: 'rgba(168, 85, 247, 0.2)',
+                        color: '#a855f7',
+                        fontSize: 11,
+                        fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace',
+                        cursor: 'pointer',
+                      }}
+                    >
+                      SCHEDULE
+                    </button>
+                  )}
                   {draft.status === 'DRAFT' && (
                     <button
                       onClick={() => handleApprove(draft.id)}
@@ -494,6 +588,278 @@ export default function SocialQueuePage() {
               </div>
             );
           })}
+        </div>
+      )}
+
+      {/* Preview Modal */}
+      {previewDraft && (
+        <div
+          style={{
+            position: 'fixed',
+            inset: 0,
+            background: 'rgba(0,0,0,0.8)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 1000,
+            padding: 20,
+          }}
+          onClick={() => setPreviewDraft(null)}
+        >
+          <div
+            style={{
+              maxWidth: 500,
+              width: '100%',
+              background: '#1a1a2e',
+              borderRadius: 16,
+              border: '1px solid rgba(34, 211, 238, 0.3)',
+              overflow: 'hidden',
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div
+              style={{
+                padding: '16px 20px',
+                borderBottom: '1px solid rgba(255,255,255,0.1)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+              }}
+            >
+              <span
+                style={{
+                  fontSize: 12,
+                  fontWeight: 700,
+                  color: '#22d3ee',
+                  fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace',
+                }}
+              >
+                POST PREVIEW
+              </span>
+              <button
+                onClick={() => setPreviewDraft(null)}
+                style={{
+                  background: 'transparent',
+                  border: 'none',
+                  color: 'rgba(255,255,255,0.5)',
+                  fontSize: 18,
+                  cursor: 'pointer',
+                }}
+              >
+                ×
+              </button>
+            </div>
+            <div style={{ padding: 20 }}>
+              {/* X/Twitter style preview card */}
+              <div
+                style={{
+                  background: '#000',
+                  borderRadius: 12,
+                  border: '1px solid rgba(255,255,255,0.2)',
+                  padding: 16,
+                }}
+              >
+                <div style={{ display: 'flex', gap: 12, marginBottom: 12 }}>
+                  <div
+                    style={{
+                      width: 40,
+                      height: 40,
+                      borderRadius: '50%',
+                      background: 'linear-gradient(135deg, #22d3ee, #3b82f6)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontSize: 16,
+                    }}
+                  >
+                    🚀
+                  </div>
+                  <div>
+                    <p style={{ margin: 0, fontSize: 14, fontWeight: 700, color: '#fff' }}>
+                      StarKid Command
+                    </p>
+                    <p style={{ margin: 0, fontSize: 13, color: 'rgba(255,255,255,0.5)' }}>
+                      @starkidcommand
+                    </p>
+                  </div>
+                </div>
+                <p
+                  style={{
+                    fontSize: 15,
+                    color: '#fff',
+                    lineHeight: 1.5,
+                    whiteSpace: 'pre-wrap',
+                    margin: 0,
+                  }}
+                >
+                  {previewDraft.content}
+                </p>
+                <div
+                  style={{
+                    marginTop: 12,
+                    paddingTop: 12,
+                    borderTop: '1px solid rgba(255,255,255,0.1)',
+                    display: 'flex',
+                    gap: 24,
+                  }}
+                >
+                  <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)' }}>💬 0</span>
+                  <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)' }}>🔁 0</span>
+                  <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)' }}>❤️ 0</span>
+                </div>
+              </div>
+              <p
+                style={{
+                  marginTop: 12,
+                  fontSize: 11,
+                  color: 'rgba(255,255,255,0.4)',
+                  fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace',
+                  textAlign: 'center',
+                }}
+              >
+                {previewDraft.content.length} / 280 characters
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Schedule Modal */}
+      {schedulingDraft && (
+        <div
+          style={{
+            position: 'fixed',
+            inset: 0,
+            background: 'rgba(0,0,0,0.8)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 1000,
+            padding: 20,
+          }}
+          onClick={() => setSchedulingDraft(null)}
+        >
+          <div
+            style={{
+              maxWidth: 400,
+              width: '100%',
+              background: '#1a1a2e',
+              borderRadius: 16,
+              border: '1px solid rgba(168, 85, 247, 0.3)',
+              overflow: 'hidden',
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div
+              style={{
+                padding: '16px 20px',
+                borderBottom: '1px solid rgba(255,255,255,0.1)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+              }}
+            >
+              <span
+                style={{
+                  fontSize: 12,
+                  fontWeight: 700,
+                  color: '#a855f7',
+                  fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace',
+                }}
+              >
+                SCHEDULE POST
+              </span>
+              <button
+                onClick={() => setSchedulingDraft(null)}
+                style={{
+                  background: 'transparent',
+                  border: 'none',
+                  color: 'rgba(255,255,255,0.5)',
+                  fontSize: 18,
+                  cursor: 'pointer',
+                }}
+              >
+                ×
+              </button>
+            </div>
+            <div style={{ padding: 20 }}>
+              <p
+                style={{
+                  fontSize: 12,
+                  color: 'rgba(255,255,255,0.6)',
+                  fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace',
+                  marginBottom: 16,
+                }}
+              >
+                Select date and time to schedule this post:
+              </p>
+              <input
+                type="datetime-local"
+                value={scheduleDate}
+                onChange={(e) => setScheduleDate(e.target.value)}
+                style={{
+                  width: '100%',
+                  padding: '12px 16px',
+                  borderRadius: 8,
+                  border: '1px solid rgba(168, 85, 247, 0.3)',
+                  background: 'rgba(0,0,0,0.4)',
+                  color: '#fff',
+                  fontSize: 14,
+                  fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace',
+                  marginBottom: 16,
+                  boxSizing: 'border-box',
+                }}
+              />
+              <div style={{ display: 'flex', gap: 12 }}>
+                <button
+                  onClick={() => setSchedulingDraft(null)}
+                  style={{
+                    flex: 1,
+                    padding: '12px 20px',
+                    borderRadius: 8,
+                    border: '1px solid rgba(255,255,255,0.2)',
+                    background: 'transparent',
+                    color: 'rgba(255,255,255,0.7)',
+                    fontSize: 12,
+                    fontWeight: 700,
+                    fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace',
+                    cursor: 'pointer',
+                  }}
+                >
+                  CANCEL
+                </button>
+                <button
+                  onClick={handleConfirmSchedule}
+                  disabled={!scheduleDate}
+                  style={{
+                    flex: 1,
+                    padding: '12px 20px',
+                    borderRadius: 8,
+                    border: '1px solid rgba(168, 85, 247, 0.4)',
+                    background: scheduleDate ? 'rgba(168, 85, 247, 0.2)' : 'rgba(148, 163, 184, 0.2)',
+                    color: scheduleDate ? '#a855f7' : '#94a3b8',
+                    fontSize: 12,
+                    fontWeight: 700,
+                    fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace',
+                    cursor: scheduleDate ? 'pointer' : 'not-allowed',
+                  }}
+                >
+                  CONFIRM
+                </button>
+              </div>
+              <p
+                style={{
+                  marginTop: 16,
+                  fontSize: 10,
+                  color: 'rgba(255,255,255,0.3)',
+                  fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace',
+                  textAlign: 'center',
+                }}
+              >
+                Note: Auto-posting is not yet enabled. Scheduled posts will be marked for manual review.
+              </p>
+            </div>
+          </div>
         </div>
       )}
     </div>
