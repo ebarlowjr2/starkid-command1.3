@@ -5,6 +5,17 @@ const AI_CONFIG = {
   maxTokens: 350,
 };
 
+// Logging configuration - COMET_VERBOSE_LOGS=true for dev/preview, false for production
+const isVerboseLogging = () => process.env.COMET_VERBOSE_LOGS === 'true';
+
+// Context packet cache - reduces API calls for repeated questions
+let contextCache = {
+  packet: null,
+  liveContext: null,
+  timestamp: 0,
+};
+const CONTEXT_CACHE_TTL = 45 * 1000; // 45 seconds
+
 const COMET_PERSONA = {
   name: 'C.O.M.E.T.',
   fullName: 'Command Operations & Mission Event Technician',
@@ -304,18 +315,20 @@ async function callOpenAI(messages, contextPacket) {
     const data = await response.json();
     const content = data.choices?.[0]?.message?.content || "SIGNAL LOST. No response received.";
     
-    // Log OpenAI call details (server-side only)
-    console.log(JSON.stringify({
-      type: 'comet_openai_call',
-      timestamp: new Date().toISOString(),
-      model: AI_CONFIG.model,
-      temperature: AI_CONFIG.temperature,
-      maxTokens: AI_CONFIG.maxTokens,
-      apiLatencyMs: apiLatency,
-      promptTokens: data.usage?.prompt_tokens,
-      completionTokens: data.usage?.completion_tokens,
-      totalTokens: data.usage?.total_tokens,
-    }));
+    // Log OpenAI call details (verbose mode only for detailed info)
+    if (isVerboseLogging()) {
+      console.log(JSON.stringify({
+        type: 'comet_openai_call',
+        timestamp: new Date().toISOString(),
+        model: AI_CONFIG.model,
+        temperature: AI_CONFIG.temperature,
+        maxTokens: AI_CONFIG.maxTokens,
+        apiLatencyMs: apiLatency,
+        promptTokens: data.usage?.prompt_tokens,
+        completionTokens: data.usage?.completion_tokens,
+        totalTokens: data.usage?.total_tokens,
+      }));
+    }
     
     const result = parseOpenAIResponse(content);
     result.mode = 'openai';
@@ -415,7 +428,7 @@ function generateFallbackResponse(userMessage, liveContext) {
   };
 }
 
-async function fetchLiveContext() {
+async function fetchLiveContextFresh() {
   const liveContext = {
     recentEvents: [],
     featuredEventState: 'COUNTDOWN',
@@ -475,6 +488,38 @@ async function fetchLiveContext() {
     }));
   }
 
+  return liveContext;
+}
+
+// Cached version of fetchLiveContext - reduces API calls
+async function fetchLiveContext() {
+  const now = Date.now();
+  
+  // Return cached context if still valid
+  if (contextCache.liveContext && (now - contextCache.timestamp) < CONTEXT_CACHE_TTL) {
+    if (isVerboseLogging()) {
+      console.log(JSON.stringify({
+        type: 'comet_context_cache_hit',
+        timestamp: new Date().toISOString(),
+        cacheAgeMs: now - contextCache.timestamp,
+      }));
+    }
+    return contextCache.liveContext;
+  }
+  
+  // Fetch fresh context and update cache
+  const liveContext = await fetchLiveContextFresh();
+  contextCache.liveContext = liveContext;
+  contextCache.timestamp = now;
+  
+  if (isVerboseLogging()) {
+    console.log(JSON.stringify({
+      type: 'comet_context_cache_miss',
+      timestamp: new Date().toISOString(),
+      eventCount: liveContext.recentEvents?.length || 0,
+    }));
+  }
+  
   return liveContext;
 }
 
@@ -571,23 +616,29 @@ export default async function handler(req, res) {
 
     const latency = Date.now() - startTime;
     
-    // Privacy-safe logging (no raw messages)
-    console.log(JSON.stringify({
+    // Always log essential metrics (privacy-safe, no raw messages)
+    const logEntry = {
       type: 'comet_request',
       timestamp: new Date().toISOString(),
-      route: context?.route || 'unknown',
-      intent,
       mode,
-      model,
-      aiEnabled,
-      hasApiKey,
-      hasActions: result.actions?.length > 0,
-      actionCount: result.actions?.length || 0,
-      hasSources: result.sources?.length > 0,
-      sourceCount: result.sources?.length || 0,
       latencyMs: latency,
-      apiLatencyMs,
-    }));
+      intent,
+      actionCount: result.actions?.length || 0,
+      sourceCount: result.sources?.length || 0,
+    };
+    
+    // Add verbose details only in dev/preview mode
+    if (isVerboseLogging()) {
+      logEntry.route = context?.route || 'unknown';
+      logEntry.model = model;
+      logEntry.aiEnabled = aiEnabled;
+      logEntry.hasApiKey = hasApiKey;
+      logEntry.apiLatencyMs = apiLatencyMs;
+      logEntry.hasActions = result.actions?.length > 0;
+      logEntry.hasSources = result.sources?.length > 0;
+    }
+    
+    console.log(JSON.stringify(logEntry));
 
     res.status(200).json({
       reply: result.reply,
