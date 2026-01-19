@@ -347,6 +347,51 @@ export default function ArtemisPage() {
               </div>
             )}
           </ModuleCard>
+          {selectedMission.publicParticipation && (
+            <ModuleCard title="PUBLIC PARTICIPATION" status="ACTIVE" accentColor="#22d3ee">
+              <div style={{ textAlign: 'center', padding: '8px 0' }}>
+                <div style={{ fontSize: 14, fontWeight: 700, color: '#fff', marginBottom: 12, fontFamily: 'system-ui' }}>
+                  {selectedMission.publicParticipation.title.toUpperCase()}
+                </div>
+                <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.7)', marginBottom: 16, lineHeight: 1.5 }}>
+                  Generate your Artemis II boarding pass and send your name aboard Orion.
+                </p>
+                <a
+                  href={selectedMission.publicParticipation.url}
+                  target="_blank"
+                  rel="noreferrer noopener"
+                  style={{
+                    display: 'inline-block',
+                    padding: '12px 24px',
+                    borderRadius: 8,
+                    background: 'linear-gradient(135deg, #22d3ee 0%, #3b82f6 100%)',
+                    color: '#fff',
+                    fontSize: 13,
+                    fontWeight: 700,
+                    fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace',
+                    textDecoration: 'none',
+                    transition: 'all 0.2s ease',
+                    boxShadow: '0 4px 12px rgba(34, 211, 238, 0.3)',
+                  }}
+                >
+                  {selectedMission.publicParticipation.ctaLabel}
+                </a>
+                <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)', marginTop: 12, fontFamily: 'monospace' }}>
+                  {selectedMission.publicParticipation.note}
+                </div>
+                {selectedMission.publicParticipation.moreInfoUrl && (
+                  <a
+                    href={selectedMission.publicParticipation.moreInfoUrl}
+                    target="_blank"
+                    rel="noreferrer noopener"
+                    style={{ display: 'block', fontSize: 11, color: '#22d3ee', marginTop: 12, textDecoration: 'none' }}
+                  >
+                    NASA announcement →
+                  </a>
+                )}
+              </div>
+            </ModuleCard>
+          )}
         </div>
       )}
       <div style={{ marginBottom: 32 }}>

@@ -308,6 +308,13 @@ export const ARTEMIS_MISSIONS = [
       'Jeremy Hansen will become the first Canadian to travel beyond low Earth orbit.',
       'The crew will manually pilot Orion for portions of the mission to test handling qualities.',
     ],
+    publicParticipation: {
+      title: 'Send Your Name Around the Moon',
+      ctaLabel: 'ISSUE BOARDING PASS →',
+      url: 'https://www.nasa.gov/send-your-name-with-artemis/',
+      note: 'Official NASA activity. Opens in a new tab.',
+      moreInfoUrl: 'https://www.nasa.gov/news-release/launch-your-name-around-moon-in-2026-on-nasas-artemis-ii-mission/',
+    },
   },
   {
     id: 'artemis-3',
