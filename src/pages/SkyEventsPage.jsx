@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { getSkyEvents } from '../lib/skyEvents.js'
+import { getAllSkyEvents, groupEventsByType } from '../lib/skyEventsDb.js'
 import MissionCard from '../components/MissionCard.jsx'
 
 export default function SkyEventsPage() {
@@ -11,7 +11,7 @@ export default function SkyEventsPage() {
     async function load() {
       try {
         setLoading(true)
-        const evs = await getSkyEvents({ days: 45 })
+        const evs = await getAllSkyEvents({ days: 60 })
         setEvents(evs)
         setError(null)
       } catch (e) {
@@ -23,21 +23,13 @@ export default function SkyEventsPage() {
     load()
   }, [])
 
-  const byType = events.reduce(
-    (acc, ev) => {
-      const key = ev.type || 'other'
-      if (!acc[key]) acc[key] = []
-      acc[key].push(ev)
-      return acc
-    },
-    { 'conjunction': [], 'meteor-shower': [], 'eclipse': [], 'planet-event': [], 'other': [] }
-  )
+  const byType = groupEventsByType(events)
 
   return (
     <div className="p-4">
       <div className="mb-6">
         <h2 className="text-2xl font-bold text-cyan-300 tracking-wider mb-2">SKY EVENTS CALENDAR</h2>
-        <p className="text-sm text-cyan-200/80">Upcoming astronomical events for the next 45 days</p>
+        <p className="text-sm text-cyan-200/80">Upcoming astronomical events for the next 60 days</p>
       </div>
 
       {loading ? (
@@ -61,11 +53,17 @@ export default function SkyEventsPage() {
               <div className="text-xs space-y-2">
                 <p>These are real astronomical events you can plan to watch!</p>
                 <p className="opacity-80">
-                  Found {events.length} events in the next 45 days. 
+                  Found {events.length} events in the next 60 days. 
                   Check back regularly for updates.
                 </p>
               </div>
             }
+          />
+
+          <MissionCard
+            title="Moon Phases"
+            subtitle="Lunar Calendar"
+            content={renderEventsList(byType['moon-phase'], 'moon-phase')}
           />
 
           <MissionCard
@@ -109,6 +107,7 @@ function renderEventsList(list, type) {
   }
 
   const typeColors = {
+    'moon-phase': 'text-blue-300',
     'meteor-shower': 'text-yellow-300',
     'conjunction': 'text-purple-300',
     'planet-event': 'text-orange-300',
@@ -117,6 +116,7 @@ function renderEventsList(list, type) {
   }
 
   const typeIcons = {
+    'moon-phase': '🌙',
     'meteor-shower': '☄️',
     'conjunction': '🪐',
     'planet-event': '🌟',
