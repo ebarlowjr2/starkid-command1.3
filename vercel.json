@@ -2,14 +2,14 @@
   "rewrites": [
     { "source": "/((?!api/).*)", "destination": "/" }
   ],
-    "crons": [
-      {
-        "path": "/api/watch/sky-events",
-        "schedule": "0 6 * * *"
-      },
-      {
-        "path": "/api/social/scheduler",
-        "schedule": "0 8 * * *"
-      }
-    ]
+  "crons": [
+    {
+      "path": "/api/watch/sky-events",
+      "schedule": "0 6 * * *"
+    },
+    {
+      "path": "/api/social/scheduler",
+      "schedule": "0 8 * * *"
+    }
+  ]
 }
