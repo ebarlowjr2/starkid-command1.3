@@ -10,6 +10,10 @@
     {
       "path": "/api/social/scheduler",
       "schedule": "0 8 * * *"
+    },
+    {
+      "path": "/api/social/scheduler?mode=post",
+      "schedule": "0 9 * * *"
     }
   ]
 }
