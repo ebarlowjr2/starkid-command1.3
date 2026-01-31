@@ -1,5 +1,8 @@
 # StarKid Command
-A tiny LCARS/Star Trek-inspired mission console for kids.
+
+**StarKid Command is a live mission-control interface for tracking, understanding, and exploring space — built for enthusiasts and learners alike.**
+
+A LCARS/Star Trek-inspired mission console for space exploration.
 
 ## Quickstart
 ```bash
