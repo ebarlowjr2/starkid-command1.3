@@ -9,7 +9,7 @@
  * @returns {Promise<{datetime: string, units: string, frame: string, positions: Record<string, {x: number, y: number, z: number}>}>}
  */
 export async function fetchVectors(targets, datetimeIso) {
-  const response = await fetch('/api/horizons-vectors', {
+  const response = await fetch('/api/horizons?mode=vectors', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ targets, datetime: datetimeIso })

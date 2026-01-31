@@ -2,8 +2,8 @@
 // Serverless function to fetch USNO moon phases and ingest into mission_events table
 // Scheduled via Vercel cron (every 6 hours)
 
-const crypto = require('crypto')
-const { getSupabase, isSupabaseConfigured } = require('../lib/supabase.js')
+import crypto from 'crypto'
+import { getSupabase, isSupabaseConfigured } from '../_lib/supabase.js'
 
 // USNO API base URL
 const USNO_API_BASE = 'https://aa.usno.navy.mil/api'
@@ -192,7 +192,7 @@ async function createSocialDraft(supabase, event) {
 /**
  * Main handler for the sky-events watch endpoint
  */
-module.exports = async (req, res) => {
+export default async function handler(req, res) {
   // Set CORS headers
   res.setHeader('Access-Control-Allow-Origin', '*')
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')

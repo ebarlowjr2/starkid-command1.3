@@ -16,11 +16,11 @@ const API_BASE = '/api'
  */
 export async function getUpcomingSkyEvents({ days = 60, category = 'sky_event', subtype } = {}) {
   try {
-    const params = new URLSearchParams({ days: days.toString() })
+    const params = new URLSearchParams({ type: 'upcoming', days: days.toString() })
     if (category) params.append('category', category)
     if (subtype) params.append('subtype', subtype)
     
-    const response = await fetch(`${API_BASE}/sky-events/upcoming?${params}`)
+    const response = await fetch(`${API_BASE}/sky-events?${params}`)
     
     if (!response.ok) {
       throw new Error(`API error: ${response.status}`)
@@ -50,10 +50,10 @@ export async function getUpcomingSkyEvents({ days = 60, category = 'sky_event', 
  */
 export async function getRecentSkyEvents({ category = 'sky_event', limit = 50 } = {}) {
   try {
-    const params = new URLSearchParams({ limit: limit.toString() })
+    const params = new URLSearchParams({ type: 'recent', limit: limit.toString() })
     if (category) params.append('category', category)
     
-    const response = await fetch(`${API_BASE}/sky-events/recent?${params}`)
+    const response = await fetch(`${API_BASE}/sky-events?${params}`)
     
     if (!response.ok) {
       throw new Error(`API error: ${response.status}`)
