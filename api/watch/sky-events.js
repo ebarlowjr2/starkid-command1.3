@@ -3,7 +3,7 @@
 // Scheduled via Vercel cron (every 6 hours)
 
 const crypto = require('crypto')
-const { getSupabase, isSupabaseConfigured } = require('../lib/supabase.js')
+const { getSupabase, isSupabaseConfigured } = require('../../lib/supabase.js')
 
 // USNO API base URL
 const USNO_API_BASE = 'https://aa.usno.navy.mil/api'
