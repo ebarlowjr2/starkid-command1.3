@@ -1,7 +1,7 @@
 // api/astros.js
 // Vercel Serverless Function: proxies Open-Notify crew list (no CORS there)
 
-module.exports = async (req, res) => {
+export default async function handler(req, res) {
   try {
     const upstream = await fetch('http://api.open-notify.org/astros.json'); // HTTP is correct
     if (!upstream.ok) {

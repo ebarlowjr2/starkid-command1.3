@@ -2,9 +2,9 @@
 // Consolidated endpoint for sky events from mission_events table
 // Supports both recent (past) and upcoming (future) queries via ?type= parameter
 
-const { getSupabase, isSupabaseConfigured } = require('./_lib/supabase.cjs')
+import { getSupabase, isSupabaseConfigured } from './_lib/supabase.js'
 
-module.exports = async (req, res) => {
+export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*')
   res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS')
   
