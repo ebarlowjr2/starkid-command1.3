@@ -2,7 +2,7 @@
 // Social post scheduler - creates drafts at T-7d, T-24h, T-1h windows
 // Scheduled via Vercel cron (hourly)
 
-const { getSupabase, isSupabaseConfigured } = require('../../lib/supabase.js')
+const { getSupabase, isSupabaseConfigured } = require('../_lib/supabase.js')
 
 // Reminder windows in milliseconds
 const REMINDER_WINDOWS = {
