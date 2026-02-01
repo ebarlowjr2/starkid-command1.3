@@ -27,13 +27,18 @@ function generateEventHash(category, subtype, title, eventTimeUtc) {
 /**
  * Convert USNO date/time to ISO UTC string
  * USNO returns time in UT (Universal Time)
- * @param {string} date - Date in YYYY-MM-DD format
+ * @param {number} year - Year
+ * @param {number} month - Month (1-12)
+ * @param {number} day - Day of month
  * @param {string} time - Time in HH:MM format
  * @returns {string} ISO 8601 UTC timestamp
  */
-function usnoToIsoUtc(date, time) {
+function usnoToIsoUtc(year, month, day, time) {
   // USNO returns UT which is essentially UTC
-  return `${date}T${time}:00Z`
+  // Pad month and day with leading zeros
+  const monthStr = String(month).padStart(2, '0')
+  const dayStr = String(day).padStart(2, '0')
+  return `${year}-${monthStr}-${dayStr}T${time}:00Z`
 }
 
 /**
@@ -59,9 +64,10 @@ async function fetchUsnoMoonPhases(year) {
     
     return data.phasedata.map(phase => ({
       phase: phase.phase,
-      date: phase.date,
-      time: phase.time,
-      year: data.year
+      year: phase.year,
+      month: phase.month,
+      day: phase.day,
+      time: phase.time
     }))
   } catch (error) {
     console.error(`Error fetching USNO data for year ${year}:`, error)
@@ -75,7 +81,7 @@ async function fetchUsnoMoonPhases(year) {
  * @returns {Object}
  */
 function convertToMissionEvent(phaseData) {
-  const eventTimeUtc = usnoToIsoUtc(phaseData.date, phaseData.time)
+  const eventTimeUtc = usnoToIsoUtc(phaseData.year, phaseData.month, phaseData.day, phaseData.time)
   const title = `MOON PHASE — ${phaseData.phase.toUpperCase()}`
   const category = 'sky_event'
   const subtype = 'moon_phase'
@@ -94,7 +100,9 @@ function convertToMissionEvent(phaseData) {
     source_url: `${USNO_API_BASE}/moon/phases/year?year=${phaseData.year}`,
     metadata: {
       phase_name: phaseData.phase,
-      usno_date: phaseData.date,
+      usno_year: phaseData.year,
+      usno_month: phaseData.month,
+      usno_day: phaseData.day,
       usno_time: phaseData.time
     },
     social_draft_eligible: isHighSignal,
@@ -251,7 +259,7 @@ export default async function handler(req, res) {
         } else {
           results.errors.push({
             phase: phase.phase,
-            date: phase.date,
+            date: `${phase.year}-${phase.month}-${phase.day}`,
             error: error.message
           })
         }
