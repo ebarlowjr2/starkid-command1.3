@@ -2,8 +2,9 @@
 // Social post scheduler - creates drafts at T-7d, T-24h, T-1h windows
 // Also auto-generates DRAFT posts for high-signal sky events
 // Supports two modes via ?mode= parameter:
-//   - mode=schedule (default): Generate drafts for upcoming events (runs every 6h)
-//   - mode=post: Post APPROVED posts to platforms (runs hourly, requires X-OPS-KEY)
+//   - mode=schedule (default): Generate drafts for upcoming events (runs daily at 8 AM)
+//   - mode=post: Post APPROVED posts to platforms (runs daily at 9 AM, requires X-OPS-KEY)
+// Note: Vercel Hobby plan only supports daily cron jobs. Upgrade to Pro for hourly/6h schedules.
 // Scheduled via Vercel cron
 
 import { getSupabase, isSupabaseConfigured } from '../_lib/supabase.js'
