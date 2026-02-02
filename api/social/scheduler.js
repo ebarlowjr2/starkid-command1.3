@@ -8,6 +8,7 @@
 // Scheduled via Vercel cron
 
 import { getSupabase, isSupabaseConfigured } from '../_lib/supabase.js'
+import { TwitterApi } from 'twitter-api-v2'
 
 // Reminder windows in milliseconds
 const REMINDER_WINDOWS = {
@@ -533,7 +534,114 @@ async function markPostAsFailed(supabase, postId, errorMessage) {
 }
 
 /**
- * Post to platform (stub - implement when API keys are added)
+ * Check if X (Twitter) posting is configured
+ * @returns {boolean}
+ */
+function isXConfigured() {
+  return !!(
+    process.env.X_API_KEY &&
+    process.env.X_API_SECRET &&
+    process.env.X_ACCESS_TOKEN &&
+    process.env.X_ACCESS_SECRET
+  )
+}
+
+/**
+ * Get X (Twitter) API client
+ * @returns {TwitterApi}
+ */
+function getXClient() {
+  const appKey = process.env.X_API_KEY
+  const appSecret = process.env.X_API_SECRET
+  const accessToken = process.env.X_ACCESS_TOKEN
+  const accessSecret = process.env.X_ACCESS_SECRET
+  
+  return new TwitterApi({
+    appKey,
+    appSecret,
+    accessToken,
+    accessSecret
+  })
+}
+
+/**
+ * Prepare post content for X (Twitter)
+ * Enforces 280 character limit and includes hashtags
+ * @param {Object} post 
+ * @returns {string}
+ */
+function prepareXContent(post) {
+  const body = post.body || ''
+  const hashtags = post.hashtags || []
+  const hashtagStr = hashtags.join(' ')
+  
+  // Calculate available space for body
+  // Format: body + space + hashtags
+  const maxBodyLength = 280 - hashtagStr.length - 1
+  
+  let content = body
+  if (body.length > maxBodyLength) {
+    // Truncate body smartly (at word boundary if possible)
+    content = body.substring(0, maxBodyLength - 3)
+    const lastSpace = content.lastIndexOf(' ')
+    if (lastSpace > maxBodyLength - 50) {
+      content = content.substring(0, lastSpace)
+    }
+    content += '...'
+  }
+  
+  // Combine body and hashtags
+  const fullContent = `${content} ${hashtagStr}`.trim()
+  
+  // Final safety check - ensure <= 280 chars
+  if (fullContent.length > 280) {
+    return fullContent.substring(0, 277) + '...'
+  }
+  
+  return fullContent
+}
+
+/**
+ * Post to X (Twitter)
+ * @param {Object} post 
+ * @returns {Promise<{success: boolean, postUrl?: string, tweetId?: string, error?: string}>}
+ */
+async function postToX(post) {
+  try {
+    const client = getXClient()
+    const content = prepareXContent(post)
+    
+    console.log(`Posting to X: "${content.substring(0, 50)}..."`)
+    
+    const result = await client.v2.tweet(content)
+    
+    if (result?.data?.id) {
+      const tweetId = result.data.id
+      const postUrl = `https://x.com/StarKidCommand/status/${tweetId}`
+      console.log(`Successfully posted to X: ${postUrl}`)
+      return { 
+        success: true, 
+        postUrl, 
+        tweetId,
+        content
+      }
+    }
+    
+    return { 
+      success: false, 
+      error: 'No tweet ID returned from X API' 
+    }
+  } catch (error) {
+    console.error('Error posting to X:', error)
+    return { 
+      success: false, 
+      error: error.message || 'Unknown error posting to X' 
+    }
+  }
+}
+
+/**
+ * Post to platform
  * @param {Object} post 
  * @returns {Promise<{success: boolean, postUrl?: string, error?: string, platform: string}>}
  */
@@ -548,11 +656,38 @@ async function postToPlatform(post) {
     }
   }
   
-  // TODO: Implement actual posting when API keys are added
-  // Platform env vars: X_API_KEY, X_API_SECRET, X_ACCESS_TOKEN, X_ACCESS_TOKEN_SECRET
+  // For platform='all' or platform='x', try X first
+  if ((platform === 'all' || platform === 'x') && isXConfigured()) {
+    const xResult = await postToX(post)
+    if (xResult.success) {
+      return {
+        success: true,
+        postUrl: xResult.postUrl,
+        platform: 'x',
+        metadata: {
+          tweetId: xResult.tweetId,
+          content: xResult.content
+        }
+      }
+    }
+    return {
+      success: false,
+      error: xResult.error,
+      platform: 'x'
+    }
+  }
+  
+  // TODO: Implement Bluesky posting
   // BLUESKY_HANDLE, BLUESKY_APP_PASSWORD
+  
+  // TODO: Implement Mastodon posting
   // MASTODON_ACCESS_TOKEN, MASTODON_INSTANCE_URL
-  return { success: false, error: 'Platform posting not yet implemented', platform }
+  
+  return { 
+    success: false, 
+    error: 'No supported platform configured or platform not implemented', 
+    platform 
+  }
 }
 
 /**
