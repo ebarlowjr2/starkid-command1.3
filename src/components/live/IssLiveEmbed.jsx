@@ -1,19 +1,15 @@
 // src/components/live/IssLiveEmbed.jsx
 // ISS Live Stream embed component with LOS handling and mission control styling
+// Displays as compact cards in a 2-column grid on desktop
 
 import { useState, useEffect, useRef } from 'react'
 import { LIVE_FEEDS } from '../../config/liveFeeds'
 
-export default function IssLiveEmbed() {
-  const [activeSource, setActiveSource] = useState(0)
+function LiveFeedCard({ source, title, losMessage, externalLinks }) {
   const [uplinkStatus, setUplinkStatus] = useState('ACTIVE')
   const [loadError, setLoadError] = useState(false)
-  const [lastSync, setLastSync] = useState(new Date())
   const iframeRef = useRef(null)
   const watchdogRef = useRef(null)
-
-  const issConfig = LIVE_FEEDS.iss
-  const currentSource = issConfig.sources[activeSource]
 
   useEffect(() => {
     setLoadError(false)
@@ -21,7 +17,6 @@ export default function IssLiveEmbed() {
     
     watchdogRef.current = setTimeout(() => {
       setUplinkStatus('ACTIVE')
-      setLastSync(new Date())
     }, 5000)
 
     return () => {
@@ -29,137 +24,104 @@ export default function IssLiveEmbed() {
         clearTimeout(watchdogRef.current)
       }
     }
-  }, [activeSource])
+  }, [source.id])
 
   const handleRetry = () => {
     setLoadError(false)
     setUplinkStatus('CONNECTING')
-    setActiveSource(prev => prev)
     
     if (iframeRef.current) {
-      iframeRef.current.src = iframeRef.current.src
+      const currentSrc = iframeRef.current.src
+      iframeRef.current.src = ''
+      setTimeout(() => {
+        iframeRef.current.src = currentSrc
+      }, 100)
     }
-  }
-
-  const handleSourceChange = (index) => {
-    setActiveSource(index)
-    setLoadError(false)
   }
 
   const getEmbedUrl = () => {
-    if (currentSource.type === 'youtube') {
-      return `https://www.youtube.com/embed/${currentSource.videoId}?autoplay=0&rel=0`
+    if (source.type === 'youtube') {
+      return `https://www.youtube.com/embed/${source.videoId}?autoplay=0&rel=0`
     }
-    return currentSource.embedUrl
+    return source.embedUrl
   }
 
   return (
     <div
       style={{
-        borderRadius: 16,
+        borderRadius: 12,
         border: '2px solid rgba(34, 211, 238, 0.4)',
         background: 'linear-gradient(180deg, rgba(0,20,40,0.9) 0%, rgba(0,10,20,0.95) 100%)',
         overflow: 'hidden',
-        marginBottom: 24,
+        display: 'flex',
+        flexDirection: 'column',
       }}
     >
       <div
         style={{
-          padding: '12px 16px',
+          padding: '10px 12px',
           background: 'rgba(34, 211, 238, 0.1)',
           borderBottom: '1px solid rgba(34, 211, 238, 0.2)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          flexWrap: 'wrap',
-          gap: 12,
+          gap: 8,
         }}
       >
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <div
             style={{
-              width: 10,
-              height: 10,
+              width: 8,
+              height: 8,
               borderRadius: '50%',
               background: uplinkStatus === 'ACTIVE' ? '#22c55e' : 
                          uplinkStatus === 'CONNECTING' ? '#eab308' : '#ef4444',
-              boxShadow: uplinkStatus === 'ACTIVE' ? '0 0 8px #22c55e' : 'none',
+              boxShadow: uplinkStatus === 'ACTIVE' ? '0 0 6px #22c55e' : 'none',
               animation: uplinkStatus === 'CONNECTING' ? 'pulse 1s infinite' : 'none',
+              flexShrink: 0,
             }}
           />
-          <div>
+          <div style={{ minWidth: 0 }}>
             <h3
               style={{
                 margin: 0,
-                fontSize: 14,
+                fontSize: 12,
                 fontWeight: 700,
                 color: '#22d3ee',
                 fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace',
                 letterSpacing: '0.05em',
+                whiteSpace: 'nowrap',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
               }}
             >
-              {issConfig.title} - {issConfig.subtitle}
+              {title}
             </h3>
             <span
               style={{
-                fontSize: 10,
+                fontSize: 9,
                 color: 'rgba(255,255,255,0.5)',
                 fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace',
               }}
             >
-              {issConfig.description}
+              {source.label}
             </span>
           </div>
         </div>
 
-        <div
+        <span
           style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: 16,
-            fontSize: 10,
+            fontSize: 9,
             fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace',
+            color: 'rgba(255,255,255,0.4)',
+            flexShrink: 0,
           }}
         >
-          <span style={{ color: 'rgba(255,255,255,0.4)' }}>
-            UPLINK: <span style={{ 
-              color: uplinkStatus === 'ACTIVE' ? '#22c55e' : 
-                     uplinkStatus === 'CONNECTING' ? '#eab308' : '#ef4444' 
-            }}>{uplinkStatus}</span>
-          </span>
-          <span style={{ color: 'rgba(255,255,255,0.4)' }}>
-            SOURCE: <span style={{ color: '#22d3ee' }}>NASA</span>
-          </span>
-          <span style={{ color: 'rgba(255,255,255,0.3)' }}>
-            SYNC: {lastSync.toLocaleTimeString()}
-          </span>
-        </div>
-      </div>
-
-      <div style={{ padding: '8px 16px', display: 'flex', gap: 8 }}>
-        {issConfig.sources.map((source, index) => (
-          <button
-            key={source.id}
-            onClick={() => handleSourceChange(index)}
-            style={{
-              padding: '6px 12px',
-              borderRadius: 6,
-              border: activeSource === index 
-                ? '1px solid rgba(34, 211, 238, 0.6)' 
-                : '1px solid rgba(255,255,255,0.2)',
-              background: activeSource === index 
-                ? 'rgba(34, 211, 238, 0.2)' 
-                : 'rgba(255,255,255,0.05)',
-              color: activeSource === index ? '#22d3ee' : 'rgba(255,255,255,0.6)',
-              fontSize: 11,
-              fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace',
-              cursor: 'pointer',
-              transition: 'all 0.2s',
-            }}
-          >
-            {source.label}
-          </button>
-        ))}
+          <span style={{ 
+            color: uplinkStatus === 'ACTIVE' ? '#22c55e' : 
+                   uplinkStatus === 'CONNECTING' ? '#eab308' : '#ef4444' 
+          }}>{uplinkStatus}</span>
+        </span>
       </div>
 
       <div
@@ -187,27 +149,27 @@ export default function IssLiveEmbed() {
               color: '#eab308',
               fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace',
               textAlign: 'center',
-              padding: 20,
+              padding: 16,
             }}
           >
-            <div style={{ fontSize: 14, marginBottom: 8 }}>UPLINK: DEGRADED</div>
-            <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)', marginBottom: 16 }}>
-              Stream temporarily unavailable
+            <div style={{ fontSize: 12, marginBottom: 6 }}>UPLINK: DEGRADED</div>
+            <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.5)', marginBottom: 12 }}>
+              Stream unavailable
             </div>
             <button
               onClick={handleRetry}
               style={{
-                padding: '8px 16px',
+                padding: '6px 12px',
                 borderRadius: 6,
                 border: '1px solid #eab308',
                 background: 'rgba(234, 179, 8, 0.2)',
                 color: '#eab308',
-                fontSize: 12,
+                fontSize: 10,
                 fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace',
                 cursor: 'pointer',
               }}
             >
-              RETRY CONNECTION
+              RETRY
             </button>
           </div>
         ) : (
@@ -224,14 +186,14 @@ export default function IssLiveEmbed() {
             }}
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
             allowFullScreen
-            title="ISS Live Stream"
+            title={source.label}
           />
         )}
       </div>
 
       <div
         style={{
-          padding: '12px 16px',
+          padding: '8px 12px',
           background: 'rgba(234, 179, 8, 0.05)',
           borderTop: '1px solid rgba(234, 179, 8, 0.2)',
         }}
@@ -239,47 +201,89 @@ export default function IssLiveEmbed() {
         <p
           style={{
             margin: 0,
-            fontSize: 11,
-            color: 'rgba(234, 179, 8, 0.8)',
+            fontSize: 9,
+            color: 'rgba(234, 179, 8, 0.7)',
             fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace',
-            lineHeight: 1.5,
+            lineHeight: 1.4,
           }}
         >
-          {issConfig.losMessage}
+          {losMessage}
         </p>
       </div>
 
-      <div
+      {externalLinks && externalLinks.length > 0 && (
+        <div
+          style={{
+            padding: '8px 12px',
+            display: 'flex',
+            gap: 8,
+            flexWrap: 'wrap',
+          }}
+        >
+          {externalLinks.map((link) => (
+            <a
+              key={link.url}
+              href={link.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{
+                padding: '4px 10px',
+                borderRadius: 6,
+                border: '1px solid rgba(34, 211, 238, 0.3)',
+                background: 'rgba(34, 211, 238, 0.1)',
+                color: '#22d3ee',
+                fontSize: 9,
+                fontWeight: 600,
+                fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace',
+                textDecoration: 'none',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 4,
+              }}
+            >
+              {link.label} <span style={{ opacity: 0.7 }}>-&gt;</span>
+            </a>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
+
+export default function IssLiveEmbed() {
+  const issConfig = LIVE_FEEDS.iss
+
+  return (
+    <div style={{ marginBottom: 24 }}>
+      <h2
         style={{
-          padding: '12px 16px',
-          display: 'flex',
-          gap: 12,
-          flexWrap: 'wrap',
+          margin: '0 0 16px 0',
+          fontSize: 14,
+          fontWeight: 700,
+          color: '#22d3ee',
+          fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace',
+          letterSpacing: '0.1em',
+          textTransform: 'uppercase',
         }}
       >
-        {issConfig.externalLinks.map((link) => (
-          <a
-            key={link.url}
-            href={link.url}
-            target="_blank"
-            rel="noopener noreferrer"
-            style={{
-              padding: '8px 16px',
-              borderRadius: 8,
-              border: '1px solid rgba(34, 211, 238, 0.3)',
-              background: 'rgba(34, 211, 238, 0.1)',
-              color: '#22d3ee',
-              fontSize: 11,
-              fontWeight: 600,
-              fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace',
-              textDecoration: 'none',
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: 6,
-            }}
-          >
-            {link.label} <span style={{ opacity: 0.7 }}>-&gt;</span>
-          </a>
+        {issConfig.title} - {issConfig.subtitle}
+      </h2>
+      
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+          gap: 16,
+        }}
+      >
+        {issConfig.sources.map((source, index) => (
+          <LiveFeedCard
+            key={source.id}
+            source={source}
+            title={issConfig.title}
+            losMessage={issConfig.losMessage}
+            externalLinks={index === 0 ? issConfig.externalLinks : null}
+          />
         ))}
       </div>
 
