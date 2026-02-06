@@ -421,19 +421,21 @@ function isPostingEnabled() {
 }
 
 /**
- * Find APPROVED posts that are due to be posted (scheduled_for <= now)
+ * Find APPROVED posts that are due to be posted
+ * Posts are eligible if: scheduled_for <= now OR scheduled_for is NULL
  * @param {Object} supabase 
  * @returns {Promise<Array>}
  */
 async function findApprovedPosts(supabase) {
   const now = new Date().toISOString()
   
+  // Query for APPROVED posts where scheduled_for <= now OR scheduled_for is NULL
   const { data, error } = await supabase
     .from('social_posts')
     .select('*')
     .eq('status', 'APPROVED')
-    .lte('scheduled_for', now)
-    .order('scheduled_for', { ascending: true })
+    .or(`scheduled_for.lte.${now},scheduled_for.is.null`)
+    .order('scheduled_for', { ascending: true, nullsFirst: true })
   
   if (error) {
     console.error('Error finding approved posts:', error)
@@ -510,10 +512,16 @@ async function markPostAsFailed(supabase, postId, errorMessage) {
     .eq('id', postId)
     .single()
   
+  const failedAt = new Date().toISOString()
+  const retryCount = (existingPost?.metadata?.retry_count || 0) + 1
+  
   const updatedMetadata = {
     ...(existingPost?.metadata || {}),
-    error: errorMessage,
-    failed_at: new Date().toISOString()
+    post_error: errorMessage,
+    last_error: errorMessage,
+    failed_at: failedAt,
+    retry_count: retryCount,
+    last_status_change: failedAt
   }
   
   const { error } = await supabase
@@ -521,7 +529,7 @@ async function markPostAsFailed(supabase, postId, errorMessage) {
     .update({
       status: 'FAILED',
       metadata: updatedMetadata,
-      updated_at: new Date().toISOString()
+      updated_at: failedAt
     })
     .eq('id', postId)
   
@@ -646,7 +654,8 @@ async function postToX(post) {
  * @returns {Promise<{success: boolean, postUrl?: string, error?: string, platform: string}>}
  */
 async function postToPlatform(post) {
-  const platform = post.platform || 'all'
+  // Normalize platform to lowercase to handle case inconsistencies (all, All, X, x, etc.)
+  const platform = (post.platform || 'all').toLowerCase()
   
   if (!isPostingEnabled()) {
     return { 

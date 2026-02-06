@@ -2,6 +2,7 @@ import { useNavigate } from 'react-router-dom'
 import { useState, useEffect, useRef } from 'react'
 import { YOUTUBE_CHANNELS } from '../../config/youtubeChannels'
 import { normalizeYouTubeLiveCards, timeAgo } from '../../utils/normalize'
+import IssLiveEmbed from '../../components/live/IssLiveEmbed'
 
 export default function LivePage() {
   const navigate = useNavigate()
@@ -146,6 +147,8 @@ export default function LivePage() {
           {error}
         </div>
       )}
+
+      <IssLiveEmbed />
 
       {loading && channels.length === 0 && (
         <div
