@@ -99,6 +99,26 @@ const YOUTUBE_CHANNELS = [
     priority: 10,
     description: 'Launch coverage and spaceflight news from Spaceflight Now.',
   },
+  {
+    id: 'wn-space',
+    name: 'WN Space',
+    handle: '@WN-Space',
+    channelId: 'UCwn4fIhTNrvJLXJlgTLo-aQ',
+    url: 'https://www.youtube.com/@WN-Space',
+    focus: 'launch',
+    priority: 11,
+    description: 'Space news and launch coverage.',
+  },
+  {
+    id: 'what-about-it',
+    name: 'What about it!?',
+    handle: '@Whataboutit',
+    channelId: 'UCbBx6rf_MzVv3wKUyxdPGXg',
+    url: 'https://www.youtube.com/@Whataboutit',
+    focus: 'creator',
+    priority: 12,
+    description: 'SpaceX and space industry news and analysis.',
+  },
 ]
 
 let cachedLiveStatus = null
