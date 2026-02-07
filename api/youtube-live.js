@@ -130,8 +130,10 @@ async function checkChannelLive(channel, apiKey) {
     const searchUrl = `https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=${channel.channelId}&eventType=live&type=video&key=${apiKey}`
     
     const searchResponse = await fetch(searchUrl)
+    const searchData = await searchResponse.json()
+    
     if (!searchResponse.ok) {
-      console.error(`YouTube API error for ${channel.name}: ${searchResponse.status}`)
+      console.error(`YouTube API error for ${channel.name}: ${searchResponse.status}`, searchData)
       return {
         ...channel,
         isLive: false,
@@ -140,10 +142,9 @@ async function checkChannelLive(channel, apiKey) {
         liveUrl: null,
         thumbnail: null,
         startedAt: null,
+        apiError: searchData.error?.message || `HTTP ${searchResponse.status}`,
       }
     }
-
-    const searchData = await searchResponse.json()
     
     if (!searchData.items || searchData.items.length === 0) {
       return {
