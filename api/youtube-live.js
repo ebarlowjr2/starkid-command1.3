@@ -99,6 +99,26 @@ const YOUTUBE_CHANNELS = [
     priority: 10,
     description: 'Launch coverage and spaceflight news from Spaceflight Now.',
   },
+  {
+    id: 'wn-space',
+    name: 'WN Space',
+    handle: '@WN-Space',
+    channelId: 'UCwn4fIhTNrvJLXJlgTLo-aQ',
+    url: 'https://www.youtube.com/@WN-Space',
+    focus: 'launch',
+    priority: 11,
+    description: 'Space news and launch coverage.',
+  },
+  {
+    id: 'what-about-it',
+    name: 'What about it!?',
+    handle: '@Whataboutit',
+    channelId: 'UCbBx6rf_MzVv3wKUyxdPGXg',
+    url: 'https://www.youtube.com/@Whataboutit',
+    focus: 'creator',
+    priority: 12,
+    description: 'SpaceX and space industry news and analysis.',
+  },
 ]
 
 let cachedLiveStatus = null
@@ -110,8 +130,10 @@ async function checkChannelLive(channel, apiKey) {
     const searchUrl = `https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=${channel.channelId}&eventType=live&type=video&key=${apiKey}`
     
     const searchResponse = await fetch(searchUrl)
+    const searchData = await searchResponse.json()
+    
     if (!searchResponse.ok) {
-      console.error(`YouTube API error for ${channel.name}: ${searchResponse.status}`)
+      console.error(`YouTube API error for ${channel.name}: ${searchResponse.status}`, searchData)
       return {
         ...channel,
         isLive: false,
@@ -120,10 +142,9 @@ async function checkChannelLive(channel, apiKey) {
         liveUrl: null,
         thumbnail: null,
         startedAt: null,
+        apiError: searchData.error?.message || `HTTP ${searchResponse.status}`,
       }
     }
-
-    const searchData = await searchResponse.json()
     
     if (!searchData.items || searchData.items.length === 0) {
       return {
