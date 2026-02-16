@@ -8,10 +8,6 @@
       "schedule": "0 6 * * *"
     },
     {
-      "path": "/api/ingest/eclipses",
-      "schedule": "0 7 * * *"
-    },
-    {
       "path": "/api/social/scheduler",
       "schedule": "0 8 * * *"
     },
