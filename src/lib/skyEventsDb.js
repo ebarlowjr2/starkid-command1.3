@@ -159,3 +159,62 @@ export function groupEventsByType(events) {
   
   return groups
 }
+
+/**
+ * Get urgent sky events (next 7 days) for homepage banner
+ * Prioritizes high-signal events like eclipses, meteor showers, full/new moons
+ * @returns {Promise<Array>}
+ */
+export async function getUrgentSkyEvents() {
+  try {
+    const params = new URLSearchParams({ type: 'upcoming', days: '7', category: 'sky_event' })
+    const response = await fetch(`${API_BASE}/sky-events?${params}`)
+    
+    if (!response.ok) {
+      throw new Error(`API error: ${response.status}`)
+    }
+    
+    const data = await response.json()
+    
+    if (!data.success || !data.events) {
+      return []
+    }
+    
+    // Transform and prioritize events
+    const events = data.events.map(transformDbEventToUi)
+    
+    // Sort by priority: eclipses > meteor showers > full/new moon > others
+    const priorityOrder = {
+      'eclipse': 1,
+      'meteor-shower': 2,
+      'moon-phase': 3,
+      'conjunction': 4,
+      'planet-event': 5,
+      'other': 6
+    }
+    
+    // Filter to high-signal events only
+    const highSignalEvents = events.filter(e => {
+      if (e.type === 'eclipse') return true
+      if (e.type === 'meteor-shower') return true
+      if (e.type === 'moon-phase') {
+        const title = (e.title || '').toLowerCase()
+        return title.includes('full') || title.includes('new')
+      }
+      return false
+    })
+    
+    highSignalEvents.sort((a, b) => {
+      const priorityA = priorityOrder[a.type] || 99
+      const priorityB = priorityOrder[b.type] || 99
+      if (priorityA !== priorityB) return priorityA - priorityB
+      return new Date(a.start) - new Date(b.start)
+    })
+    
+    return highSignalEvents.slice(0, 3) // Return top 3 urgent events
+    
+  } catch (error) {
+    console.warn('Failed to fetch urgent events:', error.message)
+    return []
+  }
+}

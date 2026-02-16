@@ -2,6 +2,7 @@ import { useNavigate } from 'react-router-dom'
 import { useState, useEffect, useRef } from 'react'
 import { YOUTUBE_CHANNELS } from '../../config/youtubeChannels'
 import { normalizeYouTubeLiveCards, timeAgo } from '../../utils/normalize'
+import IssLiveEmbed from '../../components/live/IssLiveEmbed'
 
 export default function LivePage() {
   const navigate = useNavigate()
@@ -147,6 +148,8 @@ export default function LivePage() {
         </div>
       )}
 
+      <IssLiveEmbed />
+
       {loading && channels.length === 0 && (
         <div
           style={{
@@ -186,15 +189,23 @@ export default function LivePage() {
             LIVE NOW
           </h2>
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+              gap: 16,
+            }}
+          >
             {liveChannels.map((channel) => (
               <div
                 key={channel.channelId}
                 style={{
-                  borderRadius: 16,
+                  borderRadius: 12,
                   border: '2px solid rgba(239, 68, 68, 0.5)',
                   background: 'rgba(239, 68, 68, 0.1)',
                   overflow: 'hidden',
+                  display: 'flex',
+                  flexDirection: 'column',
                 }}
               >
                 {channel.liveVideoId && (
@@ -222,15 +233,15 @@ export default function LivePage() {
                   </div>
                 )}
 
-                <div style={{ padding: 16 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 8 }}>
+                <div style={{ padding: 12 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
                     <span
                       style={{
-                        padding: '4px 8px',
+                        padding: '3px 6px',
                         borderRadius: 4,
                         background: '#ef4444',
                         color: '#fff',
-                        fontSize: 10,
+                        fontSize: 9,
                         fontWeight: 700,
                         fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace',
                       }}
@@ -239,7 +250,7 @@ export default function LivePage() {
                     </span>
                     <span
                       style={{
-                        fontSize: 11,
+                        fontSize: 9,
                         color: 'rgba(255,255,255,0.5)',
                         fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace',
                       }}
@@ -248,12 +259,12 @@ export default function LivePage() {
                     </span>
                   </div>
 
-                  <h3 style={{ fontSize: 18, fontWeight: 700, color: '#fff', margin: '0 0 4px' }}>
+                  <h3 style={{ fontSize: 14, fontWeight: 700, color: '#fff', margin: '0 0 4px' }}>
                     {channel.name}
                   </h3>
 
                   {channel.liveTitle && (
-                    <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.7)', margin: '0 0 12px' }}>
+                    <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.7)', margin: '0 0 8px', lineHeight: 1.3 }}>
                       {channel.liveTitle}
                     </p>
                   )}
@@ -264,11 +275,11 @@ export default function LivePage() {
                     rel="noopener noreferrer"
                     style={{
                       display: 'inline-block',
-                      padding: '8px 16px',
-                      borderRadius: 8,
+                      padding: '6px 12px',
+                      borderRadius: 6,
                       background: '#ef4444',
                       color: '#fff',
-                      fontSize: 12,
+                      fontSize: 10,
                       fontWeight: 700,
                       fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace',
                       textDecoration: 'none',
@@ -299,7 +310,7 @@ export default function LivePage() {
         <div
           style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
             gap: 16,
           }}
         >
@@ -307,7 +318,7 @@ export default function LivePage() {
             <div
               key={channel.channelId}
               style={{
-                padding: 16,
+                padding: 12,
                 borderRadius: 12,
                 border: '1px solid rgba(34, 211, 238, 0.2)',
                 background: 'rgba(0,0,0,0.4)',
