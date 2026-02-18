@@ -161,13 +161,13 @@ export function groupEventsByType(events) {
 }
 
 /**
- * Get urgent sky events (next 7 days) for homepage banner
+ * Get urgent sky events (next 30 days) for homepage banner
  * Prioritizes high-signal events like eclipses, meteor showers, full/new moons
  * @returns {Promise<Array>}
  */
 export async function getUrgentSkyEvents() {
   try {
-    const params = new URLSearchParams({ type: 'upcoming', days: '7', category: 'sky_event' })
+    const params = new URLSearchParams({ type: 'upcoming', days: '30', category: 'sky_event' })
     const response = await fetch(`${API_BASE}/sky-events?${params}`)
     
     if (!response.ok) {
