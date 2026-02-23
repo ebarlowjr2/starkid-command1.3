@@ -85,23 +85,25 @@ export default function NavDropdown({ label, items, color = 'cyan' }) {
 
       {isOpen && (
         <div 
-          className={`absolute top-full left-0 mt-1 min-w-[180px] rounded border ${colors.dropdown} shadow-lg shadow-black/50 z-50`}
+          className={`absolute top-full left-0 pt-1 min-w-[180px] z-50`}
         >
-          {items.map((item, idx) => (
-            <NavLink
-              key={idx}
-              to={item.to}
-              className={({ isActive }) =>
-                `block px-4 py-2 text-sm transition-colors ${
-                  isActive 
-                    ? colors.active 
-                    : `text-gray-300 ${colors.itemHover}`
-                } ${idx === 0 ? 'rounded-t' : ''} ${idx === items.length - 1 ? 'rounded-b' : ''}`
-              }
-            >
-              {item.label}
-            </NavLink>
-          ))}
+          <div className={`rounded border ${colors.dropdown} shadow-lg shadow-black/50`}>
+            {items.map((item, idx) => (
+              <NavLink
+                key={idx}
+                to={item.to}
+                className={({ isActive }) =>
+                  `block px-4 py-2 text-sm transition-colors ${
+                    isActive 
+                      ? colors.active 
+                      : `text-gray-300 ${colors.itemHover}`
+                  } ${idx === 0 ? 'rounded-t' : ''} ${idx === items.length - 1 ? 'rounded-b' : ''}`
+                }
+              >
+                {item.label}
+              </NavLink>
+            ))}
+          </div>
         </div>
       )}
     </div>
