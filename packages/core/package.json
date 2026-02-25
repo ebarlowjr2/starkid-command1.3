@@ -1,0 +1,10 @@
+{
+  "name": "@starkid/core",
+  "version": "0.0.0",
+  "main": "src/index.ts",
+  "type": "module",
+  "dependencies": {
+    "@supabase/supabase-js": "^2.93.3",
+    "axios": "^1.12.2"
+  }
+}
