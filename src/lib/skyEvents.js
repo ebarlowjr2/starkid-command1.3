@@ -162,6 +162,13 @@ function getPlanetaryEventData() {
   const currentYear = new Date().getFullYear()
   return [
     {
+      title: 'Six-Planet Alignment',
+      type: 'conjunction',
+      date: '2026-02-28',
+      visibility: 'Evening sky, 30 min after sunset - look west',
+      description: 'Rare planetary parade! Mercury, Venus, Jupiter, Saturn, Uranus, and Neptune align in the evening sky. Four visible to naked eye, two need binoculars. Won\'t return until 2040!'
+    },
+    {
       title: 'Venus at Greatest Eastern Elongation',
       type: 'planet-event',
       date: `${currentYear}-01-10`,

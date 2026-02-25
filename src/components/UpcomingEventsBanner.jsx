@@ -1,5 +1,5 @@
 // src/components/UpcomingEventsBanner.jsx
-// Banner component showing urgent sky events in the next 7 days
+// Banner component showing urgent sky events in the next 30 days
 
 import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
@@ -115,7 +115,7 @@ export default function UpcomingEventsBanner() {
             fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace',
           }}
         >
-          SKY EVENTS IN THE NEXT 7 DAYS
+          SKY EVENTS IN THE NEXT 30 DAYS
         </span>
       </div>
 
