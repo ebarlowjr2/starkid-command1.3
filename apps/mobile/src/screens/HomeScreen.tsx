@@ -14,23 +14,26 @@ export default function HomeScreen() {
   useEffect(() => {
     let active = true
     async function load() {
-      try {
-        const [apod, solar, alertList] = await Promise.all([
-          getAPOD(),
-          getRecentSolarActivity(3),
-          getAlertsForUser(),
-        ])
-        if (!active) return
-        setApodTitle(apod?.title || 'Astronomy Picture of the Day')
-        setSolarSummary(`Flares: ${solar.flaresCount} • CMEs: ${solar.cmeCount} • Strongest: ${solar.strongestClass}`)
-        setAlerts(alertList || [])
-      } catch (error) {
-        if (!active) return
-        setApodTitle('APOD unavailable')
+      const results = await Promise.allSettled([
+        getAPOD(),
+        getRecentSolarActivity(3),
+        getAlertsForUser(),
+      ])
+
+      if (!active) return
+
+      const apodResult = results[0].status === 'fulfilled' ? results[0].value : null
+      const solarResult = results[1].status === 'fulfilled' ? results[1].value : null
+      const alertResult = results[2].status === 'fulfilled' ? results[2].value : []
+
+      setApodTitle(apodResult?.title || 'APOD unavailable')
+      if (solarResult) {
+        setSolarSummary(`Flares: ${solarResult.flaresCount} • CMEs: ${solarResult.cmeCount} • Strongest: ${solarResult.strongestClass}`)
+      } else {
         setSolarSummary('Solar activity unavailable')
-      } finally {
-        if (active) setLoading(false)
       }
+      setAlerts(alertResult || [])
+      setLoading(false)
     }
     load()
     return () => {

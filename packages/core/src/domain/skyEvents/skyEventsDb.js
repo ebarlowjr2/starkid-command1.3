@@ -3,8 +3,9 @@
 // Falls back to static data if API is unavailable
 
 import { getSkyEvents as getStaticSkyEvents } from './skyEvents.js'
+import { getCoreConfig } from '../../config/coreConfig.ts'
 
-const API_BASE = '/api'
+const getApiBase = () => getCoreConfig().apiBase
 
 /**
  * Fetch upcoming sky events from the database
@@ -15,12 +16,16 @@ const API_BASE = '/api'
  * @returns {Promise<Array>}
  */
 export async function getUpcomingSkyEvents({ days = 60, category = 'sky_event', subtype } = {}) {
+  const apiBase = getApiBase()
+  if (!apiBase) {
+    return getStaticSkyEvents({ days })
+  }
   try {
     const params = new URLSearchParams({ type: 'upcoming', days: days.toString() })
     if (category) params.append('category', category)
     if (subtype) params.append('subtype', subtype)
     
-    const response = await fetch(`${API_BASE}/sky-events?${params}`)
+    const response = await fetch(`${apiBase}/sky-events?${params}`)
     
     if (!response.ok) {
       throw new Error(`API error: ${response.status}`)
@@ -49,11 +54,15 @@ export async function getUpcomingSkyEvents({ days = 60, category = 'sky_event', 
  * @returns {Promise<Array>}
  */
 export async function getRecentSkyEvents({ category = 'sky_event', limit = 50 } = {}) {
+  const apiBase = getApiBase()
+  if (!apiBase) {
+    return []
+  }
   try {
     const params = new URLSearchParams({ type: 'recent', limit: limit.toString() })
     if (category) params.append('category', category)
     
-    const response = await fetch(`${API_BASE}/sky-events?${params}`)
+    const response = await fetch(`${apiBase}/sky-events?${params}`)
     
     if (!response.ok) {
       throw new Error(`API error: ${response.status}`)
