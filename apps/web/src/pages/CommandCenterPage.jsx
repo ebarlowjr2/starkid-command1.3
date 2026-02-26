@@ -3,11 +3,12 @@
  * (Extracted from the original App.jsx)
  */
 import React, { useEffect, useMemo, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import Globe from '../components/Globe.jsx'
 import AdminPanel from '../components/AdminPanel.jsx'
 import MissionCard from '../components/MissionCard.jsx'
 
-import { getUpcomingLaunchesFromLibrary } from '@starkid/core'
+import { getUpcomingLaunchesFromLibrary, getAlertsForUser, convertAlertToMission } from '@starkid/core'
 import {
   getAPOD,
   getNEOsToday,
@@ -22,8 +23,10 @@ import {
   getRockets,
   getCrew,
 } from '@starkid/core'
+import { setMission } from '../state/missionStore.js'
 
 export default function CommandCenterPage() {
+  const nav = useNavigate()
   const [launches, setLaunches] = useState([])
   const [launchSites, setLaunchSites] = useState([])
   const [error, setError] = useState(null)
@@ -41,6 +44,7 @@ export default function CommandCenterPage() {
   const [upcoming, setUpcoming] = useState([])
   const [rockets, setRockets] = useState([])
   const [crew, setCrew] = useState([])
+  const [missionAlerts, setMissionAlerts] = useState([])
 
   useEffect(() => {
     async function loadLaunchData() {
@@ -111,8 +115,18 @@ export default function CommandCenterPage() {
       setAstros(val(3))
     }
 
+    async function loadMissionAlerts() {
+      try {
+        const alerts = await getAlertsForUser()
+        setMissionAlerts(alerts)
+      } catch (e) {
+        console.warn('Error loading mission alerts:', e)
+      }
+    }
+
     loadLaunchData()
     loadNASASpaceXData()
+    loadMissionAlerts()
 
     const interval = setInterval(loadLaunchData, 1800000)
     return () => clearInterval(interval)
@@ -217,6 +231,41 @@ export default function CommandCenterPage() {
             </div>
           }
         />
+      </section>
+
+      <section className="border border-cyan-700/60 rounded-lg p-4 mb-6 bg-black/60">
+        <div className="flex items-center justify-between mb-3">
+          <h2 className="text-lg font-semibold text-cyan-300 tracking-wider">MISSION ALERTS</h2>
+          <span className="text-xs text-cyan-400">{missionAlerts.length} active</span>
+        </div>
+        {missionAlerts.length ? (
+          <ul className="space-y-2 text-sm">
+            {missionAlerts.slice(0, 6).map((alert) => (
+              <li key={alert.id} className="flex items-center justify-between gap-4 border border-cyan-900/60 rounded px-3 py-2">
+                <div>
+                  <div className="text-cyan-100 font-medium">{alert.title}</div>
+                  <div className="text-xs text-cyan-500">{alert.type} • {alert.severity}</div>
+                </div>
+                {alert.missionAvailable ? (
+                  <button
+                    className="px-3 py-1 text-xs rounded bg-cyan-600 hover:bg-cyan-500 text-white"
+                    onClick={() => {
+                      const mission = convertAlertToMission(alert)
+                      if (mission) {
+                        setMission(mission)
+                        nav('/missions/briefing')
+                      }
+                    }}
+                  >
+                    Accept Mission
+                  </button>
+                ) : null}
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <div className="text-xs text-cyan-500">No alerts available.</div>
+        )}
       </section>
 
       <section className="border-2 border-cyan-500 rounded-lg overflow-hidden shadow-lg shadow-cyan-500/50 bg-black">

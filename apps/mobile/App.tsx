@@ -8,6 +8,7 @@ import HomeScreen from './src/screens/HomeScreen'
 import LaunchesScreen from './src/screens/LaunchesScreen'
 import SkyEventsScreen from './src/screens/SkyEventsScreen'
 import CometsScreen from './src/screens/CometsScreen'
+import MissionBriefingScreen from './src/screens/MissionBriefingScreen'
 
 const Stack = createNativeStackNavigator()
 
@@ -33,6 +34,7 @@ export default function App() {
         <Stack.Screen name="Launches" component={LaunchesScreen} />
         <Stack.Screen name="Sky Events" component={SkyEventsScreen} />
         <Stack.Screen name="Comets" component={CometsScreen} />
+        <Stack.Screen name="Mission Briefing" component={MissionBriefingScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   )

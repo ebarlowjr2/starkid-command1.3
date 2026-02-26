@@ -26,6 +26,7 @@ import OfficialUpdatesPage from './pages/updates/OfficialUpdatesPage.jsx'
 import ArtemisPage from './pages/missions/ArtemisPage.jsx'
 import SLSDetailPage from './pages/missions/SLSDetailPage.jsx'
 import OrionDetailPage from './pages/missions/OrionDetailPage.jsx'
+import MissionBriefingPage from './pages/MissionBriefingPage.jsx'
 import SupportPage from './pages/SupportPage.jsx'
 import AboutPage from './pages/AboutPage.jsx'
 import SocialQueuePage from './pages/ops/SocialQueuePage.jsx'
@@ -85,7 +86,8 @@ export default function App() {
                                       <Route path="/updates/x" element={<XPage />} />
                                       <Route path="/missions/artemis" element={<ArtemisPage />} />
                                                                           <Route path="/missions/artemis/sls" element={<SLSDetailPage />} />
-                                                                          <Route path="/missions/artemis/orion" element={<OrionDetailPage />} />
+                    <Route path="/missions/artemis/orion" element={<OrionDetailPage />} />
+                    <Route path="/missions/briefing" element={<MissionBriefingPage />} />
                                                                                                                                                   <Route path="/support" element={<SupportPage />} />
                                                                                                                                                   <Route path="/about" element={<AboutPage />} />
                                                                                                                                                   <Route path="/ops/social-queue" element={<SocialQueuePage />} />
