@@ -36,6 +36,9 @@ export type Alert = {
   title: string
   severity: AlertSeverity
   source?: string
+  startTime?: string | null
+  priority?: number
+  missionAvailable?: boolean
   payload?: unknown
 }
 

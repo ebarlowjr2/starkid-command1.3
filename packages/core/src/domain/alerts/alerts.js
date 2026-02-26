@@ -1,40 +1,80 @@
 import { createMissionFromLaunch, createMissionFromEclipse, createMissionFromSolarEvent } from '../missions/missionEngine.js'
+import { getUpcomingLaunchesFromLibrary } from '../launches/launchLibrary.js'
+import { getAllSkyEvents } from '../skyEvents/skyEventsDb.js'
+import { getRecentSolarActivity } from '../../clients/nasa/nasa.js'
 
-export function generateAlerts({ launches = [], skyEvents = [], solarActivity = null } = {}) {
+const severityPriority = {
+  high: 3,
+  medium: 2,
+  info: 1,
+}
+
+export async function generateAlerts({ launches, skyEvents, solarActivity } = {}) {
+  const [
+    launchData,
+    skyEventData,
+    solarData,
+  ] = await Promise.all([
+    launches ?? getUpcomingLaunchesFromLibrary(10).catch(() => []),
+    skyEvents ?? getAllSkyEvents({ days: 60 }).catch(() => []),
+    solarActivity ?? getRecentSolarActivity(3).catch(() => null),
+  ])
+
   const alerts = []
 
-  for (const launch of launches) {
+  for (const launch of launchData || []) {
+    const startTime = launch.net || launch.window_start || null
     alerts.push({
       id: `launch:${launch.id || launch.name || 'unknown'}`,
       type: 'launch',
       title: launch.name || 'Upcoming Launch',
-      severity: 'info',
+      severity: 'medium',
+      priority: severityPriority.medium,
       source: 'launch-library',
+      startTime,
+      missionAvailable: true,
       payload: launch,
     })
   }
 
-  for (const event of skyEvents) {
+  for (const event of skyEventData || []) {
+    const severity = event.type === 'eclipse' ? 'high' : 'info'
+    const startTime = event.start || null
     alerts.push({
       id: `event:${event.id || event.title || 'unknown'}`,
       type: 'sky-event',
       title: event.title || 'Sky Event',
-      severity: event.type === 'eclipse' ? 'high' : 'info',
+      severity,
+      priority: severityPriority[severity] || severityPriority.info,
       source: 'sky-events',
+      startTime,
+      missionAvailable: true,
       payload: event,
     })
   }
 
-  if (solarActivity) {
+  if (solarData) {
+    const severity = solarData.severityPct >= 60 ? 'high' : 'info'
     alerts.push({
-      id: `solar:${solarActivity.strongestClass || 'none'}`,
+      id: `solar:${solarData.strongestClass || 'none'}`,
       type: 'solar',
-      title: `Solar Activity: ${solarActivity.strongestClass || 'None'}`,
-      severity: solarActivity.severityPct >= 60 ? 'high' : 'info',
+      title: `Solar Activity: ${solarData.strongestClass || 'None'}`,
+      severity,
+      priority: severityPriority[severity] || severityPriority.info,
       source: 'donki',
-      payload: solarActivity,
+      startTime: null,
+      missionAvailable: true,
+      payload: solarData,
     })
   }
+
+  alerts.sort((a, b) => {
+    const aTime = a.startTime ? new Date(a.startTime).getTime() : Number.POSITIVE_INFINITY
+    const bTime = b.startTime ? new Date(b.startTime).getTime() : Number.POSITIVE_INFINITY
+    if (aTime !== bTime) return aTime - bTime
+    if ((b.priority || 0) !== (a.priority || 0)) return (b.priority || 0) - (a.priority || 0)
+    return String(a.id).localeCompare(String(b.id))
+  })
 
   return alerts
 }

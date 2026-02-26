@@ -3,7 +3,7 @@
 
 import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { getUrgentSkyEvents } from '@starkid/core'
+import { getAlertsForUser } from '@starkid/core'
 
 const typeIcons = {
   'eclipse': '🌑',
@@ -61,7 +61,18 @@ export default function UpcomingEventsBanner() {
   useEffect(() => {
     async function load() {
       try {
-        const urgentEvents = await getUrgentSkyEvents()
+        const alerts = await getAlertsForUser()
+        const now = new Date()
+        const in30Days = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000)
+        const urgentEvents = alerts
+          .filter((alert) => alert.type === 'sky-event')
+          .map((alert) => alert.payload)
+          .filter(Boolean)
+          .filter((event) => {
+            if (!event.start) return false
+            const date = new Date(event.start)
+            return date >= now && date <= in30Days
+          })
         setEvents(urgentEvents)
       } catch (e) {
         console.warn('Failed to load urgent events:', e)
