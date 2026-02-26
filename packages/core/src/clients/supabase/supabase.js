@@ -2,7 +2,7 @@
 // Supabase client for browser-side operations
 
 import { createClient } from '@supabase/supabase-js'
-import { getCoreConfig } from '../config/coreConfig.ts'
+import { getCoreConfig } from '../../config/coreConfig.ts'
 
 export let supabase = null
 let warned = false

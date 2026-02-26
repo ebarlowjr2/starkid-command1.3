@@ -1,4 +1,4 @@
-import { getWithTTL, setWithTTL } from '../../storage/cache.js'
+import { getWithTTL, setWithTTL } from '../../../storage/cache.js'
 
 const LL2_BASE_URL = 'https://ll.thespacedevs.com/2.3.0'
 const SPACECRAFT_CACHE_KEY = 'spacecraft:configs:in_use:v1'

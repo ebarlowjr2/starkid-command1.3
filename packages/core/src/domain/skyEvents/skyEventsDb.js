@@ -2,7 +2,7 @@
 // Sky events data layer that fetches from database via API
 // Falls back to static data if API is unavailable
 
-import { getSkyEvents as getStaticSkyEvents } from '../domain/skyEvents.js'
+import { getSkyEvents as getStaticSkyEvents } from './skyEvents.js'
 
 const API_BASE = '/api'
 

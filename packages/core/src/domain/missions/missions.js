@@ -1,8 +1,8 @@
 // src/lib/missions.js
 // Mission generation logic for Tonight's Sky Mission page
 
-import { getMoonSummary, getMoonDescription } from './moon.js'
-import { getSkyEvents } from './skyEvents.js'
+import { getMoonSummary, getMoonDescription } from '../skyEvents/moon.js'
+import { getSkyEvents } from '../skyEvents/skyEvents.js'
 
 /**
  * Generate tonight's missions based on current sky conditions

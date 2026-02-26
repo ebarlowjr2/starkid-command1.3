@@ -3,7 +3,7 @@
 // Note: The original NASA Mars Rover Photos API (mars-photo-api) was archived in Oct 2025
 // This module now uses curated sample data from actual Curiosity rover photos
 
-import { getWithTTL, setWithTTL } from '../storage/cache.js'
+import { getWithTTL, setWithTTL } from '../../storage/cache.js'
 
 // Simple hash function for deterministic daily photo selection
 function hashString(str) {

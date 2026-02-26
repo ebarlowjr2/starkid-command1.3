@@ -2,7 +2,7 @@
  * Orbit path sampling utilities
  * Generates orbit lines by sampling positions over time
  */
-import { fetchVectors } from '../clients/horizonsClient.js'
+import { fetchVectors } from '../../clients/horizons/horizonsClient.js'
 import { auToVec3 } from './solarScale.js'
 
 // Reduced sample count for MVP (balance between smoothness and API calls)

@@ -1,6 +1,6 @@
 // src/lib/nasa.js
 // NASA helpers: APOD, NeoWs, DONKI alerts, EPIC Earth, Solar Activity
-import { getCoreConfig } from '../config/coreConfig.ts'
+import { getCoreConfig } from '../../config/coreConfig.ts'
 
 const BASE = 'https://api.nasa.gov'
 const getKey = () => getCoreConfig().nasaApiKey || 'DEMO_KEY'

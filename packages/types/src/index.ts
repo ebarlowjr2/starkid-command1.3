@@ -1,1 +1,57 @@
-export {}
+export type Launch = {
+  id?: string | number
+  name?: string
+  net?: string
+  window_start?: string
+  pad?: {
+    name?: string
+  }
+}
+
+export type SkyEvent = {
+  id?: string | number
+  title?: string
+  type?: string
+  start?: string
+  end?: string
+  description?: string
+  visibility?: string
+  source?: string
+  sourceUrl?: string
+  metadata?: Record<string, unknown>
+}
+
+export type Comet = {
+  designation?: string
+  name?: string
+  savedAt?: string
+  notify?: boolean
+}
+
+export type AlertSeverity = 'info' | 'medium' | 'high'
+
+export type Alert = {
+  id: string
+  type: 'launch' | 'sky-event' | 'solar' | string
+  title: string
+  severity: AlertSeverity
+  source?: string
+  payload?: unknown
+}
+
+export type MissionType = 'math' | 'cyber' | 'linux' | 'science'
+
+export type Mission = {
+  id: string
+  title: string
+  difficulty: 'easy' | 'medium' | 'hard'
+  type: MissionType
+  briefing: string
+  requiredData: Record<string, unknown>
+  timeLimit: number
+}
+
+export type UserPreference = {
+  mutedTypes?: string[]
+  minSeverity?: AlertSeverity | null
+}
