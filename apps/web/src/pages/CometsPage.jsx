@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import { getSavedComets, toggleSavedComet } from '@starkid/core'
+import { getRepos } from '@starkid/core'
 import { CURATED_COMETS, searchComets, getNotableComets } from '@starkid/core'
 
 export default function CometsPage() {
@@ -23,18 +23,25 @@ export default function CometsPage() {
 
   async function loadSavedComets() {
     setLoading(true)
-    const saved = await getSavedComets()
+    const { savedItemsRepo, actor } = await getRepos()
+    const saved = await savedItemsRepo.list(actor.actorId, 'comet')
     setSavedComets(saved)
     setLoading(false)
   }
 
   async function handleToggleSave(designation, name) {
-    await toggleSavedComet(designation, name)
+    const { savedItemsRepo, actor } = await getRepos()
+    const existing = savedComets.some((c) => c.id === designation)
+    if (existing) {
+      await savedItemsRepo.remove(actor.actorId, designation, 'comet')
+    } else {
+      await savedItemsRepo.save(actor.actorId, { id: designation, type: 'comet', designation, name })
+    }
     await loadSavedComets()
   }
 
   function isCometSaved(designation) {
-    return savedComets.some(c => c.designation === designation)
+    return savedComets.some(c => c.id === designation || c.designation === designation)
   }
 
   function getCometDetails(designation) {
@@ -77,24 +84,25 @@ export default function CometsPage() {
         ) : (
           <div className="grid gap-3 md:grid-cols-2">
             {savedComets.map(saved => {
-              const details = getCometDetails(saved.designation)
+              const designation = saved.designation || saved.id
+              const details = getCometDetails(designation)
               return (
                 <Link
-                  key={saved.designation}
-                  to={`/comets/${encodeURIComponent(saved.designation)}`}
+                  key={designation}
+                  to={`/comets/${encodeURIComponent(designation)}`}
                   className="border border-cyan-600 rounded-lg p-4 bg-zinc-900/50 hover:bg-zinc-900/70 hover:border-cyan-500 transition-all group"
                 >
                   <div className="flex justify-between items-start">
                     <div>
                       <h4 className="text-cyan-200 font-semibold group-hover:text-cyan-100">
-                        {details?.name || saved.name || saved.designation}
+                        {details?.name || saved.name || designation}
                       </h4>
-                      <p className="text-cyan-400 text-xs">{saved.designation}</p>
+                      <p className="text-cyan-400 text-xs">{designation}</p>
                     </div>
                     <button
                       onClick={(e) => {
                         e.preventDefault()
-                        handleToggleSave(saved.designation, saved.name)
+                        handleToggleSave(designation, saved.name)
                       }}
                       className="text-yellow-400 hover:text-yellow-300 transition-colors"
                       title="Remove from saved"

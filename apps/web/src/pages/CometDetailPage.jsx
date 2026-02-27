@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { useParams, Link } from 'react-router-dom'
-import { getSavedComet, toggleSavedComet, setNotify } from '@starkid/core'
+import { getRepos } from '@starkid/core'
 import { getCometByDesignation } from '@starkid/core'
 
 export default function CometDetailPage() {
@@ -21,26 +21,32 @@ export default function CometDetailPage() {
   async function loadCometData() {
     const cometDetails = getCometByDesignation(decodedDesignation)
     setComet(cometDetails || { designation: decodedDesignation, name: decodedDesignation })
-    
-    const saved = await getSavedComet(decodedDesignation)
-    setSavedData(saved)
+
+    const { savedItemsRepo, actor } = await getRepos()
+    const saved = await savedItemsRepo.list(actor.actorId, 'comet')
+    const match = saved.find((item) => item.id === decodedDesignation)
+    setSavedData(match || null)
   }
 
   async function handleToggleSave() {
-    const newState = await toggleSavedComet(decodedDesignation, comet?.name || '')
-    if (newState) {
-      const saved = await getSavedComet(decodedDesignation)
-      setSavedData(saved)
-    } else {
+    const { savedItemsRepo, actor } = await getRepos()
+    if (savedData) {
+      await savedItemsRepo.remove(actor.actorId, decodedDesignation, 'comet')
       setSavedData(null)
+    } else {
+      const entry = { id: decodedDesignation, type: 'comet', designation: decodedDesignation, name: comet?.name || '' }
+      await savedItemsRepo.save(actor.actorId, entry)
+      setSavedData(entry)
     }
   }
 
   async function handleToggleNotify() {
     if (!savedData) return
-    await setNotify(decodedDesignation, !savedData.notify)
-    const saved = await getSavedComet(decodedDesignation)
-    setSavedData(saved)
+    const { savedItemsRepo, actor } = await getRepos()
+    const updated = { ...savedData, notify: !savedData.notify }
+    await savedItemsRepo.remove(actor.actorId, decodedDesignation, 'comet')
+    await savedItemsRepo.save(actor.actorId, updated)
+    setSavedData(updated)
   }
 
   async function fetchVisibility() {

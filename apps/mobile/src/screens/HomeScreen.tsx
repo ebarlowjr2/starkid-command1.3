@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { View, Text, StyleSheet, ActivityIndicator, Pressable } from 'react-native'
 import { useNavigation } from '@react-navigation/native'
-import { getAPOD, getRecentSolarActivity, getAlertsForUser, convertAlertToMission } from '@starkid/core'
+import { getAPOD, getRecentSolarActivity, getAlertsForUser, convertAlertToMission, ROUTES } from '@starkid/core'
 import { setMission } from '../state/missionStore'
 
 export default function HomeScreen() {
@@ -62,14 +62,23 @@ export default function HomeScreen() {
         <Text style={styles.cardValue}>{solarSummary}</Text>
       </View>
       <View style={styles.navRow}>
-        <Pressable style={styles.navButton} onPress={() => navigation.navigate('Launches' as never)}>
+        <Pressable style={styles.navButton} onPress={() => navigation.navigate(ROUTES.COMMAND_CENTER as never)}>
+          <Text style={styles.navText}>Command</Text>
+        </Pressable>
+        <Pressable style={styles.navButton} onPress={() => navigation.navigate(ROUTES.LAUNCHES as never)}>
           <Text style={styles.navText}>Launches</Text>
         </Pressable>
-        <Pressable style={styles.navButton} onPress={() => navigation.navigate('Sky Events' as never)}>
+        <Pressable style={styles.navButton} onPress={() => navigation.navigate(ROUTES.SKY_EVENTS as never)}>
           <Text style={styles.navText}>Sky Events</Text>
         </Pressable>
-        <Pressable style={styles.navButton} onPress={() => navigation.navigate('Comets' as never)}>
+        <Pressable style={styles.navButton} onPress={() => navigation.navigate(ROUTES.COMETS as never)}>
           <Text style={styles.navText}>Comets</Text>
+        </Pressable>
+        <Pressable style={styles.navButton} onPress={() => navigation.navigate(ROUTES.SOLAR_MAP as never)}>
+          <Text style={styles.navText}>Solar Map</Text>
+        </Pressable>
+        <Pressable style={styles.navButton} onPress={() => navigation.navigate(ROUTES.STREAMS as never)}>
+          <Text style={styles.navText}>Streams</Text>
         </Pressable>
       </View>
       <View style={styles.alertsPanel}>
@@ -88,7 +97,7 @@ export default function HomeScreen() {
                     const mission = convertAlertToMission(alert)
                     if (mission) {
                       setMission(mission)
-                      navigation.navigate('Mission Briefing' as never)
+                      navigation.navigate(ROUTES.MISSIONS_BRIEFING as never)
                     }
                   }}
                 >
