@@ -43,4 +43,4 @@ export * from './storage/cometsStorage.js'
 export * from './storage/storage.ts'
 
 export * from './utils/normalize.js'
-export * from './config/routes.ts'
+export * from './config/routeManifest.ts'

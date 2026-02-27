@@ -1,7 +1,7 @@
 import React from 'react'
 import { NavigationContainer } from '@react-navigation/native'
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
-import { configureCore, configureStorage, ROUTES } from '@starkid/core'
+import { configureCore, configureStorage, ROUTE_MANIFEST } from '@starkid/core'
 import { storageAdapter } from './src/platform/storage.native'
 
 import HomeScreen from './src/screens/HomeScreen'
@@ -34,14 +34,14 @@ export default function App() {
           contentStyle: { backgroundColor: '#0b0f1a' },
         }}
       >
-        <Stack.Screen name={ROUTES.HOME} component={HomeScreen} />
-        <Stack.Screen name={ROUTES.COMMAND_CENTER} component={CommandCenterScreen} />
-        <Stack.Screen name={ROUTES.LAUNCHES} component={LaunchesScreen} />
-        <Stack.Screen name={ROUTES.SKY_EVENTS} component={SkyEventsScreen} />
-        <Stack.Screen name={ROUTES.COMETS} component={CometsScreen} />
-        <Stack.Screen name={ROUTES.SOLAR_MAP} component={SolarMapScreen} />
-        <Stack.Screen name={ROUTES.STREAMS} component={StreamsScreen} />
-        <Stack.Screen name={ROUTES.MISSIONS_BRIEFING} component={MissionBriefingScreen} />
+        <Stack.Screen name={ROUTE_MANIFEST.HOME} component={HomeScreen} />
+        <Stack.Screen name={ROUTE_MANIFEST.COMMAND_CENTER} component={CommandCenterScreen} />
+        <Stack.Screen name={ROUTE_MANIFEST.LAUNCHES} component={LaunchesScreen} />
+        <Stack.Screen name={ROUTE_MANIFEST.SKY_EVENTS} component={SkyEventsScreen} />
+        <Stack.Screen name={ROUTE_MANIFEST.COMETS} component={CometsScreen} />
+        <Stack.Screen name={ROUTE_MANIFEST.SOLAR_MAP} component={SolarMapScreen} />
+        <Stack.Screen name={ROUTE_MANIFEST.STREAMS} component={StreamsScreen} />
+        <Stack.Screen name={ROUTE_MANIFEST.MISSIONS_BRIEFING} component={MissionBriefingScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   )

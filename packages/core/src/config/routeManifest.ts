@@ -1,4 +1,4 @@
-export const ROUTES = {
+export const ROUTE_MANIFEST = {
   HOME: 'Home',
   COMMAND_CENTER: 'Command Center',
   LAUNCHES: 'Launches',
