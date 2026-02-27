@@ -7,6 +7,14 @@ function buildMission({ title, type, briefing, requiredData, difficulty = 'easy'
     briefing,
     requiredData,
     timeLimit,
+    grading: 'auto',
+    steps: [
+      { id: 'step-1', prompt: 'Review the briefing and submit the required data.' },
+    ],
+    expectedAnswer: {
+      type: 'text',
+      value: 'acknowledged',
+    },
   }
 }
 

@@ -52,9 +52,32 @@ export type Mission = {
   briefing: string
   requiredData: Record<string, unknown>
   timeLimit: number
+  steps?: MissionStep[]
+  grading?: 'auto' | 'manual'
+  expectedAnswer?: {
+    type: 'number' | 'text' | 'choice'
+    value: unknown
+    tolerance?: number
+  }
+  learningObjectives?: string[]
+  tags?: string[]
 }
 
 export type UserPreference = {
   mutedTypes?: string[]
   minSeverity?: AlertSeverity | null
+}
+
+export type MissionStep = {
+  id: string
+  prompt: string
+}
+
+export type MissionAttempt = {
+  missionId: string
+  actorId: string
+  answers: Record<string, unknown>
+  submittedAt: string
+  result: 'pass' | 'fail'
+  feedback?: string
 }

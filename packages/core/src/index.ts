@@ -26,9 +26,21 @@ export * from './domain/alerts/index.ts'
 
 export * from './domain/missions/missions.js'
 export * from './domain/missions/missionEngine.js'
+export * from './domain/missions/grading.ts'
+
+export * from './storage/identity.ts'
+export * from './storage/repos/repoFactory.ts'
+export * from './storage/repos/types.ts'
+
+export * from './auth/types.ts'
+export * from './auth/noAuthProvider.ts'
+export * from './auth/supabaseAuthProvider.ts'
+
+export * from './utils/uuid.ts'
 
 export * from './storage/cache.js'
 export * from './storage/cometsStorage.js'
 export * from './storage/storage.ts'
 
 export * from './utils/normalize.js'
+export * from './config/routes.ts'
