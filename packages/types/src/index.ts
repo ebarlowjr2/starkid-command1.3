@@ -52,13 +52,9 @@ export type Mission = {
   briefing: string
   requiredData: Record<string, unknown>
   timeLimit: number
-  steps?: MissionStep[]
-  grading?: 'auto' | 'manual'
-  expectedAnswer?: {
-    type: 'number' | 'text' | 'choice'
-    value: unknown
-    tolerance?: number
-  }
+  steps: MissionStep[]
+  grading: 'auto' | 'manual'
+  expectedAnswer?: ExpectedAnswer
   learningObjectives?: string[]
   tags?: string[]
 }
@@ -71,6 +67,15 @@ export type UserPreference = {
 export type MissionStep = {
   id: string
   prompt: string
+  inputType: 'number' | 'text' | 'choice'
+  choices?: string[]
+  unitLabel?: string
+}
+
+export type ExpectedAnswer = {
+  type: 'number' | 'text' | 'choice'
+  value: number | string
+  tolerance?: number
 }
 
 export type MissionAttempt = {
@@ -78,6 +83,10 @@ export type MissionAttempt = {
   actorId: string
   answers: Record<string, unknown>
   submittedAt: string
-  result: 'pass' | 'fail'
-  feedback?: string
+}
+
+export type MissionResult = {
+  pass: boolean
+  score?: number
+  feedback: string
 }

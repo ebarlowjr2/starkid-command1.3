@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { View, Text, StyleSheet, ActivityIndicator, Pressable } from 'react-native'
 import { useNavigation } from '@react-navigation/native'
-import { getAPOD, getRecentSolarActivity, getAlertsForUser, convertAlertToMission, ROUTES } from '@starkid/core'
+import { getAPOD, getRecentSolarActivity, getAlertsForUser, convertAlertToMission, getRepos, ROUTE_MANIFEST } from '@starkid/core'
 import { setMission } from '../state/missionStore'
 
 export default function HomeScreen() {
@@ -25,6 +25,18 @@ export default function HomeScreen() {
       const apodResult = results[0].status === 'fulfilled' ? results[0].value : null
       const solarResult = results[1].status === 'fulfilled' ? results[1].value : null
       const alertResult = results[2].status === 'fulfilled' ? results[2].value : []
+      let enrichedAlerts = alertResult
+      if (alertResult?.length) {
+        const { missionsRepo, actor } = await getRepos()
+        enrichedAlerts = await Promise.all(
+          alertResult.map(async (alert) => {
+            const mission = convertAlertToMission(alert)
+            if (!mission) return { ...alert, completed: false }
+            const completed = await missionsRepo.isCompleted(actor.actorId, mission.id)
+            return { ...alert, completed, missionId: mission.id }
+          })
+        )
+      }
 
       setApodTitle(apodResult?.title || 'APOD unavailable')
       if (solarResult) {
@@ -32,7 +44,7 @@ export default function HomeScreen() {
       } else {
         setSolarSummary('Solar activity unavailable')
       }
-      setAlerts(alertResult || [])
+      setAlerts(enrichedAlerts || [])
       setLoading(false)
     }
     load()
@@ -62,22 +74,22 @@ export default function HomeScreen() {
         <Text style={styles.cardValue}>{solarSummary}</Text>
       </View>
       <View style={styles.navRow}>
-        <Pressable style={styles.navButton} onPress={() => navigation.navigate(ROUTES.COMMAND_CENTER as never)}>
+        <Pressable style={styles.navButton} onPress={() => navigation.navigate(ROUTE_MANIFEST.COMMAND_CENTER as never)}>
           <Text style={styles.navText}>Command</Text>
         </Pressable>
-        <Pressable style={styles.navButton} onPress={() => navigation.navigate(ROUTES.LAUNCHES as never)}>
+        <Pressable style={styles.navButton} onPress={() => navigation.navigate(ROUTE_MANIFEST.LAUNCHES as never)}>
           <Text style={styles.navText}>Launches</Text>
         </Pressable>
-        <Pressable style={styles.navButton} onPress={() => navigation.navigate(ROUTES.SKY_EVENTS as never)}>
+        <Pressable style={styles.navButton} onPress={() => navigation.navigate(ROUTE_MANIFEST.SKY_EVENTS as never)}>
           <Text style={styles.navText}>Sky Events</Text>
         </Pressable>
-        <Pressable style={styles.navButton} onPress={() => navigation.navigate(ROUTES.COMETS as never)}>
+        <Pressable style={styles.navButton} onPress={() => navigation.navigate(ROUTE_MANIFEST.COMETS as never)}>
           <Text style={styles.navText}>Comets</Text>
         </Pressable>
-        <Pressable style={styles.navButton} onPress={() => navigation.navigate(ROUTES.SOLAR_MAP as never)}>
+        <Pressable style={styles.navButton} onPress={() => navigation.navigate(ROUTE_MANIFEST.SOLAR_MAP as never)}>
           <Text style={styles.navText}>Solar Map</Text>
         </Pressable>
-        <Pressable style={styles.navButton} onPress={() => navigation.navigate(ROUTES.STREAMS as never)}>
+        <Pressable style={styles.navButton} onPress={() => navigation.navigate(ROUTE_MANIFEST.STREAMS as never)}>
           <Text style={styles.navText}>Streams</Text>
         </Pressable>
       </View>
@@ -90,14 +102,16 @@ export default function HomeScreen() {
                 <Text style={styles.alertTitle}>{alert.title}</Text>
                 <Text style={styles.alertMeta}>{alert.type} • {alert.severity}</Text>
               </View>
-              {alert.missionAvailable ? (
+              {alert.completed ? (
+                <Text style={styles.completedBadge}>Completed</Text>
+              ) : alert.missionAvailable ? (
                 <Pressable
                   style={styles.alertButton}
                   onPress={() => {
                     const mission = convertAlertToMission(alert)
                     if (mission) {
                       setMission(mission)
-                      navigation.navigate(ROUTES.MISSIONS_BRIEFING as never)
+                      navigation.navigate(ROUTE_MANIFEST.MISSIONS_BRIEFING as never)
                     }
                   }}
                 >
@@ -204,5 +218,10 @@ const styles = StyleSheet.create({
     color: '#f9fafb',
     fontWeight: '600',
     fontSize: 12,
+  },
+  completedBadge: {
+    color: '#86efac',
+    fontSize: 12,
+    fontWeight: '600',
   },
 })

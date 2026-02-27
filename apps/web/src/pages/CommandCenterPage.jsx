@@ -8,7 +8,7 @@ import Globe from '../components/Globe.jsx'
 import AdminPanel from '../components/AdminPanel.jsx'
 import MissionCard from '../components/MissionCard.jsx'
 
-import { getUpcomingLaunchesFromLibrary, getAlertsForUser, convertAlertToMission } from '@starkid/core'
+import { getUpcomingLaunchesFromLibrary, getAlertsForUser, convertAlertToMission, getRepos } from '@starkid/core'
 import {
   getAPOD,
   getNEOsToday,
@@ -118,7 +118,16 @@ export default function CommandCenterPage() {
     async function loadMissionAlerts() {
       try {
         const alerts = await getAlertsForUser()
-        setMissionAlerts(alerts)
+        const { missionsRepo, actor } = await getRepos()
+        const enriched = await Promise.all(
+          alerts.map(async (alert) => {
+            const mission = convertAlertToMission(alert)
+            if (!mission) return { ...alert, completed: false }
+            const completed = await missionsRepo.isCompleted(actor.actorId, mission.id)
+            return { ...alert, completed, missionId: mission.id }
+          })
+        )
+        setMissionAlerts(enriched)
       } catch (e) {
         console.warn('Error loading mission alerts:', e)
       }
@@ -246,7 +255,9 @@ export default function CommandCenterPage() {
                   <div className="text-cyan-100 font-medium">{alert.title}</div>
                   <div className="text-xs text-cyan-500">{alert.type} • {alert.severity}</div>
                 </div>
-                {alert.missionAvailable ? (
+                {alert.completed ? (
+                  <span className="text-xs text-green-300">Completed</span>
+                ) : alert.missionAvailable ? (
                   <button
                     className="px-3 py-1 text-xs rounded bg-cyan-600 hover:bg-cyan-500 text-white"
                     onClick={() => {

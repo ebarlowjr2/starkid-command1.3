@@ -6,6 +6,8 @@ import { getRepos } from '../../storage/repos/repoFactory.ts'
 
 const memory = new Map()
 
+process.env.STARKID_TEST_ACTOR_ID = 'test-actor'
+
 configureStorage({
   async getItem(key) {
     return memory.has(key) ? memory.get(key) : null
@@ -33,14 +35,14 @@ describe('integration', () => {
     const mission = convertAlertToMission(alerts[0])
     expect(mission).toBeTruthy()
 
-    const { pass } = gradeAttempt(mission, { main: 'acknowledged' })
+    const { pass } = gradeAttempt(mission, { main: 2 })
     expect(pass).toBe(true)
 
     const { missionsRepo, actor } = await getRepos()
     await missionsRepo.saveAttempt(actor.actorId, {
       missionId: mission.id,
       actorId: actor.actorId,
-      answers: { main: 'acknowledged' },
+      answers: { main: 2 },
       submittedAt: new Date().toISOString(),
       result: 'pass',
     })

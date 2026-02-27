@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { View, Text, StyleSheet, Pressable, TextInput } from 'react-native'
 import { getMission } from '../state/missionStore'
 import { useNavigation } from '@react-navigation/native'
@@ -8,8 +8,19 @@ export default function MissionBriefingScreen() {
   const navigation = useNavigation()
   const mission = getMission()
   const [started, setStarted] = useState(false)
-  const [answer, setAnswer] = useState('')
+  const [answers, setAnswers] = useState<Record<string, string>>({})
   const [result, setResult] = useState<{ pass: boolean; feedback: string } | null>(null)
+  const [completed, setCompleted] = useState(false)
+
+  useEffect(() => {
+    async function loadCompleted() {
+      if (!mission) return
+      const { missionsRepo, actor } = await getRepos()
+      const isDone = await missionsRepo.isCompleted(actor.actorId, mission.id)
+      setCompleted(isDone)
+    }
+    loadCompleted()
+  }, [mission])
 
   if (!mission) {
     return (
@@ -28,50 +39,78 @@ export default function MissionBriefingScreen() {
       <Text style={styles.subtitle}>{mission.type} • {mission.difficulty}</Text>
       <Text style={styles.briefing}>{mission.briefing}</Text>
       {!started ? (
-        <Pressable style={styles.button} onPress={() => setStarted(true)}>
-          <Text style={styles.buttonText}>Start Mission</Text>
+        <Pressable
+          style={[styles.button, completed && styles.buttonDisabled]}
+          onPress={() => setStarted(true)}
+          disabled={completed}
+        >
+          <Text style={styles.buttonText}>{completed ? 'Completed' : 'Start Mission'}</Text>
         </Pressable>
+      ) : null}
+      {completed && !started ? (
+        <Text style={[styles.panelItem, { color: '#86efac', marginBottom: 8 }]}>✅ Completed</Text>
       ) : null}
       {started ? (
         <View style={styles.panel}>
           <Text style={styles.panelTitle}>Steps</Text>
           {(mission.steps || []).map((step) => (
-            <Text key={step.id} style={styles.panelItem}>• {step.prompt}</Text>
+            <View key={step.id} style={{ marginBottom: 10 }}>
+              <Text style={styles.panelItem}>• {step.prompt}</Text>
+              {step.inputType === 'choice' ? (
+                <View style={styles.choiceRow}>
+                  {(step.choices || []).map((choice) => (
+                    <Pressable
+                      key={choice}
+                      style={[styles.choiceButton, answers[step.id] === choice && styles.choiceButtonActive]}
+                      onPress={() => setAnswers((prev) => ({ ...prev, [step.id]: choice }))}
+                    >
+                      <Text style={styles.choiceText}>{choice}</Text>
+                    </Pressable>
+                  ))}
+                </View>
+              ) : (
+                <TextInput
+                  style={styles.input}
+                  value={answers[step.id] || ''}
+                  onChangeText={(value) => setAnswers((prev) => ({ ...prev, [step.id]: value }))}
+                  placeholder={step.unitLabel ? `Enter value (${step.unitLabel})` : 'Enter response'}
+                  placeholderTextColor="#64748b"
+                  keyboardType={step.inputType === 'number' ? 'numeric' : 'default'}
+                />
+              )}
+            </View>
           ))}
-          <Text style={[styles.panelTitle, { marginTop: 12 }]}>Response</Text>
-          <TextInput
-            style={styles.input}
-            value={answer}
-            onChangeText={setAnswer}
-            placeholder="Type your response"
-            placeholderTextColor="#64748b"
-          />
           <Pressable
             style={[styles.button, { marginTop: 10 }]}
             onPress={async () => {
-              const { pass, feedback } = gradeAttempt(mission, { main: answer })
+              const firstStep = mission.steps[0]
+              const payload = firstStep ? { main: answers[firstStep.id] } : { main: null }
+              const { pass, feedback } = gradeAttempt(mission, payload)
               const { missionsRepo, actor } = await getRepos()
               const attempt = {
                 missionId: mission.id,
                 actorId: actor.actorId,
-                answers: { main: answer },
+                answers,
                 submittedAt: new Date().toISOString(),
-                result: pass ? 'pass' : 'fail',
-                feedback,
               }
               await missionsRepo.saveAttempt(actor.actorId, attempt)
               if (pass) {
                 await missionsRepo.markCompleted(actor.actorId, mission.id)
+                setCompleted(true)
               }
               setResult({ pass, feedback })
             }}
+            disabled={completed}
           >
-            <Text style={styles.buttonText}>Submit</Text>
+            <Text style={styles.buttonText}>{completed ? 'Completed' : 'Submit'}</Text>
           </Pressable>
           {result ? (
             <Text style={[styles.panelItem, { color: result.pass ? '#86efac' : '#fca5a5', marginTop: 8 }]}>
               {result.feedback}
             </Text>
+          ) : null}
+          {completed ? (
+            <Text style={[styles.panelItem, { color: '#86efac', marginTop: 8 }]}>✅ Completed</Text>
           ) : null}
         </View>
       ) : null}
@@ -101,4 +140,9 @@ const styles = StyleSheet.create({
   button: { alignSelf: 'flex-start', paddingVertical: 10, paddingHorizontal: 14, borderRadius: 10, backgroundColor: '#2563eb' },
   buttonText: { color: '#f9fafb', fontWeight: '600' },
   input: { borderWidth: 1, borderColor: '#1f2937', borderRadius: 8, padding: 8, color: '#f9fafb', marginTop: 6 },
+  buttonDisabled: { backgroundColor: '#14532d' },
+  choiceRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 6 },
+  choiceButton: { paddingVertical: 6, paddingHorizontal: 10, borderRadius: 8, backgroundColor: '#1f2937' },
+  choiceButtonActive: { backgroundColor: '#2563eb' },
+  choiceText: { color: '#f9fafb', fontSize: 12, fontWeight: '600' },
 })

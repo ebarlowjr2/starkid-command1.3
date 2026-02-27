@@ -2,6 +2,7 @@ export type MissionsRepo = {
   listAttempts(actorId: string): Promise<any[]>
   saveAttempt(actorId: string, attempt: any): Promise<void>
   markCompleted(actorId: string, missionId: string): Promise<void>
+  isCompleted(actorId: string, missionId: string): Promise<boolean>
   listCompleted(actorId: string): Promise<string[]>
 }
 
@@ -31,6 +32,9 @@ export class NotEnabledRepo {
     throw new RepoNotEnabledError('Repo not enabled yet')
   }
   async markCompleted() {
+    throw new RepoNotEnabledError('Repo not enabled yet')
+  }
+  async isCompleted() {
     throw new RepoNotEnabledError('Repo not enabled yet')
   }
   async listCompleted() {

@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { getMission } from '../state/missionStore.js'
 import { gradeAttempt, getRepos } from '@starkid/core'
@@ -7,8 +7,19 @@ export default function MissionBriefingPage() {
   const nav = useNavigate()
   const mission = getMission()
   const [started, setStarted] = useState(false)
-  const [answer, setAnswer] = useState('')
+  const [answers, setAnswers] = useState({})
   const [result, setResult] = useState(null)
+  const [completed, setCompleted] = useState(false)
+
+  useEffect(() => {
+    async function loadCompleted() {
+      if (!mission) return
+      const { missionsRepo, actor } = await getRepos()
+      const isDone = await missionsRepo.isCompleted(actor.actorId, mission.id)
+      setCompleted(isDone)
+    }
+    loadCompleted()
+  }, [mission])
 
   if (!mission) {
     return (
@@ -33,55 +44,77 @@ export default function MissionBriefingPage() {
       <p className="text-sm mb-4">{mission.briefing}</p>
       {!started ? (
         <button
-          className="mb-6 px-4 py-2 rounded bg-cyan-600 hover:bg-cyan-500"
+          className={`mb-6 px-4 py-2 rounded ${completed ? 'bg-green-700/60 cursor-not-allowed' : 'bg-cyan-600 hover:bg-cyan-500'}`}
           onClick={() => setStarted(true)}
+          disabled={completed}
         >
-          Start Mission
+          {completed ? 'Completed' : 'Start Mission'}
         </button>
+      ) : null}
+      {completed && !started ? (
+        <div className="mb-4 text-xs text-green-300">✅ Completed</div>
       ) : null}
       {started ? (
         <div className="mb-6">
           <div className="text-cyan-300 font-semibold mb-2">Steps</div>
-          <ol className="list-decimal ml-5 space-y-1 text-sm">
-            {(mission.steps || []).map((step) => (
-              <li key={step.id}>{step.prompt}</li>
+          <ol className="list-decimal ml-5 space-y-3 text-sm">
+            {mission.steps.map((step) => (
+              <li key={step.id}>
+                <div className="mb-2">{step.prompt}</div>
+                {step.inputType === 'choice' ? (
+                  <select
+                    className="w-full px-3 py-2 bg-black/50 border border-cyan-600 rounded text-cyan-100"
+                    value={answers[step.id] || ''}
+                    onChange={(e) => setAnswers((prev) => ({ ...prev, [step.id]: e.target.value }))}
+                  >
+                    <option value="">Select...</option>
+                    {(step.choices || []).map((choice) => (
+                      <option key={choice} value={choice}>{choice}</option>
+                    ))}
+                  </select>
+                ) : (
+                  <input
+                    type={step.inputType === 'number' ? 'number' : 'text'}
+                    className="w-full px-3 py-2 bg-black/50 border border-cyan-600 rounded text-cyan-100"
+                    value={answers[step.id] || ''}
+                    onChange={(e) => setAnswers((prev) => ({ ...prev, [step.id]: e.target.value }))}
+                    placeholder={step.unitLabel ? `Enter value (${step.unitLabel})` : 'Enter response'}
+                  />
+                )}
+              </li>
             ))}
           </ol>
-          <div className="mt-4 text-sm">
-            <label className="block text-cyan-300 mb-1">Response</label>
-            <input
-              className="w-full px-3 py-2 bg-black/50 border border-cyan-600 rounded text-cyan-100"
-              value={answer}
-              onChange={(e) => setAnswer(e.target.value)}
-              placeholder="Type your response (e.g., acknowledged)"
-            />
-          </div>
           <button
             className="mt-4 px-4 py-2 rounded bg-cyan-600 hover:bg-cyan-500"
             onClick={async () => {
-              const { pass, feedback } = gradeAttempt(mission, { main: answer })
+              const firstStep = mission.steps[0]
+              const payload = firstStep ? { main: answers[firstStep.id] } : { main: null }
+              const { pass, feedback } = gradeAttempt(mission, payload)
               const { missionsRepo, actor } = await getRepos()
               const attempt = {
                 missionId: mission.id,
                 actorId: actor.actorId,
-                answers: { main: answer },
+                answers,
                 submittedAt: new Date().toISOString(),
-                result: pass ? 'pass' : 'fail',
-                feedback,
               }
               await missionsRepo.saveAttempt(actor.actorId, attempt)
               if (pass) {
                 await missionsRepo.markCompleted(actor.actorId, mission.id)
+                setCompleted(true)
               }
               setResult({ pass, feedback })
             }}
+            disabled={completed}
           >
-            Submit
+            {completed ? 'Completed' : 'Submit'}
           </button>
           {result ? (
             <div className={`mt-3 text-sm ${result.pass ? 'text-green-300' : 'text-red-300'}`}>
               {result.feedback}
             </div>
+          ) : null}
+          {completed ? (
+            <div className="mt-2 text-xs text-green-300">✅ Completed</div>
           ) : null}
         </div>
       ) : null}
