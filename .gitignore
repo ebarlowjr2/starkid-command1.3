@@ -2,6 +2,8 @@ node_modules
 dist
 .vercel
 .cache
+.pnpm-store
+.expo
 .env
 .env.*
 .DS_Store

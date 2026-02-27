@@ -6,14 +6,17 @@ A LCARS/Star Trek-inspired mission console for space exploration.
 
 ## Quickstart
 ```bash
-npm create vite@latest starkid-command -- --template react
-# or just use this folder directly if you downloaded the zip
-npm i
-npm run dev
+corepack enable
+corepack prepare pnpm@9.12.2 --activate
+pnpm install
+pnpm dev
 ```
 
 ### Tailwind setup
-Already configured (see `tailwind.config.js`, `postcss.config.js`, `src/index.css`).
+Already configured (see `apps/web/tailwind.config.js`, `apps/web/postcss.config.js`, `apps/web/src/index.css`).
+
+### Vercel
+Set **Root Directory** to `apps/web`. Keep `vercel.json` at the repo root so `/api/*` functions still deploy.
 
 ### Environment
 Copy `.env.example` to `.env` and set `VITE_NASA_API_KEY`. You can use `DEMO_KEY` for light testing.
@@ -22,4 +25,3 @@ Copy `.env.example` to `.env` and set `VITE_NASA_API_KEY`. You can use `DEMO_KEY
 - NASA APOD, NeoWs, DONKI
 - SpaceX public API
 ```
-
