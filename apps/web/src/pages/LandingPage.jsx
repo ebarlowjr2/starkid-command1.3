@@ -28,28 +28,12 @@ export default function LandingPage() {
           alignItems: "center",
         }}
       >
-        <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-          <div 
-            style={{ 
-              fontSize: 52, 
-              fontWeight: 800, 
-              lineHeight: 1.05,
-              fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace",
-              letterSpacing: "-0.02em",
-            }}
-          >
+        <div className="landing-hero">
+          <div className="landing-hero-title">
             WELCOME TO <br /> 
             <span style={{ color: "#22d3ee" }}>STARKID</span> COMMAND
           </div>
-          <div 
-            style={{ 
-              opacity: 0.85, 
-              maxWidth: 520, 
-              lineHeight: 1.6,
-              fontSize: 18,
-              color: "rgba(255,255,255,0.8)",
-            }}
-          >
+          <div className="landing-hero-body">
             StarKid Command is a live mission-control interface for tracking, understanding, and exploring space — built for enthusiasts and learners alike.
           </div>
 
@@ -81,16 +65,7 @@ export default function LandingPage() {
             </button>
           </div>
 
-          <div 
-            style={{ 
-              marginTop: 32,
-              display: "flex",
-              gap: 24,
-              opacity: 0.6,
-              fontSize: 12,
-              fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace",
-            }}
-          >
+          <div className="landing-hero-stats">
             <div>
               <div style={{ color: "#22d3ee", marginBottom: 4 }}>SYSTEMS</div>
               <div>ONLINE</div>
@@ -194,6 +169,37 @@ export default function LandingPage() {
                 position: relative;
                 z-index: 1;
               }
+
+              .landing-hero {
+                display: flex;
+                flex-direction: column;
+                gap: 12px;
+              }
+
+              .landing-hero-title {
+                font-size: 52px;
+                font-weight: 800;
+                line-height: 1.05;
+                font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+                letter-spacing: -0.02em;
+              }
+
+              .landing-hero-body {
+                opacity: 0.85;
+                max-width: 520px;
+                line-height: 1.6;
+                font-size: 18px;
+                color: rgba(255,255,255,0.8);
+              }
+
+              .landing-hero-stats {
+                margin-top: 32px;
+                display: flex;
+                gap: 24px;
+                opacity: 0.6;
+                font-size: 12px;
+                font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+              }
         
               @media (max-width: 900px) {
                 .landing-grid {
@@ -205,6 +211,29 @@ export default function LandingPage() {
                 }
                 .nebula-container {
                   height: 380px !important;
+                }
+                .landing-hero-title {
+                  font-size: 36px;
+                }
+                .landing-hero-body {
+                  font-size: 16px;
+                  max-width: 100%;
+                }
+                .landing-hero-stats {
+                  justify-content: center;
+                }
+              }
+
+              @media (max-width: 600px) {
+                .landing-hero-title {
+                  font-size: 30px;
+                  line-height: 1.15;
+                }
+                .landing-page-bg {
+                  padding: 22px 14px !important;
+                }
+                .landing-hero-stats {
+                  gap: 16px;
                 }
               }
             `}</style>

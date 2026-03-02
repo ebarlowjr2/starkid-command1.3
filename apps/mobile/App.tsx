@@ -5,6 +5,7 @@ import { configureCore, configureStorage, ROUTE_MANIFEST } from '@starkid/core'
 import { storageAdapter } from './src/platform/storage.native'
 
 import HomeScreen from './src/screens/HomeScreen'
+import ExploreScreen from './src/screens/ExploreScreen'
 import CommandCenterScreen from './src/screens/CommandCenterScreen'
 import LaunchesScreen from './src/screens/LaunchesScreen'
 import SkyEventsScreen from './src/screens/SkyEventsScreen'
@@ -35,6 +36,7 @@ export default function App() {
         }}
       >
         <Stack.Screen name={ROUTE_MANIFEST.HOME} component={HomeScreen} />
+        <Stack.Screen name={ROUTE_MANIFEST.EXPLORE} component={ExploreScreen} />
         <Stack.Screen name={ROUTE_MANIFEST.COMMAND_CENTER} component={CommandCenterScreen} />
         <Stack.Screen name={ROUTE_MANIFEST.LAUNCHES} component={LaunchesScreen} />
         <Stack.Screen name={ROUTE_MANIFEST.SKY_EVENTS} component={SkyEventsScreen} />

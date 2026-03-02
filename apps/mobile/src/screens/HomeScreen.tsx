@@ -1,136 +1,114 @@
-import React, { useEffect, useState } from 'react'
-import { View, Text, StyleSheet, ActivityIndicator, Pressable } from 'react-native'
-import { useNavigation } from '@react-navigation/native'
-import { getAPOD, getRecentSolarActivity, getAlertsForUser, convertAlertToMission, getRepos, ROUTE_MANIFEST } from '@starkid/core'
-import { setMission } from '../state/missionStore'
+import React, { useEffect, useMemo, useState } from "react";
+import { View, Text, StyleSheet, ActivityIndicator, ScrollView, SafeAreaView } from "react-native";
+import { useNavigation } from "@react-navigation/native";
+import { getUpcomingSkyEvents, getUpcomingLaunchesFromLibrary, ROUTE_MANIFEST } from "@starkid/core";
+import { SpaceBackground } from "../components/home/SpaceBackground";
+import { HeroPanel } from "../components/home/HeroPanel";
+import { NextMajorEventCard } from "../components/home/NextMajorEventCard";
+import { UpcomingSkyEventsCard } from "../components/home/UpcomingSkyEventsCard";
+import { spacing } from "../theme/tokens";
 
 export default function HomeScreen() {
-  const navigation = useNavigation()
-  const [loading, setLoading] = useState(true)
-  const [alerts, setAlerts] = useState<any[]>([])
-  const [apodTitle, setApodTitle] = useState<string | null>(null)
-  const [solarSummary, setSolarSummary] = useState<string>('')
+  const navigation = useNavigation();
+  const [loading, setLoading] = useState(true);
+  const [events, setEvents] = useState<any[]>([]);
+  const [nextLaunch, setNextLaunch] = useState<any | null>(null);
+  const [now, setNow] = useState(Date.now());
 
   useEffect(() => {
-    let active = true
+    let active = true;
     async function load() {
-      const results = await Promise.allSettled([
-        getAPOD(),
-        getRecentSolarActivity(3),
-        getAlertsForUser(),
-      ])
+      const [eventsResult, launchesResult] = await Promise.allSettled([
+        getUpcomingSkyEvents({ days: 30 }),
+        getUpcomingLaunchesFromLibrary(10),
+      ]);
 
-      if (!active) return
+      if (!active) return;
 
-      const apodResult = results[0].status === 'fulfilled' ? results[0].value : null
-      const solarResult = results[1].status === 'fulfilled' ? results[1].value : null
-      const alertResult = results[2].status === 'fulfilled' ? results[2].value : []
-      let enrichedAlerts = alertResult
-      if (alertResult?.length) {
-        const { missionsRepo, actor } = await getRepos()
-        enrichedAlerts = await Promise.all(
-          alertResult.map(async (alert) => {
-            const mission = convertAlertToMission(alert)
-            if (!mission) return { ...alert, completed: false }
-            const completed = await missionsRepo.isCompleted(actor.actorId, mission.id)
-            return { ...alert, completed, missionId: mission.id }
-          })
-        )
-      }
+      const skyEvents = eventsResult.status === "fulfilled" ? eventsResult.value : [];
+      const launches = launchesResult.status === "fulfilled" ? launchesResult.value : [];
+      const artemis = launches.find((launch) => launch.name?.toLowerCase?.().includes("artemis")) || launches[0];
 
-      setApodTitle(apodResult?.title || 'APOD unavailable')
-      if (solarResult) {
-        setSolarSummary(`Flares: ${solarResult.flaresCount} • CMEs: ${solarResult.cmeCount} • Strongest: ${solarResult.strongestClass}`)
-      } else {
-        setSolarSummary('Solar activity unavailable')
-      }
-      setAlerts(enrichedAlerts || [])
-      setLoading(false)
+      setEvents(Array.isArray(skyEvents) ? skyEvents.slice(0, 4) : []);
+      setNextLaunch(artemis || null);
+      setLoading(false);
     }
-    load()
+    load();
     return () => {
-      active = false
-    }
-  }, [])
+      active = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    const timer = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const countdown = useMemo(() => {
+    if (!nextLaunch?.net && !nextLaunch?.window_start && !nextLaunch?.date_utc) return "TBD";
+    const target = new Date(nextLaunch.net || nextLaunch.window_start || nextLaunch.date_utc).getTime();
+    const diff = Math.max(0, target - now);
+    const days = Math.floor(diff / (24 * 3600 * 1000));
+    const hours = Math.floor((diff % (24 * 3600 * 1000)) / (3600 * 1000));
+    const minutes = Math.floor((diff % (3600 * 1000)) / (60 * 1000));
+    const seconds = Math.floor((diff % (60 * 1000)) / 1000);
+    return `${days}d ${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
+  }, [nextLaunch, now]);
+
+  const formatEventDate = (dateString?: string) => {
+    if (!dateString) return "TBD";
+    const date = new Date(dateString);
+    const nowDate = new Date();
+    const diffDays = Math.round((date.getTime() - nowDate.getTime()) / (24 * 3600 * 1000));
+    if (diffDays === 0) return "Today";
+    if (diffDays === 1) return "Tomorrow";
+    return date.toLocaleDateString(undefined, { month: "short", day: "numeric" });
+  };
 
   if (loading) {
     return (
-      <View style={styles.center}>
-        <ActivityIndicator size="large" />
-        <Text style={styles.muted}>Loading mission summary…</Text>
-      </View>
-    )
+      <SpaceBackground>
+        <View style={styles.center}>
+          <ActivityIndicator size="large" />
+          <Text style={styles.muted}>Loading command feed…</Text>
+        </View>
+      </SpaceBackground>
+    );
   }
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Mission Summary</Text>
-      <View style={styles.card}>
-        <Text style={styles.cardLabel}>APOD</Text>
-        <Text style={styles.cardValue}>{apodTitle}</Text>
-      </View>
-      <View style={styles.card}>
-        <Text style={styles.cardLabel}>Solar Activity</Text>
-        <Text style={styles.cardValue}>{solarSummary}</Text>
-      </View>
-      <View style={styles.navRow}>
-        <Pressable style={styles.navButton} onPress={() => navigation.navigate(ROUTE_MANIFEST.COMMAND_CENTER as never)}>
-          <Text style={styles.navText}>Command</Text>
-        </Pressable>
-        <Pressable style={styles.navButton} onPress={() => navigation.navigate(ROUTE_MANIFEST.LAUNCHES as never)}>
-          <Text style={styles.navText}>Launches</Text>
-        </Pressable>
-        <Pressable style={styles.navButton} onPress={() => navigation.navigate(ROUTE_MANIFEST.SKY_EVENTS as never)}>
-          <Text style={styles.navText}>Sky Events</Text>
-        </Pressable>
-        <Pressable style={styles.navButton} onPress={() => navigation.navigate(ROUTE_MANIFEST.COMETS as never)}>
-          <Text style={styles.navText}>Comets</Text>
-        </Pressable>
-        <Pressable style={styles.navButton} onPress={() => navigation.navigate(ROUTE_MANIFEST.SOLAR_MAP as never)}>
-          <Text style={styles.navText}>Solar Map</Text>
-        </Pressable>
-        <Pressable style={styles.navButton} onPress={() => navigation.navigate(ROUTE_MANIFEST.STREAMS as never)}>
-          <Text style={styles.navText}>Streams</Text>
-        </Pressable>
-      </View>
-      <View style={styles.alertsPanel}>
-        <Text style={styles.alertsTitle}>Mission Alerts</Text>
-        {alerts.length ? (
-          alerts.slice(0, 5).map((alert) => (
-            <View key={alert.id} style={styles.alertCard}>
-              <View style={{ flex: 1 }}>
-                <Text style={styles.alertTitle}>{alert.title}</Text>
-                <Text style={styles.alertMeta}>{alert.type} • {alert.severity}</Text>
-              </View>
-              {alert.completed ? (
-                <Text style={styles.completedBadge}>Completed</Text>
-              ) : alert.missionAvailable ? (
-                <Pressable
-                  style={styles.alertButton}
-                  onPress={() => {
-                    const mission = convertAlertToMission(alert)
-                    if (mission) {
-                      setMission(mission)
-                      navigation.navigate(ROUTE_MANIFEST.MISSIONS_BRIEFING as never)
-                    }
-                  }}
-                >
-                  <Text style={styles.alertButtonText}>Accept</Text>
-                </Pressable>
-              ) : null}
-            </View>
-          ))
-        ) : (
-          <Text style={styles.alertMeta}>No alerts available.</Text>
-        )}
-      </View>
-    </View>
-  )
+    <SpaceBackground>
+      <SafeAreaView style={{ flex: 1 }}>
+        <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+          <HeroPanel onExplore={() => navigation.navigate(ROUTE_MANIFEST.EXPLORE as never)} />
+          <NextMajorEventCard
+            title={nextLaunch?.name || "Upcoming Launch"}
+            netLine="Launch window opens (NET)"
+            countdown={countdown}
+            description={
+              nextLaunch?.mission?.description
+                ? `${nextLaunch.mission.description.slice(0, 110)}...`
+                : "Times are NET and subject to change."
+            }
+            onOpenBrief={() => navigation.navigate(ROUTE_MANIFEST.LAUNCHES as never)}
+          />
+          <UpcomingSkyEventsCard
+            events={events.map((event, index) => ({
+              title: event.title?.toUpperCase?.() || "SKY EVENT",
+              when: formatEventDate(event.start || event.date),
+              id: event.id || `${event.title || "event"}-${index}`,
+            }))}
+          />
+        </ScrollView>
+      </SafeAreaView>
+    </SpaceBackground>
+  );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    padding: 16,
+  content: {
+    padding: spacing.xl,
+    paddingBottom: 44,
   },
   center: {
     flex: 1,
@@ -138,90 +116,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     padding: 16,
   },
-  title: {
-    fontSize: 22,
-    fontWeight: '700',
-    marginBottom: 12,
-    color: '#f9fafb',
-  },
   muted: {
     marginTop: 8,
     color: '#9ca3af',
   },
-  card: {
-    padding: 14,
-    borderRadius: 12,
-    backgroundColor: '#111827',
-    marginBottom: 12,
-  },
-  cardLabel: {
-    color: '#9ca3af',
-    textTransform: 'uppercase',
-    letterSpacing: 0.5,
-    fontSize: 12,
-    marginBottom: 6,
-  },
-  cardValue: {
-    color: '#f9fafb',
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  navRow: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 8,
-  },
-  navButton: {
-    paddingVertical: 10,
-    paddingHorizontal: 12,
-    borderRadius: 10,
-    backgroundColor: '#1f2937',
-  },
-  navText: {
-    color: '#f9fafb',
-    fontWeight: '600',
-  },
-  alertsPanel: {
-    marginTop: 16,
-    padding: 12,
-    borderRadius: 12,
-    backgroundColor: '#0f172a',
-  },
-  alertsTitle: {
-    color: '#7dd3fc',
-    fontWeight: '700',
-    marginBottom: 8,
-  },
-  alertCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 10,
-    paddingVertical: 8,
-    borderBottomWidth: 1,
-    borderBottomColor: '#1f2937',
-  },
-  alertTitle: {
-    color: '#f9fafb',
-    fontWeight: '600',
-  },
-  alertMeta: {
-    color: '#9ca3af',
-    fontSize: 12,
-  },
-  alertButton: {
-    paddingVertical: 6,
-    paddingHorizontal: 10,
-    borderRadius: 8,
-    backgroundColor: '#2563eb',
-  },
-  alertButtonText: {
-    color: '#f9fafb',
-    fontWeight: '600',
-    fontSize: 12,
-  },
-  completedBadge: {
-    color: '#86efac',
-    fontSize: 12,
-    fontWeight: '600',
-  },
-})
+});

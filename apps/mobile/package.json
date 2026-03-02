@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@babel/runtime": "^7.28.6",
+    "@expo-google-fonts/press-start-2p": "^0.4.1",
     "@react-native-async-storage/async-storage": "^1.23.1",
     "@react-navigation/core": "^7.15.1",
     "@react-navigation/native": "^6.1.18",
@@ -18,6 +19,8 @@
     "@starkid/types": "workspace:*",
     "@supabase/supabase-js": "^2.97.0",
     "expo": "~50.0.0",
+    "expo-font": "^55.0.4",
+    "expo-linear-gradient": "^55.0.8",
     "expo-modules-core": "~1.11.14",
     "invariant": "^2.2.4",
     "react": "18.2.0",

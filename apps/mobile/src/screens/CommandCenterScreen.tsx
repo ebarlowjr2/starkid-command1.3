@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { View, Text, StyleSheet, ActivityIndicator, Pressable } from 'react-native'
+import { View, Text, StyleSheet, ActivityIndicator, Pressable, ScrollView } from 'react-native'
 import { getAlertsForUser, convertAlertToMission, getRepos, ROUTE_MANIFEST } from '@starkid/core'
 import { setMission } from '../state/missionStore'
 import { useNavigation } from '@react-navigation/native'
@@ -48,7 +48,7 @@ export default function CommandCenterScreen() {
   }
 
   return (
-    <View style={styles.container}>
+    <ScrollView style={styles.scroll} contentContainerStyle={styles.container}>
       <Text style={styles.title}>Command Center</Text>
       <View style={styles.panel}>
         <Text style={styles.panelTitle}>Mission Alerts</Text>
@@ -80,12 +80,13 @@ export default function CommandCenterScreen() {
           <Text style={styles.alertMeta}>No alerts available.</Text>
         )}
       </View>
-    </View>
+    </ScrollView>
   )
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 16, backgroundColor: '#0b0f1a' },
+  scroll: { flex: 1, backgroundColor: '#0b0f1a' },
+  container: { padding: 16, paddingBottom: 40 },
   center: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 16 },
   muted: { marginTop: 8, color: '#9ca3af' },
   title: { fontSize: 22, fontWeight: '700', color: '#f9fafb', marginBottom: 12 },
