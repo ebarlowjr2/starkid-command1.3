@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { NavigationContainer } from '@react-navigation/native'
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
 import { configureCore, configureStorage, ROUTE_MANIFEST } from '@starkid/core'
@@ -26,6 +26,36 @@ configureCore({
 configureStorage(storageAdapter)
 
 export default function App() {
+  const [fontsReady, setFontsReady] = useState(true)
+
+  useEffect(() => {
+    let active = true
+    async function loadFonts() {
+      try {
+        const fontModule = require('expo-font')
+        const pressStart = require('@expo-google-fonts/press-start-2p')
+        if (fontModule?.loadAsync && pressStart?.PressStart2P_400Regular) {
+          setFontsReady(false)
+          await fontModule.loadAsync({
+            PressStart2P_400Regular: pressStart.PressStart2P_400Regular,
+          })
+        }
+      } catch (error) {
+        // Fonts are optional; fall back to system font if not available.
+      } finally {
+        if (active) setFontsReady(true)
+      }
+    }
+    loadFonts()
+    return () => {
+      active = false
+    }
+  }, [])
+
+  if (!fontsReady) {
+    return null
+  }
+
   return (
     <NavigationContainer>
       <Stack.Navigator
