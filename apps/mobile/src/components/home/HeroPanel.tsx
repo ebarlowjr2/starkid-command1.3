@@ -25,9 +25,9 @@ export const HeroPanel = memo(function HeroPanel({ onExplore }: { onExplore?: ()
       </View>
 
       {/* Sticker assets */}
-      <Image source={require("../../../../assets/ui/stickers/planet.png")} style={styles.planet} />
-      <Image source={require("../../../../assets/ui/stickers/ufo.png")} style={styles.ufo} />
-      <Image source={require("../../../../assets/ui/stickers/robot.png")} style={styles.robot} />
+      <Image source={require("../../../assets/ui/stickers/planet.png")} style={styles.planet} />
+      <Image source={require("../../../assets/ui/stickers/ufo.png")} style={styles.ufo} />
+      <Image source={require("../../../assets/ui/stickers/robot.png")} style={styles.robot} />
     </GlassCard>
   );
 });
