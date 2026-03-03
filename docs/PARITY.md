@@ -15,3 +15,6 @@ Status Legend:
 - **Full**: Feature parity
 - **Partial**: Core data present, simplified UI
 - **Placeholder**: Screen exists but minimal content
+
+## Data Access Rule
+Both web and mobile use `packages/core/src/services/*` for launches, sky events, alerts, comets, and solar activity.
