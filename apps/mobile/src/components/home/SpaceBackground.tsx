@@ -50,6 +50,7 @@ const Starfield = memo(function Starfield() {
     [44, 280, 1],[120, 310, 2],[260, 150, 1],[300, 60, 2],[320, 210, 1],
     [16, 420, 2],[80, 520, 1],[220, 480, 2],[320, 430, 1],[280, 560, 1],
     [36, 640, 1],[150, 690, 2],[290, 720, 1],
+    [44, 820, 2],[120, 860, 1],[240, 900, 2],[300, 980, 1],
   ];
   return (
     <View pointerEvents="none" style={StyleSheet.absoluteFill}>
@@ -70,6 +71,7 @@ const Starfield = memo(function Starfield() {
       ))}
       <View style={styles.glowCyan} />
       <View style={styles.glowMagenta} />
+      <View style={styles.glowBottom} />
     </View>
   );
 });
@@ -93,5 +95,14 @@ const styles = StyleSheet.create({
     height: 260,
     borderRadius: 260,
     backgroundColor: "rgba(255,79,216,0.08)",
+  },
+  glowBottom: {
+    position: "absolute",
+    left: -80,
+    bottom: -120,
+    width: 360,
+    height: 360,
+    borderRadius: 360,
+    backgroundColor: "rgba(61,235,255,0.08)",
   },
 });

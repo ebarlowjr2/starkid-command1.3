@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { View, Text, StyleSheet, ActivityIndicator, FlatList } from 'react-native'
-import { getUpcomingLaunchesFromLibrary } from '@starkid/core'
+import { getUpcomingLaunches } from '@starkid/core'
 
 type LaunchItem = {
   id?: string | number
@@ -18,8 +18,8 @@ export default function LaunchesScreen() {
     let active = true
     async function load() {
       try {
-        const results = await getUpcomingLaunchesFromLibrary(10)
-        if (active) setLaunches(results)
+        const { data } = await getUpcomingLaunches({ limit: 10 })
+        if (active) setLaunches(data || [])
       } finally {
         if (active) setLoading(false)
       }

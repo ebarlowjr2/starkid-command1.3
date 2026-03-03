@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { View, Text, StyleSheet, ActivityIndicator, FlatList } from 'react-native'
-import { getAllSkyEvents } from '@starkid/core'
+import { getUpcomingSkyEventsService } from '@starkid/core'
 
 type SkyEvent = {
   id?: string | number
@@ -17,8 +17,8 @@ export default function SkyEventsScreen() {
     let active = true
     async function load() {
       try {
-        const results = await getAllSkyEvents({ days: 60 })
-        if (active) setEvents(results)
+        const { data } = await getUpcomingSkyEventsService({ days: 60 })
+        if (active) setEvents(data || [])
       } finally {
         if (active) setLoading(false)
       }

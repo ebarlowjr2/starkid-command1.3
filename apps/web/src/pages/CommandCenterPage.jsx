@@ -8,21 +8,15 @@ import Globe from '../components/Globe.jsx'
 import AdminPanel from '../components/AdminPanel.jsx'
 import MissionCard from '../components/MissionCard.jsx'
 
-import { getUpcomingLaunchesFromLibrary, getAlertsForUser, convertAlertToMission, getRepos } from '@starkid/core'
+import { getUpcomingLaunches, getLatestLaunch, getAlertsForUser, convertAlertToMission, getRepos, getSolarActivity } from '@starkid/core'
 import {
   getAPOD,
   getNEOsToday,
   getDonkiAlerts,
   getEPICLatest,
-  getRecentSolarActivity,
 } from '@starkid/core'
 import { getISSNow, getAstros } from '@starkid/core'
-import {
-  getLatestLaunch,
-  getUpcomingLaunches,
-  getRockets,
-  getCrew,
-} from '@starkid/core'
+import { getRockets, getCrew } from '@starkid/core'
 import { setMission } from '../state/missionStore.js'
 
 export default function CommandCenterPage() {
@@ -50,7 +44,7 @@ export default function CommandCenterPage() {
     async function loadLaunchData() {
       try {
         setLoading(true)
-        const launchData = await getUpcomingLaunchesFromLibrary(20)
+        const { data: launchData } = await getUpcomingLaunches({ limit: 20 })
         setLaunches(launchData)
 
         const sites = launchData
@@ -85,15 +79,15 @@ export default function CommandCenterPage() {
           getNEOsToday(),
           getDonkiAlerts(),
           getLatestLaunch(),
-          getUpcomingLaunches(1),
+          getUpcomingLaunches({ limit: 1 }),
           getRockets(),
           getCrew(6),
         ])
         setApod(a)
         setNeos(n)
         setAlerts(d)
-        setLaunch(l)
-        setUpcoming(u)
+        setLaunch(l?.data || null)
+        setUpcoming(u.data || [])
         setRockets(r)
         setCrew(c)
       } catch (e) {
@@ -102,7 +96,7 @@ export default function CommandCenterPage() {
 
       const settled = await Promise.allSettled([
         getEPICLatest(),
-        getRecentSolarActivity(3),
+        getSolarActivity({ days: 3 }),
         getISSNow(),
         getAstros(),
       ])
@@ -110,14 +104,14 @@ export default function CommandCenterPage() {
         settled[i].status === 'fulfilled' ? settled[i].value : null
 
       setEpic(val(0))
-      setSolar(val(1))
+      setSolar(val(1)?.data || null)
       setIssPos(val(2))
       setAstros(val(3))
     }
 
     async function loadMissionAlerts() {
       try {
-        const alerts = await getAlertsForUser()
+        const { data: alerts } = await getAlertsForUser()
         const { missionsRepo, actor } = await getRepos()
         const enriched = await Promise.all(
           alerts.map(async (alert) => {
@@ -145,7 +139,7 @@ export default function CommandCenterPage() {
   const nextLaunch = upcoming?.[0] || null
   const nextRocket = useMemo(() => {
     if (!nextLaunch || !rockets?.length) return null
-    return rockets.find((r) => r.id === nextLaunch.rocket) || null
+    return rockets.find((r) => r.id === nextLaunch.rocketId) || null
   }, [nextLaunch, rockets])
 
   return (

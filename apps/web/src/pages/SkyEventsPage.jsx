@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { getAllSkyEvents, groupEventsByType } from '@starkid/core'
+import { getUpcomingSkyEventsService, groupEventsByType } from '@starkid/core'
 import MissionCard from '../components/MissionCard.jsx'
 
 export default function SkyEventsPage() {
@@ -11,7 +11,7 @@ export default function SkyEventsPage() {
     async function load() {
       try {
         setLoading(true)
-        const evs = await getAllSkyEvents({ days: 60 })
+        const { data: evs } = await getUpcomingSkyEventsService({ days: 60 })
         setEvents(evs)
         setError(null)
       } catch (e) {

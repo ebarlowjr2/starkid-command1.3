@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { View, Text, StyleSheet, ActivityIndicator, FlatList, Pressable } from 'react-native'
-import { getNotableComets, getRepos } from '@starkid/core'
+import { getComets, getRepos } from '@starkid/core'
 
 type Comet = {
   designation?: string
@@ -17,11 +17,11 @@ export default function CometsScreen() {
     let active = true
     async function load() {
       try {
-        const notable = getNotableComets()
+        const { data: notable } = await getComets({ notableOnly: true })
         const { savedItemsRepo, actor } = await getRepos()
         const saved = await savedItemsRepo.list(actor.actorId, 'comet')
         if (!active) return
-        setComets(notable)
+        setComets(notable || [])
         setSavedCount(saved.length)
         setSavedIds(saved.map((item: any) => item.id))
       } finally {

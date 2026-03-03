@@ -13,7 +13,7 @@ export default function CommandCenterScreen() {
     let active = true
     async function load() {
       try {
-        const list = await getAlertsForUser()
+        const { data: list } = await getAlertsForUser()
         if (!list?.length) {
           if (active) setAlerts([])
           return

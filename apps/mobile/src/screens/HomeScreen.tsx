@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { View, Text, StyleSheet, ActivityIndicator, ScrollView, SafeAreaView } from "react-native";
 import { useNavigation } from "@react-navigation/native";
-import { getUpcomingSkyEvents, getUpcomingLaunchesFromLibrary, ROUTE_MANIFEST } from "@starkid/core";
+import { getUpcomingSkyEventsService, getUpcomingLaunches, ROUTE_MANIFEST } from "@starkid/core";
 import { SpaceBackground } from "../components/home/SpaceBackground";
 import { HeroPanel } from "../components/home/HeroPanel";
 import { NextMajorEventCard } from "../components/home/NextMajorEventCard";
@@ -19,14 +19,14 @@ export default function HomeScreen() {
     let active = true;
     async function load() {
       const [eventsResult, launchesResult] = await Promise.allSettled([
-        getUpcomingSkyEvents({ days: 30 }),
-        getUpcomingLaunchesFromLibrary(10),
+        getUpcomingSkyEventsService({ days: 30 }),
+        getUpcomingLaunches({ limit: 10 }),
       ]);
 
       if (!active) return;
 
-      const skyEvents = eventsResult.status === "fulfilled" ? eventsResult.value : [];
-      const launches = launchesResult.status === "fulfilled" ? launchesResult.value : [];
+      const skyEvents = eventsResult.status === "fulfilled" ? eventsResult.value?.data : [];
+      const launches = launchesResult.status === "fulfilled" ? launchesResult.value?.data : [];
       const artemis = launches.find((launch) => launch.name?.toLowerCase?.().includes("artemis")) || launches[0];
 
       setEvents(Array.isArray(skyEvents) ? skyEvents.slice(0, 4) : []);
