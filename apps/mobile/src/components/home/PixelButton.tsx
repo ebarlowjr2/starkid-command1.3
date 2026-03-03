@@ -1,5 +1,5 @@
 import React, { memo } from "react";
-import { Pressable, Text, StyleSheet, ViewStyle } from "react-native";
+import { Pressable, Text, StyleSheet, ViewStyle, View } from "react-native";
 import { colors, typography } from "../../theme/tokens";
 
 export const PixelButton = memo(function PixelButton({
@@ -24,7 +24,13 @@ export const PixelButton = memo(function PixelButton({
         style,
       ]}
     >
-      <Text style={styles.text}>{label}</Text>
+      <View style={[styles.inner, { borderColor: glow }]}>
+        <View style={[styles.corner, styles.cornerTl, { backgroundColor: glow }]} />
+        <View style={[styles.corner, styles.cornerTr, { backgroundColor: glow }]} />
+        <View style={[styles.corner, styles.cornerBl, { backgroundColor: glow }]} />
+        <View style={[styles.corner, styles.cornerBr, { backgroundColor: glow }]} />
+        <Text style={styles.text}>{label}</Text>
+      </View>
     </Pressable>
   );
 });
@@ -32,15 +38,38 @@ export const PixelButton = memo(function PixelButton({
 const styles = StyleSheet.create({
   btn: {
     alignSelf: "flex-start",
-    paddingVertical: 10,
-    paddingHorizontal: 14,
+    paddingVertical: 12,
+    paddingHorizontal: 18,
     borderRadius: 14,
-    borderWidth: 1,
-    backgroundColor: "rgba(6, 10, 22, 0.55)",
-    shadowOpacity: 0.35,
-    shadowRadius: 12,
-    shadowOffset: { width: 0, height: 8 },
-    elevation: 4,
+    borderWidth: 2,
+    backgroundColor: "rgba(6, 10, 22, 0.65)",
+    shadowOpacity: 0.45,
+    shadowRadius: 14,
+    shadowOffset: { width: 0, height: 10 },
+    elevation: 6,
   },
-  text: { color: colors.text, ...typography.small, letterSpacing: 1.1, textTransform: "uppercase" },
+  inner: {
+    borderWidth: 1,
+    borderRadius: 10,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(6, 10, 22, 0.45)",
+  },
+  corner: {
+    position: "absolute",
+    width: 6,
+    height: 6,
+  },
+  cornerTl: { left: -2, top: -2 },
+  cornerTr: { right: -2, top: -2 },
+  cornerBl: { left: -2, bottom: -2 },
+  cornerBr: { right: -2, bottom: -2 },
+  text: {
+    color: colors.text,
+    ...typography.small,
+    letterSpacing: 1.2,
+    textTransform: "uppercase",
+  },
 });
