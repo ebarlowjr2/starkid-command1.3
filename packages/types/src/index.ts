@@ -3,8 +3,14 @@ export type Launch = {
   name?: string
   net?: string
   window_start?: string
+  rocketId?: string
   pad?: {
     name?: string
+    latitude?: number
+    longitude?: number
+    location?: {
+      name?: string
+    }
   }
 }
 
@@ -24,6 +30,11 @@ export type SkyEvent = {
 export type Comet = {
   designation?: string
   name?: string
+  description?: string
+  period?: string
+  lastPerihelion?: string
+  nextPerihelion?: string
+  notable?: boolean
   savedAt?: string
   notify?: boolean
 }
@@ -89,4 +100,11 @@ export type MissionResult = {
   pass: boolean
   score?: number
   feedback: string
+}
+
+export type SolarActivity = {
+  flaresCount?: number
+  cmeCount?: number
+  strongestClass?: string
+  severityPct?: number
 }
