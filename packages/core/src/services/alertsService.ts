@@ -4,8 +4,6 @@ import { generateAlerts, filterByUserPreference } from '../domain/alerts/alerts.
 import { getUpcomingLaunches } from './launchesService'
 import { getUpcomingSkyEventsService } from './skyEventsService'
 import { getSolarActivity } from './solarService'
-import type { ServiceResult } from './types'
-
 type AlertsOverrides = {
   launches?: ServiceResult<any[]>
   skyEvents?: ServiceResult<any[]>
