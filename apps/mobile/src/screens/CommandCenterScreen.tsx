@@ -1,8 +1,12 @@
 import React, { useEffect, useState } from 'react'
-import { View, Text, StyleSheet, ActivityIndicator, Pressable, ScrollView } from 'react-native'
+import { View, Text, StyleSheet, ActivityIndicator, Pressable, FlatList, SafeAreaView } from 'react-native'
 import { getAlertsForUser, convertAlertToMission, getRepos, ROUTE_MANIFEST } from '@starkid/core'
 import { setMission } from '../state/missionStore'
 import { useNavigation } from '@react-navigation/native'
+import { SpaceBackground } from '../components/home/SpaceBackground'
+import { GlassCard } from '../components/home/GlassCard'
+import { Badge } from '../components/home/Badge'
+import { colors, spacing, typography } from '../theme/tokens'
 
 export default function CommandCenterScreen() {
   const navigation = useNavigation()
@@ -40,62 +44,101 @@ export default function CommandCenterScreen() {
 
   if (loading) {
     return (
-      <View style={styles.center}>
-        <ActivityIndicator size="large" />
-        <Text style={styles.muted}>Loading mission alerts…</Text>
-      </View>
+      <SpaceBackground>
+        <View style={styles.center}>
+          <ActivityIndicator size="large" />
+          <Text style={styles.muted}>Loading mission alerts…</Text>
+        </View>
+      </SpaceBackground>
     )
   }
 
   return (
-    <ScrollView style={styles.scroll} contentContainerStyle={styles.container}>
-      <Text style={styles.title}>Command Center</Text>
-      <View style={styles.panel}>
-        <Text style={styles.panelTitle}>Mission Alerts</Text>
-        {alerts.length ? (
-          alerts.slice(0, 8).map((alert) => (
-            <View key={alert.id} style={styles.alertCard}>
+    <SpaceBackground>
+      <SafeAreaView style={{ flex: 1 }}>
+        <FlatList
+          data={alerts}
+          keyExtractor={(item, index) => `${item.id ?? index}`}
+          contentContainerStyle={styles.container}
+          ListHeaderComponent={() => (
+            <View style={styles.header}>
+              <Text style={styles.kicker}>COMMAND CENTER</Text>
+              <Text style={styles.title}>Mission Alerts</Text>
+              <Text style={styles.subtitle}>Accept a mission to view the briefing.</Text>
+              <GlassCard variant="secondary" style={{ marginTop: spacing.lg }}>
+                <View style={styles.badgeRow}>
+                  <Badge label="ALERTS" />
+                  <Text style={styles.badgeHelper}>Sorted by time + priority</Text>
+                </View>
+              </GlassCard>
+            </View>
+          )}
+          renderItem={({ item }) => (
+            <GlassCard variant="secondary" style={styles.card}>
+              <View style={styles.glowStrip} />
               <View style={{ flex: 1 }}>
-                <Text style={styles.alertTitle}>{alert.title}</Text>
-                <Text style={styles.alertMeta}>{alert.type} • {alert.severity}</Text>
+                <Text style={styles.alertTitle}>{item.title}</Text>
+                <Text style={styles.alertMeta}>{item.type} • {item.severity}</Text>
               </View>
-              {alert.completed ? (
-                <Text style={styles.completedBadge}>Completed</Text>
-              ) : alert.missionAvailable ? (
+              {item.completed ? (
+                <Text style={styles.completedBadge}>COMPLETED</Text>
+              ) : item.missionAvailable ? (
                 <Pressable
                   style={styles.alertButton}
                   onPress={async () => {
-                    const mission = convertAlertToMission(alert)
+                    const mission = convertAlertToMission(item)
                     if (!mission) return
                     setMission(mission)
                     navigation.navigate(ROUTE_MANIFEST.MISSIONS_BRIEFING as never)
                   }}
                 >
-                  <Text style={styles.alertButtonText}>Accept</Text>
+                  <Text style={styles.alertButtonText}>ACCEPT →</Text>
                 </Pressable>
               ) : null}
-            </View>
-          ))
-        ) : (
-          <Text style={styles.alertMeta}>No alerts available.</Text>
-        )}
-      </View>
-    </ScrollView>
+            </GlassCard>
+          )}
+          ListEmptyComponent={() => (
+            <GlassCard variant="secondary">
+              <Text style={styles.emptyText}>No alerts available.</Text>
+            </GlassCard>
+          )}
+        />
+      </SafeAreaView>
+    </SpaceBackground>
   )
 }
 
 const styles = StyleSheet.create({
-  scroll: { flex: 1, backgroundColor: '#0b0f1a' },
-  container: { padding: 16, paddingBottom: 40 },
+  container: { padding: spacing.xl, paddingBottom: 44 },
   center: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 16 },
-  muted: { marginTop: 8, color: '#9ca3af' },
-  title: { fontSize: 22, fontWeight: '700', color: '#f9fafb', marginBottom: 12 },
-  panel: { padding: 12, borderRadius: 12, backgroundColor: '#0f172a' },
-  panelTitle: { color: '#7dd3fc', fontWeight: '700', marginBottom: 8 },
-  alertCard: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: '#1f2937' },
-  alertTitle: { color: '#f9fafb', fontWeight: '600' },
-  alertMeta: { color: '#9ca3af', fontSize: 12 },
-  alertButton: { paddingVertical: 6, paddingHorizontal: 10, borderRadius: 8, backgroundColor: '#2563eb' },
-  alertButtonText: { color: '#f9fafb', fontWeight: '600', fontSize: 12 },
-  completedBadge: { color: '#86efac', fontSize: 12, fontWeight: '600' },
+  header: { marginBottom: spacing.lg },
+  kicker: { ...typography.pixel, color: colors.dim, marginBottom: 6 },
+  title: { ...typography.hero, color: colors.text },
+  subtitle: { ...typography.body, color: colors.muted, marginTop: 6 },
+  badgeRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
+  badgeHelper: { ...typography.pixel, color: colors.dim, flex: 1 },
+  muted: { marginTop: 8, color: colors.muted },
+  card: { marginBottom: 12 },
+  glowStrip: {
+    position: 'absolute',
+    left: 0,
+    top: 0,
+    bottom: 0,
+    width: 6,
+    backgroundColor: 'rgba(61,235,255,0.35)',
+  },
+  alertTitle: { ...typography.h2, color: colors.text },
+  alertMeta: { ...typography.small, color: colors.muted, marginTop: 6 },
+  alertButton: {
+    marginLeft: 10,
+    paddingVertical: 6,
+    paddingHorizontal: 10,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: 'rgba(61,235,255,0.6)',
+    backgroundColor: 'rgba(6, 10, 22, 0.6)',
+  },
+  alertButtonText: { ...typography.small, color: colors.text },
+  completedBadge: { ...typography.pixel, color: colors.green },
+  emptyText: { ...typography.body, color: colors.muted },
 })

@@ -1,17 +1,33 @@
 import React from 'react'
-import { View, Text, StyleSheet } from 'react-native'
+import { SafeAreaView, StyleSheet, Text, View } from 'react-native'
+import { SpaceBackground } from '../components/home/SpaceBackground'
+import { GlassCard } from '../components/home/GlassCard'
+import { colors, spacing, typography } from '../theme/tokens'
 
 export default function StreamsScreen() {
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Streams</Text>
-      <Text style={styles.body}>Live streams will be available here soon.</Text>
-    </View>
+    <SpaceBackground>
+      <SafeAreaView style={{ flex: 1 }}>
+        <View style={styles.container}>
+          <Text style={styles.kicker}>STREAMS</Text>
+          <Text style={styles.title}>Live Streams</Text>
+          <Text style={styles.subtitle}>Mission broadcasts and live feeds are coming soon.</Text>
+
+          <GlassCard variant="secondary" style={{ marginTop: spacing.lg }}>
+            <Text style={styles.cardText}>
+              We’re integrating launch control rooms, telescope feeds, and live events.
+            </Text>
+          </GlassCard>
+        </View>
+      </SafeAreaView>
+    </SpaceBackground>
   )
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 16, backgroundColor: '#0b0f1a' },
-  title: { fontSize: 22, fontWeight: '700', color: '#f9fafb', marginBottom: 8 },
-  body: { color: '#9ca3af' },
+  container: { padding: spacing.xl },
+  kicker: { ...typography.pixel, color: colors.dim, marginBottom: 8 },
+  title: { ...typography.hero, color: colors.text },
+  subtitle: { ...typography.body, color: colors.muted, marginTop: 6 },
+  cardText: { ...typography.body, color: colors.muted },
 })
