@@ -24,6 +24,7 @@ export * from './domain/missions/missionEngine.js'
 export * from './domain/missions/grading.ts'
 
 export * from './services/index.ts'
+export * from './stem/index.ts'
 
 export * from './storage/identity.ts'
 export * from './storage/repos/repoFactory.ts'

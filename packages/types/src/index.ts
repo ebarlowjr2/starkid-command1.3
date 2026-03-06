@@ -53,7 +53,7 @@ export type Alert = {
   payload?: unknown
 }
 
-export type MissionType = 'math' | 'cyber' | 'linux' | 'science'
+export type MissionType = 'math' | 'cyber' | 'linux' | 'science' | 'ai'
 
 export type Mission = {
   id: string
