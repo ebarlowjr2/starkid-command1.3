@@ -1,6 +1,19 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
+import { listStemActivities, listTracks, listLevels } from '@starkid/core'
 
 export default function StemActivitiesPage() {
+  const [activities, setActivities] = useState([])
+  const [track, setTrack] = useState('')
+  const [level, setLevel] = useState('')
+
+  useEffect(() => {
+    const data = listStemActivities({
+      track: track || undefined,
+      level: level || undefined,
+    })
+    setActivities(data)
+  }, [track, level])
+
   return (
     <div className="p-4 max-w-4xl mx-auto">
       <div className="mb-6">
@@ -12,19 +25,48 @@ export default function StemActivitiesPage() {
         </p>
       </div>
 
-      <div
-        style={{
-          padding: 24,
-          borderRadius: 18,
-          border: '2px dashed rgba(34, 211, 238, 0.4)',
-          background: 'rgba(0,0,0,0.45)',
-        }}
-      >
-        <div className="text-lg text-cyan-300 font-semibold mb-2">Coming Soon</div>
-        <p className="text-cyan-200/70 text-sm leading-relaxed">
-          We are building a library of STEM activities, missions, and mini-labs that pair with
-          live space data. Check back soon.
-        </p>
+      <div className="flex flex-wrap gap-2 mb-4">
+        <select
+          value={track}
+          onChange={(e) => setTrack(e.target.value)}
+          className="bg-black/60 border border-cyan-600 text-cyan-200 text-xs px-2 py-1 rounded"
+        >
+          <option value="">All Tracks</option>
+          {listTracks().map((t) => (
+            <option key={t} value={t}>{t}</option>
+          ))}
+        </select>
+        <select
+          value={level}
+          onChange={(e) => setLevel(e.target.value)}
+          className="bg-black/60 border border-cyan-600 text-cyan-200 text-xs px-2 py-1 rounded"
+        >
+          <option value="">All Levels</option>
+          {listLevels().map((l) => (
+            <option key={l} value={l}>{l}</option>
+          ))}
+        </select>
+      </div>
+
+      <div className="grid gap-4">
+        {activities.map((activity) => (
+          <div
+            key={activity.id}
+            className="border border-cyan-600/50 rounded-lg p-4 bg-black/40"
+          >
+            <div className="flex items-center gap-2 mb-2">
+              <span className="text-xs text-cyan-400 bg-cyan-900/40 px-2 py-0.5 rounded">
+                {activity.track}
+              </span>
+              <span className="text-xs text-cyan-200/70">{activity.level}</span>
+            </div>
+            <div className="text-cyan-200 font-semibold">{activity.title}</div>
+            <div className="text-cyan-200/70 text-sm mt-1">{activity.description}</div>
+          </div>
+        ))}
+        {activities.length === 0 ? (
+          <div className="text-cyan-200/60 text-sm">No activities match this filter.</div>
+        ) : null}
       </div>
     </div>
   )
