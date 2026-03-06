@@ -1,4 +1,4 @@
-import { createMissionFromLaunch, createMissionFromEclipse, createMissionFromSolarEvent } from '../missions/missionEngine.js'
+import { generateMissionFromAlert } from '../../stem/service.ts'
 import { getUpcomingLaunchesFromLibrary } from '../launches/launchLibrary.js'
 import { getAllSkyEvents } from '../skyEvents/skyEventsDb.js'
 import { getRecentSolarActivity } from '../../clients/nasa/nasa.js'
@@ -81,17 +81,7 @@ export async function generateAlerts({ launches, skyEvents, solarActivity } = {}
 
 export function convertAlertToMission(alert) {
   if (!alert) return null
-
-  switch (alert.type) {
-    case 'launch':
-      return createMissionFromLaunch(alert.payload)
-    case 'sky-event':
-      return createMissionFromEclipse(alert.payload)
-    case 'solar':
-      return createMissionFromSolarEvent(alert.payload)
-    default:
-      return null
-  }
+  return generateMissionFromAlert(alert, 'math', 'cadet')
 }
 
 export function filterByUserPreference(alerts, userPreference = {}) {
