@@ -37,3 +37,9 @@ Use `formatSourceStatus(sources)` for logging or debug UI.
 Pure UI helpers (formatters, render helpers) can live in app code.
 Apps should not import domain or client functions for the features listed above.
 
+## STEM Module
+STEM powers both structured Activities and dynamic Missions.
+
+- Activities and Missions share templates + grading.
+- Dynamic missions are generated via `packages/core/src/stem/service.ts`.
+- Apps must not bypass STEM services for mission generation.
