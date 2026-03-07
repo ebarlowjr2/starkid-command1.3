@@ -15,9 +15,9 @@ export async function generateAlerts({ launches, skyEvents, solarActivity } = {}
     skyEventData,
     solarData,
   ] = await Promise.all([
-    launches ?? getUpcomingLaunchesFromLibrary(10).catch(() => []),
-    skyEvents ?? getAllSkyEvents({ days: 60 }).catch(() => []),
-    solarActivity ?? getRecentSolarActivity(3).catch(() => null),
+    launches !== undefined ? launches : getUpcomingLaunchesFromLibrary(10).catch(() => []),
+    skyEvents !== undefined ? skyEvents : getAllSkyEvents({ days: 60 }).catch(() => []),
+    solarActivity !== undefined ? solarActivity : getRecentSolarActivity(3).catch(() => null),
   ])
 
   const alerts = []
