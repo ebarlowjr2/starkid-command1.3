@@ -17,7 +17,6 @@ export * from './domain/launches/solarMapUrl.js'
 export * from './domain/skyEvents/moon.js'
 
 export * from './domain/alerts/blog/blogService.js'
-export * from './domain/alerts/alerts.js'
 
 export * from './domain/missions/missions.js'
 export * from './domain/missions/missionEngine.js'

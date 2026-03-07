@@ -1,6 +1,6 @@
 import type { Alert, UserPreference } from '@starkid/types'
 import type { ServiceResult, SourceStatus } from './types'
-import { generateAlerts, filterByUserPreference } from '../domain/alerts/alerts.js'
+import { generateAlerts, filterByUserPreference, convertAlertToMission } from '../domain/alerts/alerts.js'
 import { getUpcomingLaunches } from './launchesService'
 import { getUpcomingSkyEventsService } from './skyEventsService'
 import { getSolarActivity } from './solarService'
@@ -43,3 +43,5 @@ export async function getAlertsForUser(
 
   return { data: filtered, sources, warnings: warnings.length ? warnings : undefined }
 }
+
+export { convertAlertToMission, filterByUserPreference }
