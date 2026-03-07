@@ -5,6 +5,8 @@ import { createLocalPreferencesRepo } from './localPreferencesRepo.ts'
 import { createSupabaseMissionsRepo } from './supabaseMissionsRepo.ts'
 import { createSupabaseSavedItemsRepo } from './supabaseSavedItemsRepo.ts'
 import { createSupabasePreferencesRepo } from './supabasePreferencesRepo.ts'
+import { createLocalStemProgressRepo } from './localStemProgressRepo.ts'
+import { createSupabaseStemProgressRepo } from './supabaseStemProgressRepo.ts'
 
 export async function getRepos() {
   const actor = await getCurrentActor()
@@ -13,6 +15,7 @@ export async function getRepos() {
       missionsRepo: createSupabaseMissionsRepo(),
       savedItemsRepo: createSupabaseSavedItemsRepo(),
       preferencesRepo: createSupabasePreferencesRepo(),
+      stemProgressRepo: createSupabaseStemProgressRepo(),
       actor,
     }
   }
@@ -21,6 +24,7 @@ export async function getRepos() {
     missionsRepo: createLocalMissionsRepo(actor.actorId),
     savedItemsRepo: createLocalSavedItemsRepo(actor.actorId),
     preferencesRepo: createLocalPreferencesRepo(actor.actorId),
+    stemProgressRepo: createLocalStemProgressRepo(actor.actorId),
     actor,
   }
 }

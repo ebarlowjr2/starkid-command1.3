@@ -1,13 +1,32 @@
-import React from 'react'
-import { SafeAreaView, StyleSheet, Text, View, ScrollView } from 'react-native'
+import React, { useEffect, useState } from 'react'
+import { SafeAreaView, StyleSheet, Text, View, ScrollView, Pressable } from 'react-native'
 import { SpaceBackground } from '../components/home/SpaceBackground'
 import { GlassCard } from '../components/home/GlassCard'
 import { colors, spacing, typography } from '../theme/tokens'
-import { getStemActivityById } from '@starkid/core'
+import { getStemActivityById, getRepos } from '@starkid/core'
 
 export default function StemActivityDetailScreen({ route }: { route: any }) {
   const { activityId } = route?.params || {}
   const activity = getStemActivityById(activityId)
+  const [completed, setCompleted] = useState(false)
+  const [saving, setSaving] = useState(false)
+
+  useEffect(() => {
+    let active = true
+    async function loadCompleted() {
+      try {
+        const { stemProgressRepo, actor } = await getRepos()
+        const isDone = await stemProgressRepo.isCompleted(actor.actorId, activityId)
+        if (active) setCompleted(isDone)
+      } catch (error) {
+        if (active) setCompleted(false)
+      }
+    }
+    if (activityId) loadCompleted()
+    return () => {
+      active = false
+    }
+  }, [activityId])
 
   if (!activity) {
     return (
@@ -37,6 +56,29 @@ export default function StemActivityDetailScreen({ route }: { route: any }) {
               <Text key={step.id} style={styles.stepItem}>• {step.prompt}</Text>
             ))}
           </GlassCard>
+
+          <View style={{ marginTop: spacing.lg }}>
+            {completed ? (
+              <Text style={styles.completedBadge}>COMPLETED</Text>
+            ) : (
+              <Pressable
+                style={styles.completeButton}
+                onPress={async () => {
+                  try {
+                    setSaving(true)
+                    const { stemProgressRepo, actor } = await getRepos()
+                    await stemProgressRepo.markCompleted(actor.actorId, activity.id)
+                    setCompleted(true)
+                  } finally {
+                    setSaving(false)
+                  }
+                }}
+                disabled={saving}
+              >
+                <Text style={styles.completeButtonText}>MARK COMPLETE</Text>
+              </Pressable>
+            )}
+          </View>
         </ScrollView>
       </SafeAreaView>
     </SpaceBackground>
@@ -53,4 +95,15 @@ const styles = StyleSheet.create({
   sectionTitle: { ...typography.pixel, color: colors.dim, marginBottom: spacing.sm },
   stepItem: { ...typography.body, color: colors.muted, marginTop: 6 },
   muted: { ...typography.body, color: colors.muted },
+  completeButton: {
+    alignSelf: 'flex-start',
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: 'rgba(61,235,255,0.7)',
+    backgroundColor: 'rgba(6, 10, 22, 0.8)',
+  },
+  completeButtonText: { ...typography.pixel, color: colors.text },
+  completedBadge: { ...typography.pixel, color: colors.green },
 })

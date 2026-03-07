@@ -1,13 +1,14 @@
-import React, { useMemo, useState } from 'react'
+import React, { useMemo, useState, useEffect } from 'react'
 import { SafeAreaView, StyleSheet, Text, View, FlatList, Pressable } from 'react-native'
 import { SpaceBackground } from '../components/home/SpaceBackground'
 import { GlassCard } from '../components/home/GlassCard'
 import { colors, spacing, typography } from '../theme/tokens'
-import { listStemActivities, listTracks, listLevels, ROUTE_MANIFEST } from '@starkid/core'
+import { listStemActivities, listTracks, listLevels, ROUTE_MANIFEST, getRepos } from '@starkid/core'
 
 export default function StemActivitiesScreen({ navigation }: { navigation: any }) {
   const [track, setTrack] = useState('')
   const [level, setLevel] = useState('')
+  const [completedIds, setCompletedIds] = useState<string[]>([])
 
   const activities = useMemo(() => {
     return listStemActivities({
@@ -15,6 +16,23 @@ export default function StemActivitiesScreen({ navigation }: { navigation: any }
       level: level || undefined,
     })
   }, [track, level])
+
+  useEffect(() => {
+    let active = true
+    async function loadCompleted() {
+      try {
+        const { stemProgressRepo, actor } = await getRepos()
+        const completed = await stemProgressRepo.listCompleted(actor.actorId)
+        if (active) setCompletedIds(completed || [])
+      } catch (error) {
+        if (active) setCompletedIds([])
+      }
+    }
+    loadCompleted()
+    return () => {
+      active = false
+    }
+  }, [])
 
   return (
     <SpaceBackground>
@@ -58,7 +76,12 @@ export default function StemActivitiesScreen({ navigation }: { navigation: any }
               onPress={() => navigation?.navigate?.(ROUTE_MANIFEST.STEM_ACTIVITY_DETAIL, { activityId: item.id })}
             >
               <GlassCard variant="secondary" style={{ marginTop: spacing.md }}>
-                <Text style={styles.activityTitle}>{item.title}</Text>
+                <View style={styles.activityHeader}>
+                  <Text style={styles.activityTitle}>{item.title}</Text>
+                  {completedIds.includes(item.id) ? (
+                    <Text style={styles.completedBadge}>COMPLETED</Text>
+                  ) : null}
+                </View>
                 <Text style={styles.activityMeta}>{item.track} • {item.level}</Text>
                 <Text style={styles.activityBody}>{item.description}</Text>
               </GlassCard>
@@ -93,7 +116,9 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(6, 10, 22, 0.6)',
   },
   filterText: { ...typography.pixel, color: colors.text },
+  activityHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   activityTitle: { ...typography.h2, color: colors.text },
   activityMeta: { ...typography.small, color: colors.muted, marginTop: 6 },
   activityBody: { ...typography.body, color: colors.muted, marginTop: 6 },
+  completedBadge: { ...typography.pixel, color: colors.green },
 })

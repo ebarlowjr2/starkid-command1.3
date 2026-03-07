@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { listStemActivities, listTracks, listLevels } from '@starkid/core'
+import { listStemActivities, listTracks, listLevels, getRepos } from '@starkid/core'
 
 export default function StemActivitiesPage() {
   const [activities, setActivities] = useState([])
   const [track, setTrack] = useState('')
   const [level, setLevel] = useState('')
+  const [completedIds, setCompletedIds] = useState([])
   const nav = useNavigate()
 
   useEffect(() => {
@@ -15,6 +16,23 @@ export default function StemActivitiesPage() {
     })
     setActivities(data)
   }, [track, level])
+
+  useEffect(() => {
+    let active = true
+    async function loadCompleted() {
+      try {
+        const { stemProgressRepo, actor } = await getRepos()
+        const completed = await stemProgressRepo.listCompleted(actor.actorId)
+        if (active) setCompletedIds(completed || [])
+      } catch (error) {
+        if (active) setCompletedIds([])
+      }
+    }
+    loadCompleted()
+    return () => {
+      active = false
+    }
+  }, [])
 
   return (
     <div className="p-4 max-w-4xl mx-auto">
@@ -61,6 +79,11 @@ export default function StemActivitiesPage() {
                 {activity.track}
               </span>
               <span className="text-xs text-cyan-200/70">{activity.level}</span>
+              {completedIds.includes(activity.id) ? (
+                <span className="text-xs text-green-300 bg-green-900/30 px-2 py-0.5 rounded">
+                  Completed
+                </span>
+              ) : null}
             </div>
             <div className="text-cyan-200 font-semibold">{activity.title}</div>
             <div className="text-cyan-200/70 text-sm mt-1">{activity.description}</div>

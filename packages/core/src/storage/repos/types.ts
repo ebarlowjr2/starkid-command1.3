@@ -17,6 +17,12 @@ export type PreferencesRepo = {
   set(actorId: string, prefs: any): Promise<void>
 }
 
+export type StemProgressRepo = {
+  markCompleted(actorId: string, activityId: string): Promise<void>
+  isCompleted(actorId: string, activityId: string): Promise<boolean>
+  listCompleted(actorId: string): Promise<string[]>
+}
+
 export class RepoNotEnabledError extends Error {
   constructor(message) {
     super(message)
@@ -47,6 +53,15 @@ export class NotEnabledRepo {
     throw new RepoNotEnabledError('Repo not enabled yet')
   }
   async list() {
+    throw new RepoNotEnabledError('Repo not enabled yet')
+  }
+  async listCompleted() {
+    throw new RepoNotEnabledError('Repo not enabled yet')
+  }
+  async isCompleted() {
+    throw new RepoNotEnabledError('Repo not enabled yet')
+  }
+  async markCompleted() {
     throw new RepoNotEnabledError('Repo not enabled yet')
   }
   async get() {
