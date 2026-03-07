@@ -1,16 +1,16 @@
 import type { StemTemplate } from '../../types'
 
 export const launchServiceAccountFailureTemplate: StemTemplate = {
-  id: 'launch-service-account-failure',
+  id: 'cyber.groundstation.auth-failure',
   track: 'cyber',
   level: 'explorer',
   eventTypes: ['launch'],
-  titleTemplate: 'Service Account Failure',
-  briefingTemplate: 'Diagnose a failed service account check before launch.',
+  titleTemplate: 'Ground Station Access Failure',
+  briefingTemplate: 'Telemetry fails due to a permission mismatch. Diagnose the auth issue.',
   stepBuilder: () => [
     {
       id: 'action',
-      prompt: 'What is the first step to verify a service account issue?',
+      prompt: 'What is the first step to verify an access failure?',
       inputType: 'choice',
       choices: ['Rotate credentials', 'Disable firewall', 'Check access logs'],
     },

@@ -1,7 +1,7 @@
 import type { StemTemplate } from '../../types'
 
 export const diskSpaceLogCleanupTemplate: StemTemplate = {
-  id: 'disk-space-log-cleanup',
+  id: 'linux.diskspace.log-cleanup',
   track: 'linux',
   level: 'cadet',
   eventTypes: ['generic', 'solar'],

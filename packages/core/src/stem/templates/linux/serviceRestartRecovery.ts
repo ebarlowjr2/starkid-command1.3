@@ -1,7 +1,7 @@
 import type { StemTemplate } from '../../types'
 
 export const serviceRestartRecoveryTemplate: StemTemplate = {
-  id: 'service-restart-recovery',
+  id: 'linux.service.restart',
   track: 'linux',
   level: 'explorer',
   eventTypes: ['generic', 'solar'],

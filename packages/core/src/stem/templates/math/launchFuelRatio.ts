@@ -1,16 +1,16 @@
 import type { StemTemplate } from '../../types'
 
 export const launchFuelRatioTemplate: StemTemplate = {
-  id: 'launch-fuel-ratio',
+  id: 'math.launch.fuel-ratio',
   track: 'math',
   level: 'cadet',
   eventTypes: ['launch'],
-  titleTemplate: 'Launch Fuel Ratio Check',
-  briefingTemplate: 'Compute the fuel ratio needed for a stable launch.',
+  titleTemplate: 'Launch Fuel Ratio Calculation',
+  briefingTemplate: 'Compute the correct fuel mix ratio required for a rocket stage.',
   stepBuilder: () => [
     {
       id: 'ratio',
-      prompt: 'Compute the ratio 4 ÷ 2 (enter the number).',
+      prompt: 'If oxidizer is 4 units and fuel is 2 units, what is the oxidizer-to-fuel ratio?',
       inputType: 'number',
       unitLabel: null,
     },

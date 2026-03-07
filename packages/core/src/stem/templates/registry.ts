@@ -3,24 +3,36 @@ import {
   launchFuelRatioTemplate,
   launchCountdownWindowTemplate,
   eclipseVisibilityTemplate,
+  orbitalVelocityTemplate,
   launchServiceAccountFailureTemplate,
   groundStationPermissionMismatchTemplate,
+  telemetryAnomalyTemplate,
   diskSpaceLogCleanupTemplate,
   serviceRestartRecoveryTemplate,
   anomalyDetectionReviewTemplate,
   classificationConfidenceCheckTemplate,
+  solarStormClassificationTemplate,
+  satellitePatternDetectionTemplate,
+  moonPhaseTemplate,
+  meteorPeakTemplate,
 } from './index'
 
 const TEMPLATES: StemTemplate[] = [
   launchFuelRatioTemplate,
   launchCountdownWindowTemplate,
   eclipseVisibilityTemplate,
+  orbitalVelocityTemplate,
   launchServiceAccountFailureTemplate,
   groundStationPermissionMismatchTemplate,
+  telemetryAnomalyTemplate,
   diskSpaceLogCleanupTemplate,
   serviceRestartRecoveryTemplate,
   anomalyDetectionReviewTemplate,
   classificationConfidenceCheckTemplate,
+  solarStormClassificationTemplate,
+  satellitePatternDetectionTemplate,
+  moonPhaseTemplate,
+  meteorPeakTemplate,
 ]
 
 export function listStemTemplates(): StemTemplate[] {

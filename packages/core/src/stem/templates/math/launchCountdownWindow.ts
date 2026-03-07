@@ -1,12 +1,12 @@
 import type { StemTemplate } from '../../types'
 
 export const launchCountdownWindowTemplate: StemTemplate = {
-  id: 'launch-countdown-window',
+  id: 'math.launch.countdown-window',
   track: 'math',
   level: 'explorer',
   eventTypes: ['launch'],
-  titleTemplate: 'Launch Countdown Window',
-  briefingTemplate: 'Calculate the minutes remaining until launch.',
+  titleTemplate: 'Launch Window Countdown Solver',
+  briefingTemplate: 'Determine whether launch timing fits within the required window.',
   stepBuilder: (context) => [
     {
       id: 'countdown',
