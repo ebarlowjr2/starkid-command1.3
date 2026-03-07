@@ -14,6 +14,7 @@ import SolarMapScreen from './src/screens/SolarMapScreen'
 import StreamsScreen from './src/screens/StreamsScreen'
 import MissionBriefingScreen from './src/screens/MissionBriefingScreen'
 import StemActivitiesScreen from './src/screens/StemActivitiesScreen'
+import StemActivityDetailScreen from './src/screens/StemActivityDetailScreen'
 
 const Stack = createNativeStackNavigator()
 
@@ -75,6 +76,7 @@ export default function App() {
         <Stack.Screen name={ROUTE_MANIFEST.SOLAR_MAP} component={SolarMapScreen} />
         <Stack.Screen name={ROUTE_MANIFEST.STREAMS} component={StreamsScreen} />
         <Stack.Screen name={ROUTE_MANIFEST.STEM_ACTIVITIES} component={StemActivitiesScreen} />
+        <Stack.Screen name={ROUTE_MANIFEST.STEM_ACTIVITY_DETAIL} component={StemActivityDetailScreen} />
         <Stack.Screen name={ROUTE_MANIFEST.MISSIONS_BRIEFING} component={MissionBriefingScreen} />
       </Stack.Navigator>
     </NavigationContainer>

@@ -3,32 +3,10 @@ import type { StemActivity, StemLevel, StemMission, StemTemplate, StemTrack } fr
 import { gradeStemAttempt as gradeStemAttemptInternal } from './grading/autoGrade'
 import { augmentMissionText } from './ai/augment'
 import { getLevelConfig } from './levels/levels'
-import {
-  launchFuelRatioTemplate,
-  launchCountdownWindowTemplate,
-  eclipseVisibilityTemplate,
-  launchServiceAccountFailureTemplate,
-  groundStationPermissionMismatchTemplate,
-  diskSpaceLogCleanupTemplate,
-  serviceRestartRecoveryTemplate,
-  anomalyDetectionReviewTemplate,
-  classificationConfidenceCheckTemplate,
-} from './templates'
 import { generateStemMissionFromLaunch } from './generators/fromLaunch'
 import { generateStemMissionFromSkyEvent } from './generators/fromSkyEvent'
 import { generateStemMissionFromSolarEvent } from './generators/fromSolarEvent'
-
-const TEMPLATES: StemTemplate[] = [
-  launchFuelRatioTemplate,
-  launchCountdownWindowTemplate,
-  eclipseVisibilityTemplate,
-  launchServiceAccountFailureTemplate,
-  groundStationPermissionMismatchTemplate,
-  diskSpaceLogCleanupTemplate,
-  serviceRestartRecoveryTemplate,
-  anomalyDetectionReviewTemplate,
-  classificationConfidenceCheckTemplate,
-]
+import { listStemTemplates, getTemplatesForEvent as getTemplatesForEventRegistry } from './templates/registry'
 
 export function listTracks(): StemTrack[] {
   return ['math', 'cyber', 'linux', 'ai', 'science']
@@ -45,7 +23,7 @@ function mapDifficulty(level: StemLevel): 'easy' | 'medium' | 'hard' {
 }
 
 export function listStemActivities(filters?: { track?: StemTrack; level?: StemLevel }): StemActivity[] {
-  return TEMPLATES.filter((template) => {
+  return listStemTemplates().filter((template) => {
     if (filters?.track && template.track !== filters.track) return false
     if (filters?.level && template.level !== filters.level) return false
     return true
@@ -69,11 +47,7 @@ export function getStemActivityById(id: string): StemActivity | null {
 }
 
 export function getTemplatesForEvent(eventType: StemTemplate['eventTypes'][number], track: StemTrack, level: StemLevel) {
-  return TEMPLATES.filter((template) =>
-    template.track === track &&
-    template.level === level &&
-    template.eventTypes.includes(eventType)
-  )
+  return getTemplatesForEventRegistry(eventType, track, level)
 }
 
 export function generateMissionFromEvent(

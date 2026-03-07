@@ -8,7 +8,7 @@ import Globe from '../components/Globe.jsx'
 import AdminPanel from '../components/AdminPanel.jsx'
 import MissionCard from '../components/MissionCard.jsx'
 
-import { getUpcomingLaunches, getLatestLaunch, getAlertsForUser, convertAlertToMission, getRepos, getSolarActivity } from '@starkid/core'
+import { getUpcomingLaunches, getLatestLaunch, getAlertsForUser, convertAlertToMission, getRepos, getSolarActivity, formatSourceStatus, listTracks, listLevels } from '@starkid/core'
 import {
   getAPOD,
   getNEOsToday,
@@ -39,6 +39,11 @@ export default function CommandCenterPage() {
   const [rockets, setRockets] = useState([])
   const [crew, setCrew] = useState([])
   const [missionAlerts, setMissionAlerts] = useState([])
+  const [alertSources, setAlertSources] = useState([])
+  const [stemTrack, setStemTrack] = useState('math')
+  const [stemLevel, setStemLevel] = useState('cadet')
+  const tracks = useMemo(() => listTracks(), [])
+  const levels = useMemo(() => listLevels(), [])
 
   useEffect(() => {
     async function loadLaunchData() {
@@ -111,11 +116,12 @@ export default function CommandCenterPage() {
 
     async function loadMissionAlerts() {
       try {
-        const { data: alerts } = await getAlertsForUser()
+        const { data: alerts, sources } = await getAlertsForUser()
+        setAlertSources(sources || [])
         const { missionsRepo, actor } = await getRepos()
         const enriched = await Promise.all(
           alerts.map(async (alert) => {
-            const mission = convertAlertToMission(alert)
+            const mission = convertAlertToMission(alert, stemTrack, stemLevel)
             if (!mission) return { ...alert, completed: false }
             const completed = await missionsRepo.isCompleted(actor.actorId, mission.id)
             return { ...alert, completed, missionId: mission.id }
@@ -133,9 +139,10 @@ export default function CommandCenterPage() {
 
     const interval = setInterval(loadLaunchData, 1800000)
     return () => clearInterval(interval)
-  }, [])
+  }, [stemTrack, stemLevel])
 
   const currentMission = launches.length > 0 ? launches[0] : null
+  const debugEnabled = new URLSearchParams(window.location.search).get('debug') === '1'
   const nextLaunch = upcoming?.[0] || null
   const nextRocket = useMemo(() => {
     if (!nextLaunch || !rockets?.length) return null
@@ -150,6 +157,11 @@ export default function CommandCenterPage() {
           <p>{error}</p>
         </div>
       )}
+      {debugEnabled && alertSources.length ? (
+        <div className="p-3 mb-4 border border-cyan-600/40 rounded bg-black/40 text-xs text-cyan-200/80 font-mono">
+          {formatSourceStatus(alertSources)}
+        </div>
+      ) : null}
 
       <section className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-4">
         <div className="lg:col-span-2">
@@ -237,9 +249,35 @@ export default function CommandCenterPage() {
       </section>
 
       <section className="border border-cyan-700/60 rounded-lg p-4 mb-6 bg-black/60">
-        <div className="flex items-center justify-between mb-3">
+        <div className="flex flex-wrap items-center justify-between gap-3 mb-3">
           <h2 className="text-lg font-semibold text-cyan-300 tracking-wider">MISSION ALERTS</h2>
-          <span className="text-xs text-cyan-400">{missionAlerts.length} active</span>
+          <div className="flex items-center gap-2 text-xs text-cyan-200">
+            <div className="flex items-center gap-2">
+              <span className="text-cyan-500">Track</span>
+              <select
+                className="bg-black/60 border border-cyan-700/60 rounded px-2 py-1 text-cyan-200"
+                value={stemTrack}
+                onChange={(e) => setStemTrack(e.target.value)}
+              >
+                {tracks.map((track) => (
+                  <option key={track} value={track}>{track}</option>
+                ))}
+              </select>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-cyan-500">Level</span>
+              <select
+                className="bg-black/60 border border-cyan-700/60 rounded px-2 py-1 text-cyan-200"
+                value={stemLevel}
+                onChange={(e) => setStemLevel(e.target.value)}
+              >
+                {levels.map((level) => (
+                  <option key={level} value={level}>{level}</option>
+                ))}
+              </select>
+            </div>
+            <span className="text-cyan-400">{missionAlerts.length} active</span>
+          </div>
         </div>
         {missionAlerts.length ? (
           <ul className="space-y-2 text-sm">
@@ -255,7 +293,7 @@ export default function CommandCenterPage() {
                   <button
                     className="px-3 py-1 text-xs rounded bg-cyan-600 hover:bg-cyan-500 text-white"
                     onClick={() => {
-                      const mission = convertAlertToMission(alert)
+                      const mission = convertAlertToMission(alert, stemTrack, stemLevel)
                       if (mission) {
                         setMission(mission)
                         nav('/missions/briefing')

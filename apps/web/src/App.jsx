@@ -28,6 +28,7 @@ import SLSDetailPage from './pages/missions/SLSDetailPage.jsx'
 import OrionDetailPage from './pages/missions/OrionDetailPage.jsx'
 import MissionBriefingPage from './pages/MissionBriefingPage.jsx'
 import StemActivitiesPage from './pages/StemActivitiesPage.jsx'
+import StemActivityDetailPage from './pages/StemActivityDetailPage.jsx'
 import SupportPage from './pages/SupportPage.jsx'
 import AboutPage from './pages/AboutPage.jsx'
 import SocialQueuePage from './pages/ops/SocialQueuePage.jsx'
@@ -90,6 +91,7 @@ export default function App() {
                     <Route path="/missions/artemis/orion" element={<OrionDetailPage />} />
                     <Route path="/missions/briefing" element={<MissionBriefingPage />} />
                     <Route path="/stem-activities" element={<StemActivitiesPage />} />
+                    <Route path="/stem-activities/:activityId" element={<StemActivityDetailPage />} />
                                                                                                                                                   <Route path="/support" element={<SupportPage />} />
                                                                                                                                                   <Route path="/about" element={<AboutPage />} />
                                                                                                                                                   <Route path="/ops/social-queue" element={<SocialQueuePage />} />

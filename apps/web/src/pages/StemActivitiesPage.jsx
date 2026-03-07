@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { listStemActivities, listTracks, listLevels } from '@starkid/core'
 
 export default function StemActivitiesPage() {
   const [activities, setActivities] = useState([])
   const [track, setTrack] = useState('')
   const [level, setLevel] = useState('')
+  const nav = useNavigate()
 
   useEffect(() => {
     const data = listStemActivities({
@@ -62,6 +64,12 @@ export default function StemActivitiesPage() {
             </div>
             <div className="text-cyan-200 font-semibold">{activity.title}</div>
             <div className="text-cyan-200/70 text-sm mt-1">{activity.description}</div>
+            <button
+              onClick={() => nav(`/stem-activities/${activity.id}`)}
+              className="mt-3 text-xs text-cyan-300 border border-cyan-600/60 px-2 py-1 rounded hover:text-cyan-200"
+            >
+              View Steps →
+            </button>
           </div>
         ))}
         {activities.length === 0 ? (

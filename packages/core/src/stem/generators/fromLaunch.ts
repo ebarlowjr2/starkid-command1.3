@@ -1,6 +1,6 @@
 import type { Launch } from '@starkid/types'
 import type { StemMission, StemTrack, StemLevel } from '../types'
-import { getTemplatesForEvent } from '../service'
+import { getTemplatesForEvent } from '../templates/registry'
 
 export function generateStemMissionFromLaunch(launch: Launch, track: StemTrack, level: StemLevel): StemMission {
   const templates = getTemplatesForEvent('launch', track, level)

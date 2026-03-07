@@ -3,9 +3,9 @@ import { SafeAreaView, StyleSheet, Text, View, FlatList, Pressable } from 'react
 import { SpaceBackground } from '../components/home/SpaceBackground'
 import { GlassCard } from '../components/home/GlassCard'
 import { colors, spacing, typography } from '../theme/tokens'
-import { listStemActivities, listTracks, listLevels } from '@starkid/core'
+import { listStemActivities, listTracks, listLevels, ROUTE_MANIFEST } from '@starkid/core'
 
-export default function StemActivitiesScreen() {
+export default function StemActivitiesScreen({ navigation }: { navigation: any }) {
   const [track, setTrack] = useState('')
   const [level, setLevel] = useState('')
 
@@ -54,11 +54,15 @@ export default function StemActivitiesScreen() {
             </View>
           )}
           renderItem={({ item }) => (
-            <GlassCard variant="secondary" style={{ marginTop: spacing.md }}>
-              <Text style={styles.activityTitle}>{item.title}</Text>
-              <Text style={styles.activityMeta}>{item.track} • {item.level}</Text>
-              <Text style={styles.activityBody}>{item.description}</Text>
-            </GlassCard>
+            <Pressable
+              onPress={() => navigation?.navigate?.(ROUTE_MANIFEST.STEM_ACTIVITY_DETAIL, { activityId: item.id })}
+            >
+              <GlassCard variant="secondary" style={{ marginTop: spacing.md }}>
+                <Text style={styles.activityTitle}>{item.title}</Text>
+                <Text style={styles.activityMeta}>{item.track} • {item.level}</Text>
+                <Text style={styles.activityBody}>{item.description}</Text>
+              </GlassCard>
+            </Pressable>
           )}
           ListFooterComponent={() => (
             <GlassCard variant="secondary" style={{ marginTop: spacing.lg }}>

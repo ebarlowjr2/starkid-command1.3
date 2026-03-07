@@ -1,6 +1,6 @@
 import type { StemMission, StemTrack, StemLevel } from '../types'
-import { getTemplatesForEvent } from '../service'
 import type { SolarActivity } from '@starkid/types'
+import { getTemplatesForEvent } from '../templates/registry'
 
 export function generateStemMissionFromSolarEvent(event: SolarActivity, track: StemTrack, level: StemLevel): StemMission {
   const templates = getTemplatesForEvent('solar', track, level)

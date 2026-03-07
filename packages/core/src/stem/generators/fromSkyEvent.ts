@@ -1,6 +1,6 @@
 import type { SkyEvent } from '@starkid/types'
 import type { StemMission, StemTrack, StemLevel } from '../types'
-import { getTemplatesForEvent } from '../service'
+import { getTemplatesForEvent } from '../templates/registry'
 
 export function generateStemMissionFromSkyEvent(event: SkyEvent, track: StemTrack, level: StemLevel): StemMission {
   const templates = getTemplatesForEvent(event.type === 'eclipse' ? 'eclipse' : 'generic', track, level)

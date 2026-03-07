@@ -79,9 +79,9 @@ export async function generateAlerts({ launches, skyEvents, solarActivity } = {}
   return alerts
 }
 
-export function convertAlertToMission(alert) {
+export function convertAlertToMission(alert, track = 'math', level = 'cadet') {
   if (!alert) return null
-  return generateMissionFromAlert(alert, 'math', 'cadet')
+  return generateMissionFromAlert(alert, track, level)
 }
 
 export function filterByUserPreference(alerts, userPreference = {}) {
