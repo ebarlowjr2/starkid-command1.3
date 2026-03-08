@@ -3,7 +3,7 @@ import { SafeAreaView, StyleSheet, Text, View, ScrollView, Pressable } from 'rea
 import { SpaceBackground } from '../components/home/SpaceBackground'
 import { GlassCard } from '../components/home/GlassCard'
 import { colors, spacing, typography } from '../theme/tokens'
-import { getStemActivityById, getRepos } from '@starkid/core'
+import { getStemActivityById, isStemActivityCompleted, markStemActivityCompleted } from '@starkid/core'
 
 export default function StemActivityDetailScreen({ route }: { route: any }) {
   const { activityId } = route?.params || {}
@@ -15,8 +15,7 @@ export default function StemActivityDetailScreen({ route }: { route: any }) {
     let active = true
     async function loadCompleted() {
       try {
-        const { stemProgressRepo, actor } = await getRepos()
-        const isDone = await stemProgressRepo.isCompleted(actor.actorId, activityId)
+        const isDone = await isStemActivityCompleted(activityId)
         if (active) setCompleted(isDone)
       } catch (error) {
         if (active) setCompleted(false)
@@ -66,8 +65,7 @@ export default function StemActivityDetailScreen({ route }: { route: any }) {
                 onPress={async () => {
                   try {
                     setSaving(true)
-                    const { stemProgressRepo, actor } = await getRepos()
-                    await stemProgressRepo.markCompleted(actor.actorId, activity.id)
+                    await markStemActivityCompleted(activity.id, activity)
                     setCompleted(true)
                   } finally {
                     setSaving(false)

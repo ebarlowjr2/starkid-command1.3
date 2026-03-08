@@ -3,7 +3,7 @@ import { SafeAreaView, StyleSheet, Text, View, FlatList, Pressable } from 'react
 import { SpaceBackground } from '../components/home/SpaceBackground'
 import { GlassCard } from '../components/home/GlassCard'
 import { colors, spacing, typography } from '../theme/tokens'
-import { listStemActivities, listTracks, listLevels, ROUTE_MANIFEST, getRepos } from '@starkid/core'
+import { listStemActivities, listTracks, listLevels, ROUTE_MANIFEST, listCompletedStemActivities } from '@starkid/core'
 
 export default function StemActivitiesScreen({ navigation }: { navigation: any }) {
   const [track, setTrack] = useState('')
@@ -21,9 +21,8 @@ export default function StemActivitiesScreen({ navigation }: { navigation: any }
     let active = true
     async function loadCompleted() {
       try {
-        const { stemProgressRepo, actor } = await getRepos()
-        const completed = await stemProgressRepo.listCompleted(actor.actorId)
-        if (active) setCompletedIds(completed || [])
+        const completed = await listCompletedStemActivities()
+        if (active) setCompletedIds((completed || []).map((item) => item.activityId))
       } catch (error) {
         if (active) setCompletedIds([])
       }
@@ -48,6 +47,12 @@ export default function StemActivitiesScreen({ navigation }: { navigation: any }
               <Text style={styles.subtitle}>
                 Filter by track or level and explore structured STEM activities.
               </Text>
+              <Pressable
+                style={styles.progressButton}
+                onPress={() => navigation?.navigate?.(ROUTE_MANIFEST.STEM_PROGRESS)}
+              >
+                <Text style={styles.progressButtonText}>VIEW PROGRESS →</Text>
+              </Pressable>
 
               <View style={styles.filterRow}>
                 <Pressable style={styles.filterButton} onPress={() => setTrack('')}>
@@ -121,4 +126,15 @@ const styles = StyleSheet.create({
   activityMeta: { ...typography.small, color: colors.muted, marginTop: 6 },
   activityBody: { ...typography.body, color: colors.muted, marginTop: 6 },
   completedBadge: { ...typography.pixel, color: colors.green },
+  progressButton: {
+    alignSelf: 'flex-start',
+    marginTop: spacing.md,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: 'rgba(61,235,255,0.6)',
+    backgroundColor: 'rgba(6, 10, 22, 0.7)',
+  },
+  progressButtonText: { ...typography.pixel, color: colors.text },
 })

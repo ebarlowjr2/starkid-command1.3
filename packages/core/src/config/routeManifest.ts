@@ -3,6 +3,7 @@ export const ROUTE_MANIFEST = {
   EXPLORE: 'Explore',
   STEM_ACTIVITIES: 'STEM Activities',
   STEM_ACTIVITY_DETAIL: 'STEM Activity Detail',
+  STEM_PROGRESS: 'STEM Progress',
   COMMAND_CENTER: 'Command Center',
   LAUNCHES: 'Launches',
   SKY_EVENTS: 'Sky Events',
