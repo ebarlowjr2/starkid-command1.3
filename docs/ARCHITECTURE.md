@@ -37,6 +37,14 @@ Use `formatSourceStatus(sources)` for logging or debug UI.
 Pure UI helpers (formatters, render helpers) can live in app code.
 Apps should not import domain or client functions for the features listed above.
 
+## Offline Cache Layer
+Services use the shared cache helpers in `packages/core/src/storage/cache.js`:
+
+- cached data is returned when sources fail
+- cache uses TTL and may serve stale data when offline
+
+Apps should not implement their own fetch caches for these features.
+
 ## STEM Module
 STEM powers both structured Activities and dynamic Missions.
 

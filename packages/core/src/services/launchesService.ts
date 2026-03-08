@@ -3,6 +3,7 @@ import type { ServiceResult, SourceStatus } from './types'
 import { getUpcomingLaunchesFromLibrary } from '../domain/launches/launchLibrary.js'
 import { getUpcomingLaunches as getUpcomingSpaceXLaunches } from '../clients/spacex/spacex.js'
 import { getLatestLaunch as getLatestSpaceXLaunch } from '../clients/spacex/spacex.js'
+import { getWithTTL, setWithTTL } from '../storage/cache.js'
 
 type LaunchSourceOverrides = {
   launchLibrary?: Launch[]
@@ -18,6 +19,8 @@ export async function getUpcomingLaunches({
 } = {}): Promise<ServiceResult<Launch[]>> {
   const sources: SourceStatus[] = []
   const warnings: string[] = []
+  const cacheKey = `starkid:cache:launches:upcoming:${limit}`
+  const cached = await getWithTTL(cacheKey, true)
 
   let launchLibraryData: any[] = []
   let spaceXData: any[] = []
@@ -49,6 +52,14 @@ export async function getUpcomingLaunches({
 
   const normalized = normalizeLaunches(launchLibraryData, spaceXData)
 
+  if (normalized.length) {
+    await setWithTTL(cacheKey, normalized, 30 * 60 * 1000)
+  } else if (cached?.length) {
+    warnings.push('Using cached launch data')
+    sources.push({ name: 'cache', ok: true, count: cached.length })
+    return { data: cached, sources, warnings }
+  }
+
   if (!normalized.length && sources.every((source) => !source.ok)) {
     warnings.push('All launch sources failed')
   }
@@ -59,6 +70,8 @@ export async function getUpcomingLaunches({
 export async function getLatestLaunch(): Promise<ServiceResult<Launch | null>> {
   const sources: SourceStatus[] = []
   let latest: any = null
+  const cacheKey = 'starkid:cache:launches:latest'
+  const cached = await getWithTTL(cacheKey, true)
 
   try {
     latest = await getLatestSpaceXLaunch()
@@ -68,6 +81,12 @@ export async function getLatestLaunch(): Promise<ServiceResult<Launch | null>> {
   }
 
   const data = latest ? normalizeLaunch(latest, 'spacex') : null
+  if (data) {
+    await setWithTTL(cacheKey, data, 30 * 60 * 1000)
+  } else if (cached) {
+    sources.push({ name: 'cache', ok: true, count: 1 })
+    return { data: cached, sources, warnings: ['Using cached latest launch'] }
+  }
   return { data, sources, warnings: data ? undefined : ['Latest launch unavailable'] }
 }
 

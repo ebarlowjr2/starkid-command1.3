@@ -3,6 +3,7 @@ import type { ServiceResult, SourceStatus } from './types'
 import { getUpcomingSkyEvents } from '../domain/skyEvents/skyEventsDb.js'
 import { getSkyEvents } from '../domain/skyEvents/skyEvents.js'
 import { getCoreConfig } from '../config/coreConfig.ts'
+import { getWithTTL, setWithTTL } from '../storage/cache.js'
 
 type SkyEventOverrides = {
   dbEvents?: SkyEvent[]
@@ -18,6 +19,8 @@ export async function getUpcomingSkyEventsService({
 } = {}): Promise<ServiceResult<SkyEvent[]>> {
   const sources: SourceStatus[] = []
   const warnings: string[] = []
+  const cacheKey = `starkid:cache:skyevents:${days}`
+  const cached = await getWithTTL(cacheKey, true)
 
   let dbEvents: SkyEvent[] = []
   let staticEvents: SkyEvent[] = []
@@ -52,6 +55,14 @@ export async function getUpcomingSkyEventsService({
   }
 
   const merged = normalizeSkyEvents(dbEvents, staticEvents)
+
+  if (merged.length) {
+    await setWithTTL(cacheKey, merged, 12 * 60 * 60 * 1000)
+  } else if (cached?.length) {
+    warnings.push('Using cached sky events')
+    sources.push({ name: 'cache', ok: true, count: cached.length })
+    return { data: cached, sources, warnings }
+  }
 
   if (!merged.length && sources.every((source) => !source.ok)) {
     warnings.push('All sky event sources failed')
