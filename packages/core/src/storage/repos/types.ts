@@ -55,15 +55,6 @@ export class NotEnabledRepo {
   async list() {
     throw new RepoNotEnabledError('Repo not enabled yet')
   }
-  async listCompleted() {
-    throw new RepoNotEnabledError('Repo not enabled yet')
-  }
-  async isCompleted() {
-    throw new RepoNotEnabledError('Repo not enabled yet')
-  }
-  async markCompleted() {
-    throw new RepoNotEnabledError('Repo not enabled yet')
-  }
   async get() {
     throw new RepoNotEnabledError('Repo not enabled yet')
   }
