@@ -37,6 +37,7 @@ export type StemMission = {
   briefing: string
   track: StemTrack
   level: StemLevel
+  linkedActivityId?: string | null
   type?: StemTrack
   difficulty?: 'easy' | 'medium' | 'hard'
   eventSource: 'launch' | 'sky-event' | 'solar' | 'comet' | 'generic'

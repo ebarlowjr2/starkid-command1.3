@@ -18,9 +18,9 @@ export type PreferencesRepo = {
 }
 
 export type StemProgressRepo = {
-  markCompleted(actorId: string, activityId: string): Promise<void>
+  markCompleted(actorId: string, completion: any): Promise<void>
   isCompleted(actorId: string, activityId: string): Promise<boolean>
-  listCompleted(actorId: string): Promise<string[]>
+  listCompleted(actorId: string): Promise<any[]>
 }
 
 export class RepoNotEnabledError extends Error {

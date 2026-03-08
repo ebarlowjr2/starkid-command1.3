@@ -14,6 +14,7 @@ export function generateStemMissionFromSkyEvent(event: SkyEvent, track: StemTrac
     briefing: template.briefingTemplate,
     track,
     level,
+    linkedActivityId: template.id,
     type: track,
     difficulty: level === 'cadet' ? 'easy' : level === 'explorer' ? 'medium' : 'hard',
     eventSource: 'sky-event',

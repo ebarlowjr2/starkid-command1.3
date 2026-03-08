@@ -14,6 +14,7 @@ export function generateStemMissionFromSolarEvent(event: SolarActivity, track: S
     briefing: template.briefingTemplate,
     track,
     level,
+    linkedActivityId: template.id,
     type: track,
     difficulty: level === 'cadet' ? 'easy' : level === 'explorer' ? 'medium' : 'hard',
     eventSource: 'solar',
