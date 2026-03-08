@@ -47,17 +47,23 @@ export default function StemProgressPage() {
         {overview.tracks.map((track) => (
           <div key={track.track} className="border border-cyan-600/40 rounded-lg p-4 bg-black/40">
             <div className="flex items-center justify-between mb-2">
-              <div className="text-cyan-200 font-semibold">
-                {TRACK_LABELS[track.track] || track.track}
+              <div className="flex items-center gap-2">
+                <div className="text-cyan-200 font-semibold">
+                  {TRACK_LABELS[track.track] || track.track}
+                </div>
+                <span className="text-[10px] text-cyan-200/80 bg-cyan-900/30 px-2 py-0.5 rounded-full uppercase tracking-wider">
+                  {track.completed}/{track.total}
+                </span>
               </div>
-              <span className="text-xs text-cyan-300 bg-cyan-900/30 px-2 py-0.5 rounded">
+              <span className="text-[10px] text-cyan-300 bg-cyan-900/40 px-2 py-0.5 rounded-full uppercase tracking-widest">
                 {track.currentLevel || 'cadet'}
               </span>
             </div>
-            <div className="text-xs text-cyan-200/70 mb-2">
-              {track.completed} / {track.total} complete
+            <div className="flex items-center justify-between text-xs text-cyan-200/70 mb-2">
+              <span>Progress</span>
+              <span>{track.percent}%</span>
             </div>
-            <div className="h-2 bg-cyan-900/40 rounded">
+            <div className="h-2 bg-cyan-900/40 rounded overflow-hidden">
               <div
                 className="h-2 bg-cyan-400 rounded"
                 style={{ width: `${track.percent}%` }}
@@ -96,8 +102,13 @@ export default function StemProgressPage() {
             <ul className="text-xs text-cyan-200/70 space-y-2">
               {overview.recentCompletions.slice(0, 3).map((item) => (
                 <li key={item.activityId} className="flex items-center justify-between">
-                  <span>{item.title}</span>
-                  <span className="text-cyan-400">{item.track}</span>
+                  <div>
+                    <div className="text-cyan-200">{item.title}</div>
+                    <div className="text-[10px] text-cyan-400/80">{item.track} • {item.level}</div>
+                  </div>
+                  <span className="text-[10px] text-cyan-500">
+                    {new Date(item.completedAt).toLocaleDateString()}
+                  </span>
                 </li>
               ))}
             </ul>

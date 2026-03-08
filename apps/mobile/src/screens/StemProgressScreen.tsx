@@ -53,7 +53,10 @@ export default function StemProgressScreen({ navigation }: { navigation: any }) 
                   <Text style={styles.trackTitle}>{TRACK_LABELS[track.track] || track.track}</Text>
                   <Text style={styles.levelBadge}>{track.currentLevel || 'cadet'}</Text>
                 </View>
-                <Text style={styles.trackMeta}>{track.completed} / {track.total} complete</Text>
+                <View style={styles.trackMetaRow}>
+                  <Text style={styles.trackMeta}>{track.completed} / {track.total} complete</Text>
+                  <Text style={styles.trackMeta}>{track.percent}%</Text>
+                </View>
                 <View style={styles.progressBar}>
                   <View style={[styles.progressFill, { width: `${track.percent}%` }]} />
                 </View>
@@ -90,8 +93,13 @@ export default function StemProgressScreen({ navigation }: { navigation: any }) 
             {overview.recentCompletions?.length ? (
               overview.recentCompletions.slice(0, 3).map((item: any) => (
                 <View key={item.activityId} style={styles.recentRow}>
-                  <Text style={styles.recentTitle}>{item.title}</Text>
-                  <Text style={styles.recentMeta}>{item.track}</Text>
+                  <View>
+                    <Text style={styles.recentTitle}>{item.title}</Text>
+                    <Text style={styles.recentMeta}>{item.track} • {item.level}</Text>
+                  </View>
+                  <Text style={styles.recentDate}>
+                    {new Date(item.completedAt).toLocaleDateString()}
+                  </Text>
                 </View>
               ))
             ) : (
@@ -120,7 +128,8 @@ const styles = StyleSheet.create({
     paddingVertical: 4,
     borderRadius: 10,
   },
-  trackMeta: { ...typography.small, color: colors.muted, marginTop: 6 },
+  trackMetaRow: { flexDirection: 'row', justifyContent: 'space-between', marginTop: 6 },
+  trackMeta: { ...typography.small, color: colors.muted },
   progressBar: { height: 8, borderRadius: 10, backgroundColor: 'rgba(61,235,255,0.15)', marginTop: 8 },
   progressFill: { height: 8, borderRadius: 10, backgroundColor: colors.accent },
   sectionTitle: { ...typography.pixel, color: colors.dim, marginBottom: spacing.sm },
@@ -137,8 +146,9 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(6, 10, 22, 0.8)',
   },
   continueText: { ...typography.pixel, color: colors.text },
-  recentRow: { flexDirection: 'row', justifyContent: 'space-between', marginTop: 6 },
+  recentRow: { flexDirection: 'row', justifyContent: 'space-between', marginTop: 6, alignItems: 'center' },
   recentTitle: { ...typography.body, color: colors.muted },
   recentMeta: { ...typography.pixel, color: colors.dim },
+  recentDate: { ...typography.pixel, color: colors.dim },
   muted: { ...typography.body, color: colors.muted },
 })
