@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
-import { getStemActivityById, getRepos } from '@starkid/core'
+import { getStemActivityById, isStemActivityCompleted, markStemActivityCompleted } from '@starkid/core'
 
 export default function StemActivityDetailPage() {
   const { activityId } = useParams()
@@ -12,8 +12,7 @@ export default function StemActivityDetailPage() {
     let active = true
     async function loadCompleted() {
       try {
-        const { stemProgressRepo, actor } = await getRepos()
-        const isDone = await stemProgressRepo.isCompleted(actor.actorId, activityId)
+        const isDone = await isStemActivityCompleted(activityId)
         if (active) setCompleted(isDone)
       } catch (error) {
         if (active) setCompleted(false)
@@ -69,8 +68,7 @@ export default function StemActivityDetailPage() {
             onClick={async () => {
               try {
                 setSaving(true)
-                const { stemProgressRepo, actor } = await getRepos()
-                await stemProgressRepo.markCompleted(actor.actorId, activity.id)
+                await markStemActivityCompleted(activity.id, activity)
                 setCompleted(true)
               } finally {
                 setSaving(false)

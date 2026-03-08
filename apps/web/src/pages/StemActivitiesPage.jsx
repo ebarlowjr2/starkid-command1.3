@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { listStemActivities, listTracks, listLevels, getRepos } from '@starkid/core'
+import { listStemActivities, listTracks, listLevels, listCompletedStemActivities } from '@starkid/core'
 
 export default function StemActivitiesPage() {
   const [activities, setActivities] = useState([])
@@ -21,9 +21,8 @@ export default function StemActivitiesPage() {
     let active = true
     async function loadCompleted() {
       try {
-        const { stemProgressRepo, actor } = await getRepos()
-        const completed = await stemProgressRepo.listCompleted(actor.actorId)
-        if (active) setCompletedIds(completed || [])
+        const completed = await listCompletedStemActivities()
+        if (active) setCompletedIds((completed || []).map((item) => item.activityId))
       } catch (error) {
         if (active) setCompletedIds([])
       }
@@ -43,6 +42,12 @@ export default function StemActivitiesPage() {
         <p className="text-sm text-cyan-200/70 font-mono">
           Hands-on challenges and experiments are landing soon.
         </p>
+        <button
+          onClick={() => nav('/stem/progress')}
+          className="mt-3 text-xs text-cyan-300 border border-cyan-600/60 px-2 py-1 rounded hover:text-cyan-200"
+        >
+          View Progress →
+        </button>
       </div>
 
       <div className="flex flex-wrap gap-2 mb-4">
