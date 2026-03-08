@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { getMission } from '../state/missionStore.js'
-import { gradeAttempt, getRepos } from '@starkid/core'
+import { gradeAttempt, getRepos, syncMissionCompletionToActivity } from '@starkid/core'
 
 export default function MissionBriefingPage() {
   const nav = useNavigate()
@@ -100,6 +100,7 @@ export default function MissionBriefingPage() {
               await missionsRepo.saveAttempt(actor.actorId, attempt)
               if (pass) {
                 await missionsRepo.markCompleted(actor.actorId, mission.id)
+                await syncMissionCompletionToActivity(mission)
                 setCompleted(true)
               }
               setResult({ pass, feedback })
