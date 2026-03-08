@@ -7,14 +7,20 @@ import {
   launchServiceAccountFailureTemplate,
   groundStationPermissionMismatchTemplate,
   telemetryAnomalyTemplate,
+  incidentResponseTemplate,
+  logForensicsTemplate,
   diskSpaceLogCleanupTemplate,
   serviceRestartRecoveryTemplate,
+  permissionFixTemplate,
+  processMonitoringTemplate,
   anomalyDetectionReviewTemplate,
   classificationConfidenceCheckTemplate,
   solarStormClassificationTemplate,
   satellitePatternDetectionTemplate,
   moonPhaseTemplate,
   meteorPeakTemplate,
+  orbitEscapeVelocityTemplate,
+  sunspotCountTemplate,
 } from './index'
 
 const TEMPLATES: StemTemplate[] = [
@@ -25,14 +31,20 @@ const TEMPLATES: StemTemplate[] = [
   launchServiceAccountFailureTemplate,
   groundStationPermissionMismatchTemplate,
   telemetryAnomalyTemplate,
+  incidentResponseTemplate,
+  logForensicsTemplate,
   diskSpaceLogCleanupTemplate,
   serviceRestartRecoveryTemplate,
+  permissionFixTemplate,
+  processMonitoringTemplate,
   anomalyDetectionReviewTemplate,
   classificationConfidenceCheckTemplate,
   solarStormClassificationTemplate,
   satellitePatternDetectionTemplate,
   moonPhaseTemplate,
   meteorPeakTemplate,
+  orbitEscapeVelocityTemplate,
+  sunspotCountTemplate,
 ]
 
 export function listStemTemplates(): StemTemplate[] {
