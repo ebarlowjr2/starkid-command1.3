@@ -43,3 +43,10 @@ STEM powers both structured Activities and dynamic Missions.
 - Activities and Missions share templates + grading.
 - Dynamic missions are generated via `packages/core/src/stem/service.ts`.
 - Apps must not bypass STEM services for mission generation.
+
+## STEM Progress Rule
+All STEM progress (activity completion + mission sync) must flow through:
+
+`packages/core/src/stem/progress/service.ts`
+
+Apps must not compute progress directly or store progress in component state.

@@ -10,6 +10,9 @@
 | `/solar-map` | Solar Map | Placeholder |
 | `/updates/live` | Streams | Placeholder |
 | `/missions/briefing` | Mission Briefing | Partial |
+| `/stem-activities` | STEM Activities | Partial |
+| `/stem-activities/:activityId` | STEM Activity Detail | Partial |
+| `/stem/progress` | STEM Progress | Partial |
 
 Status Legend:
 - **Full**: Feature parity
