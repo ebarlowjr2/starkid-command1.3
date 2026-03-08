@@ -61,6 +61,18 @@ export default function ExploreHubV2({ navigation }: any) {
               onPress={() => navigation?.navigate?.(ROUTE_MANIFEST.STREAMS)}
             />
             <ExploreTile
+              icon="🪐"
+              title="Visit Another Planet"
+              subtitle="Planetary command centers and destinations."
+              onPress={() => navigation?.navigate?.(ROUTE_MANIFEST.PLANETS)}
+            />
+            <ExploreTile
+              icon="✨"
+              title="Beyond Our Solar System"
+              subtitle="Exoplanet discovery console."
+              onPress={() => navigation?.navigate?.(ROUTE_MANIFEST.BEYOND)}
+            />
+            <ExploreTile
               icon="🧪"
               title="STEM Activities"
               subtitle="Hands-on challenges and mini-labs (coming soon)."

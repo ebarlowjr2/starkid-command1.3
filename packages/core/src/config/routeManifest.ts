@@ -10,5 +10,7 @@ export const ROUTE_MANIFEST = {
   COMETS: 'Comets',
   SOLAR_MAP: 'Solar Map',
   STREAMS: 'Streams',
+  PLANETS: 'Visit Another Planet',
+  BEYOND: 'Beyond Our Solar System',
   MISSIONS_BRIEFING: 'Mission Briefing',
 }
