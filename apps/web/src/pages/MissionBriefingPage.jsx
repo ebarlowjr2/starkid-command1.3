@@ -9,6 +9,11 @@ export default function MissionBriefingPage() {
   const [started, setStarted] = useState(false)
   const [answers, setAnswers] = useState({})
   const [result, setResult] = useState(null)
+  const totalSteps = mission?.steps?.length || 0
+  const answeredSteps = mission
+    ? mission.steps.filter((step) => (answers?.[step.id] ?? '') !== '').length
+    : 0
+  const progressPct = totalSteps ? Math.round((answeredSteps / totalSteps) * 100) : 0
   const [completed, setCompleted] = useState(false)
 
   useEffect(() => {
@@ -42,6 +47,15 @@ export default function MissionBriefingPage() {
         {mission.type} • {mission.difficulty}
       </div>
       <p className="text-sm mb-4">{mission.briefing}</p>
+      <div className="mb-4 border border-cyan-700/60 rounded-lg p-3 bg-black/40">
+        <div className="flex items-center justify-between text-xs text-cyan-300/80 mb-2">
+          <span>Mission Progress</span>
+          <span>{answeredSteps} / {totalSteps} steps • {progressPct}%</span>
+        </div>
+        <div className="h-2 bg-cyan-900/40 rounded overflow-hidden">
+          <div className="h-2 bg-cyan-400 rounded" style={{ width: `${progressPct}%` }} />
+        </div>
+      </div>
       {!started ? (
         <button
           className={`mb-6 px-4 py-2 rounded ${completed ? 'bg-green-700/60 cursor-not-allowed' : 'bg-cyan-600 hover:bg-cyan-500'}`}
@@ -85,7 +99,7 @@ export default function MissionBriefingPage() {
             ))}
           </ol>
           <button
-            className="mt-4 px-4 py-2 rounded bg-cyan-600 hover:bg-cyan-500"
+            className={`mt-4 px-4 py-2 rounded ${completed ? 'bg-green-700/60 cursor-not-allowed' : 'bg-cyan-600 hover:bg-cyan-500'}`}
             onClick={async () => {
               const firstStep = mission.steps[0]
               const payload = firstStep ? { main: answers[firstStep.id] } : { main: null }
@@ -110,7 +124,7 @@ export default function MissionBriefingPage() {
             {completed ? 'Completed' : 'Submit'}
           </button>
           {result ? (
-            <div className={`mt-3 text-sm ${result.pass ? 'text-green-300' : 'text-red-300'}`}>
+            <div className={`mt-3 text-sm border rounded p-3 ${result.pass ? 'border-green-700/60 bg-green-900/30 text-green-200' : 'border-red-700/60 bg-red-900/30 text-red-200'}`}>
               {result.feedback}
             </div>
           ) : null}

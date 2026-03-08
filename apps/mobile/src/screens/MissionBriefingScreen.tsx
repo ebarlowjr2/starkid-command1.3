@@ -14,6 +14,11 @@ export default function MissionBriefingScreen() {
   const [started, setStarted] = useState(false)
   const [answers, setAnswers] = useState<Record<string, string>>({})
   const [result, setResult] = useState<{ pass: boolean; feedback: string } | null>(null)
+  const totalSteps = mission?.steps?.length || 0
+  const answeredSteps = mission
+    ? mission.steps.filter((step) => (answers?.[step.id] ?? '') !== '').length
+    : 0
+  const progressPct = totalSteps ? Math.round((answeredSteps / totalSteps) * 100) : 0
   const [completed, setCompleted] = useState(false)
 
   useEffect(() => {
@@ -47,6 +52,15 @@ export default function MissionBriefingScreen() {
 
           <GlassCard variant="secondary" style={{ marginTop: spacing.lg }}>
             <Text style={styles.briefing}>{mission.briefing}</Text>
+          </GlassCard>
+          <GlassCard variant="secondary" style={{ marginTop: spacing.lg }}>
+            <View style={styles.progressHeader}>
+              <Text style={styles.progressLabel}>Mission Progress</Text>
+              <Text style={styles.progressMeta}>{answeredSteps}/{totalSteps} • {progressPct}%</Text>
+            </View>
+            <View style={styles.progressBar}>
+              <View style={[styles.progressFill, { width: `${progressPct}%` }]} />
+            </View>
           </GlassCard>
 
           {!started ? (
@@ -115,9 +129,11 @@ export default function MissionBriefingScreen() {
                 style={{ marginTop: spacing.md }}
               />
               {result ? (
-                <Text style={[styles.panelItem, { color: result.pass ? colors.green : '#fca5a5', marginTop: spacing.md }]}>
-                  {result.feedback}
-                </Text>
+                <View style={[styles.feedbackCard, result.pass ? styles.feedbackPass : styles.feedbackFail]}>
+                  <Text style={[styles.panelItem, { color: result.pass ? colors.green : '#fca5a5' }]}>
+                    {result.feedback}
+                  </Text>
+                </View>
               ) : null}
               {completed ? (
                 <Text style={[styles.panelItem, { color: colors.green, marginTop: spacing.md }]}>✅ Completed</Text>
@@ -159,6 +175,14 @@ const styles = StyleSheet.create({
     color: colors.text,
     marginTop: 6,
   },
+  progressHeader: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: spacing.sm },
+  progressLabel: { ...typography.pixel, color: colors.dim },
+  progressMeta: { ...typography.small, color: colors.muted },
+  progressBar: { height: 8, borderRadius: 10, backgroundColor: 'rgba(61,235,255,0.15)' },
+  progressFill: { height: 8, borderRadius: 10, backgroundColor: colors.accent },
+  feedbackCard: { marginTop: spacing.md, borderWidth: 1, borderRadius: 12, padding: 10 },
+  feedbackPass: { borderColor: 'rgba(34,197,94,0.4)', backgroundColor: 'rgba(34,197,94,0.12)' },
+  feedbackFail: { borderColor: 'rgba(248,113,113,0.4)', backgroundColor: 'rgba(248,113,113,0.12)' },
   choiceRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 6 },
   choiceButton: {
     paddingVertical: 6,
