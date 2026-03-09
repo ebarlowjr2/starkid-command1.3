@@ -8,6 +8,8 @@ import { generateStemMissionFromSkyEvent } from './generators/fromSkyEvent'
 import { generateStemMissionFromSolarEvent } from './generators/fromSolarEvent'
 import { listStemTemplates, getTemplatesForEvent as getTemplatesForEventRegistry } from './templates/registry'
 
+const missionRegistry = new Map<string, StemMission>()
+
 export function listTracks(): StemTrack[] {
   return ['math', 'cyber', 'linux', 'ai', 'science']
 }
@@ -56,15 +58,15 @@ export function generateMissionFromEvent(
   level: StemLevel
 ): StemMission {
   if (event?.type === 'launch' || event?.net || event?.window_start) {
-    return generateStemMissionFromLaunch(event, track, level)
+    return registerMission(generateStemMissionFromLaunch(event, track, level))
   }
   if (event?.type === 'eclipse' || event?.start) {
-    return generateStemMissionFromSkyEvent(event, track, level)
+    return registerMission(generateStemMissionFromSkyEvent(event, track, level))
   }
   if (event?.strongestClass || event?.severityPct) {
-    return generateStemMissionFromSolarEvent(event, track, level)
+    return registerMission(generateStemMissionFromSolarEvent(event, track, level))
   }
-  return generateStemMissionFromSkyEvent({ title: 'Observation', start: new Date().toISOString() }, track, level)
+  return registerMission(generateStemMissionFromSkyEvent({ title: 'Observation', start: new Date().toISOString() }, track, level))
 }
 
 export function generateMissionFromAlert(
@@ -75,7 +77,26 @@ export function generateMissionFromAlert(
   const event = alert?.payload || {}
   const mission = generateMissionFromEvent(event, track, level)
   const withDifficulty = { ...mission, type: track, difficulty: mapDifficulty(level) }
-  return augmentMissionText(withDifficulty)
+  return registerMission(augmentMissionText(withDifficulty))
+}
+
+export function registerMission(mission: StemMission) {
+  if (mission?.id) {
+    missionRegistry.set(mission.id, mission)
+  }
+  return mission
+}
+
+export function getMissionById(id: string) {
+  return missionRegistry.get(id) || null
+}
+
+export function listAvailableMissionsFromAlerts(
+  alerts: Alert[],
+  track: StemTrack = 'math',
+  level: StemLevel = 'cadet'
+) {
+  return (alerts || []).map((alert) => generateMissionFromAlert(alert, track, level))
 }
 
 export function gradeStemAttempt(activityOrMission: StemActivity | StemMission, answers: Record<string, unknown>) {
