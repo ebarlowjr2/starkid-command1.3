@@ -1,20 +1,32 @@
 import React from "react";
-import { SafeAreaView, ScrollView, StyleSheet, Text, View } from "react-native";
-import { SpaceBackground } from "../components/home/SpaceBackground";
+import { SafeAreaView, ScrollView, StyleSheet, Text, View, ImageBackground } from "react-native";
 import { GlassCard } from "../components/home/GlassCard";
 import { Badge } from "../components/home/Badge";
 import { ExploreTile } from "../components/explore/ExploreTile";
+import { ExploreHero } from "../components/explore/ExploreHero";
 import { ROUTE_MANIFEST } from "@starkid/core";
 import { colors, spacing, typography } from "../theme/tokens";
+import { LinearGradient } from "expo-linear-gradient";
 
 export default function ExploreHubV2({ navigation }: any) {
   return (
-    <SpaceBackground>
+    <ImageBackground
+      source={require("../../assets/backgrounds/starkid-explore-hero.png")}
+      style={styles.screenBackground}
+      resizeMode="cover"
+    >
+      <LinearGradient
+        colors={[
+          "rgba(4,8,20,0.20)",
+          "rgba(4,8,20,0.55)",
+          "rgba(4,8,20,0.88)",
+        ]}
+        style={styles.screenGradient}
+      />
       <SafeAreaView style={{ flex: 1 }}>
         <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
           <View style={styles.scanlines} pointerEvents="none" />
-          <Text style={styles.kicker}>EXPLORE HUB</Text>
-          <Text style={styles.helper}>Choose a console to jump into and start tracking missions.</Text>
+          <ExploreHero />
 
           <GlassCard variant="secondary" style={{ marginTop: spacing.lg }}>
             <View style={styles.badgeRow}>
@@ -81,14 +93,14 @@ export default function ExploreHubV2({ navigation }: any) {
           </View>
         </ScrollView>
       </SafeAreaView>
-    </SpaceBackground>
+    </ImageBackground>
   );
 }
 
 const styles = StyleSheet.create({
   container: { padding: spacing.xl, paddingBottom: 44 },
-  kicker: { ...typography.pixel, color: colors.dim, marginBottom: 8 },
-  helper: { ...typography.body, color: colors.muted },
+  screenBackground: { flex: 1 },
+  screenGradient: { ...StyleSheet.absoluteFillObject },
   badgeRow: { flexDirection: "row", alignItems: "center", gap: 10 },
   badgeHelper: { ...typography.pixel, color: colors.dim, flex: 1 },
   scanlines: {

@@ -1,12 +1,12 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { View, Text, StyleSheet, ActivityIndicator, ScrollView, SafeAreaView } from "react-native";
+import { View, Text, StyleSheet, ActivityIndicator, ScrollView, SafeAreaView, ImageBackground, Pressable } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { getUpcomingSkyEventsService, getUpcomingLaunches, ROUTE_MANIFEST } from "@starkid/core";
 import { SpaceBackground } from "../components/home/SpaceBackground";
-import { HeroPanel } from "../components/home/HeroPanel";
 import { NextMajorEventCard } from "../components/home/NextMajorEventCard";
 import { UpcomingSkyEventsCard } from "../components/home/UpcomingSkyEventsCard";
-import { spacing } from "../theme/tokens";
+import { LinearGradient } from "expo-linear-gradient";
+import { colors, spacing, typography } from "../theme/tokens";
 
 export default function HomeScreen() {
   const navigation = useNavigation();
@@ -77,31 +77,64 @@ export default function HomeScreen() {
   }
 
   return (
-    <SpaceBackground>
+    <ImageBackground
+      source={require("../../assets/backgrounds/starkid-home-hero.png")}
+      style={styles.screenBackground}
+      resizeMode="cover"
+    >
       <SafeAreaView style={{ flex: 1 }}>
         <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-          <HeroPanel onExplore={() => navigation.navigate(ROUTE_MANIFEST.EXPLORE as never)} />
-          <NextMajorEventCard
-            title={nextLaunch?.name || "Upcoming Launch"}
-            netLine="Launch window opens (NET)"
-            countdown={countdown}
-            description={
-              nextLaunch?.mission?.description
-                ? `${nextLaunch.mission.description.slice(0, 110)}...`
-                : "Times are NET and subject to change."
-            }
-            onOpenBrief={() => navigation.navigate(ROUTE_MANIFEST.LAUNCHES as never)}
-          />
-          <UpcomingSkyEventsCard
-            events={events.map((event, index) => ({
-              title: event.title?.toUpperCase?.() || "SKY EVENT",
-              when: formatEventDate(event.start || event.date),
-              id: event.id || `${event.title || "event"}-${index}`,
-            }))}
-          />
+          <View style={styles.hero}>
+            <LinearGradient
+              colors={[
+                "rgba(10,15,40,0.2)",
+                "rgba(10,15,40,0.6)",
+                "rgba(10,15,40,0.9)",
+              ]}
+              style={styles.heroGradient}
+            />
+            <Text style={styles.planetAccent}>🪐</Text>
+            <Text style={styles.ufoAccent}>🛸</Text>
+            <View style={styles.heroOverlay}>
+              <Text style={styles.heroKicker}>WELCOME TO</Text>
+              <Text style={styles.heroTitle}>STARKID COMMAND</Text>
+              <Text style={styles.heroSubtitle}>Junior Science Officer Control Network</Text>
+              <Text style={styles.heroDescription}>
+                StarKid Command is a live mission-control interface for tracking, understanding, and exploring space.
+              </Text>
+              <Pressable
+                style={styles.heroButton}
+                onPress={() => navigation.navigate(ROUTE_MANIFEST.EXPLORE as never)}
+              >
+                <Text style={styles.heroButtonText}>EXPLORE →</Text>
+              </Pressable>
+            </View>
+          </View>
+          <View style={styles.cardStack}>
+            <NextMajorEventCard
+              title={nextLaunch?.name || "Upcoming Launch"}
+              netLine="Launch window opens (NET)"
+              countdown={countdown}
+              description={
+                nextLaunch?.mission?.description
+                  ? `${nextLaunch.mission.description.slice(0, 110)}...`
+                  : "Times are NET and subject to change."
+              }
+              onOpenBrief={() => navigation.navigate(ROUTE_MANIFEST.LAUNCHES as never)}
+            />
+          </View>
+          <View style={styles.cardStack}>
+            <UpcomingSkyEventsCard
+              events={events.map((event, index) => ({
+                title: event.title?.toUpperCase?.() || "SKY EVENT",
+                when: formatEventDate(event.start || event.date),
+                id: event.id || `${event.title || "event"}-${index}`,
+              }))}
+            />
+          </View>
         </ScrollView>
       </SafeAreaView>
-    </SpaceBackground>
+    </ImageBackground>
   );
 }
 
@@ -109,6 +142,83 @@ const styles = StyleSheet.create({
   content: {
     padding: spacing.xl,
     paddingBottom: 44,
+  },
+  screenBackground: {
+    flex: 1,
+  },
+  hero: {
+    height: 340,
+    borderRadius: 20,
+    overflow: "hidden",
+    marginBottom: 24,
+    justifyContent: "center",
+  },
+  heroGradient: {
+    ...StyleSheet.absoluteFillObject,
+  },
+  heroOverlay: {
+    alignItems: "center",
+    justifyContent: "center",
+    paddingHorizontal: 20,
+  },
+  heroKicker: {
+    ...typography.pixel,
+    fontSize: 14,
+    letterSpacing: 2,
+    color: colors.text,
+  },
+  heroTitle: {
+    fontSize: 34,
+    fontWeight: "800",
+    color: colors.text,
+    textAlign: "center",
+    marginTop: 6,
+  },
+  heroSubtitle: {
+    fontSize: 18,
+    color: "#9fe8ff",
+    textAlign: "center",
+    marginTop: 8,
+  },
+  heroDescription: {
+    fontSize: 14,
+    color: "rgba(234,242,255,0.85)",
+    textAlign: "center",
+    marginTop: 10,
+    lineHeight: 20,
+  },
+  heroButton: {
+    marginTop: 10,
+    paddingHorizontal: 22,
+    paddingVertical: 10,
+    borderRadius: 14,
+    borderWidth: 2,
+    borderColor: "#2be4ff",
+    backgroundColor: "rgba(0,0,0,0.35)",
+    shadowColor: "#2be4ff",
+    shadowOpacity: 0.9,
+    shadowRadius: 12,
+    shadowOffset: { width: 0, height: 0 },
+  },
+  heroButtonText: {
+    ...typography.pixel,
+    color: colors.text,
+    letterSpacing: 1,
+  },
+  planetAccent: {
+    position: "absolute",
+    top: 16,
+    left: 16,
+    fontSize: 22,
+  },
+  ufoAccent: {
+    position: "absolute",
+    top: 16,
+    right: 16,
+    fontSize: 22,
+  },
+  cardStack: {
+    marginTop: 24,
   },
   center: {
     flex: 1,
