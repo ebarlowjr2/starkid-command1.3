@@ -41,6 +41,9 @@ generateMissionFromEvent(event, track, level)
 
 Generators select the best template and return a `StemMission`.
 
+Mission alerts shown in Command Center are generated from the STEM engine.
+Missions may link back to activities internally, but the UI keeps them separate.
+
 ## Grading
 `gradeStemAttempt()` provides deterministic grading:
 

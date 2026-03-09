@@ -58,3 +58,11 @@ All STEM progress (activity completion + mission sync) must flow through:
 `packages/core/src/stem/progress/service.ts`
 
 Apps must not compute progress directly or store progress in component state.
+
+## Mission vs STEM Activities (UI Separation)
+Command Center Missions and STEM Activities are separate user experiences.
+
+- **Command Center** shows live alerts and mission opportunities.
+- **STEM Activities** is a structured learning catalog with progress tracking.
+
+Both are powered by the STEM engine internally, but the UI must keep them distinct.

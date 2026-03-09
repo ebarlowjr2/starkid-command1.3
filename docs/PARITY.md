@@ -3,7 +3,7 @@
 | Web Route/Page | Mobile Screen | Status |
 | --- | --- | --- |
 | `/` Landing / Home | Home | Partial |
-| `/command` Command Center | Command Center | Partial |
+| `/command` Command Center | Command Center | Partial (Mission Alerts, Mission Control, Space Weather, Asteroid Flybys) |
 | `/launches` (via Command Center) | Launches | Partial |
 | `/sky-events` | Sky Events | Partial |
 | `/comets` | Comets | Partial |
