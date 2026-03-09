@@ -1,32 +1,35 @@
 import React, { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import { getMission } from '../state/missionStore.js'
-import { gradeAttempt, getRepos, syncMissionCompletionToActivity } from '@starkid/core'
+import { gradeAttempt, getRepos, syncMissionCompletionToActivity, getMissionById } from '@starkid/core'
 
 export default function MissionBriefingPage() {
   const nav = useNavigate()
+  const { missionId } = useParams()
   const mission = getMission()
+  const missionFromStore = missionId ? getMissionById(missionId) : null
+  const activeMission = mission || missionFromStore
   const [started, setStarted] = useState(false)
   const [answers, setAnswers] = useState({})
   const [result, setResult] = useState(null)
-  const totalSteps = mission?.steps?.length || 0
-  const answeredSteps = mission
-    ? mission.steps.filter((step) => (answers?.[step.id] ?? '') !== '').length
+  const totalSteps = activeMission?.steps?.length || 0
+  const answeredSteps = activeMission
+    ? activeMission.steps.filter((step) => (answers?.[step.id] ?? '') !== '').length
     : 0
   const progressPct = totalSteps ? Math.round((answeredSteps / totalSteps) * 100) : 0
   const [completed, setCompleted] = useState(false)
 
   useEffect(() => {
     async function loadCompleted() {
-      if (!mission) return
+      if (!activeMission) return
       const { missionsRepo, actor } = await getRepos()
-      const isDone = await missionsRepo.isCompleted(actor.actorId, mission.id)
+      const isDone = await missionsRepo.isCompleted(actor.actorId, activeMission.id)
       setCompleted(isDone)
     }
     loadCompleted()
-  }, [mission])
+  }, [activeMission])
 
-  if (!mission) {
+  if (!activeMission) {
     return (
       <div className="p-6 text-white">
         <h1 className="text-2xl font-semibold mb-4">No Mission Selected</h1>
@@ -42,11 +45,11 @@ export default function MissionBriefingPage() {
 
   return (
     <div className="p-6 text-white">
-      <h1 className="text-2xl font-semibold mb-2">{mission.title}</h1>
+      <h1 className="text-2xl font-semibold mb-2">{activeMission.title}</h1>
       <div className="text-sm text-cyan-200 mb-4">
-        {mission.type} • {mission.difficulty}
+        {activeMission.type} • {activeMission.difficulty}
       </div>
-      <p className="text-sm mb-4">{mission.briefing}</p>
+      <p className="text-sm mb-4">{activeMission.briefing}</p>
       <div className="mb-4 border border-cyan-700/60 rounded-lg p-3 bg-black/40">
         <div className="flex items-center justify-between text-xs text-cyan-300/80 mb-2">
           <span>Mission Progress</span>
@@ -72,7 +75,7 @@ export default function MissionBriefingPage() {
         <div className="mb-6">
           <div className="text-cyan-300 font-semibold mb-2">Steps</div>
           <ol className="list-decimal ml-5 space-y-3 text-sm">
-            {mission.steps.map((step) => (
+            {activeMission.steps.map((step) => (
               <li key={step.id}>
                 <div className="mb-2">{step.prompt}</div>
                 {step.inputType === 'choice' ? (
@@ -101,20 +104,20 @@ export default function MissionBriefingPage() {
           <button
             className={`mt-4 px-4 py-2 rounded ${completed ? 'bg-green-700/60 cursor-not-allowed' : 'bg-cyan-600 hover:bg-cyan-500'}`}
             onClick={async () => {
-              const firstStep = mission.steps[0]
+              const firstStep = activeMission.steps[0]
               const payload = firstStep ? { main: answers[firstStep.id] } : { main: null }
-              const { pass, feedback } = gradeAttempt(mission, payload)
+              const { pass, feedback } = gradeAttempt(activeMission, payload)
               const { missionsRepo, actor } = await getRepos()
               const attempt = {
-                missionId: mission.id,
+                missionId: activeMission.id,
                 actorId: actor.actorId,
                 answers,
                 submittedAt: new Date().toISOString(),
               }
               await missionsRepo.saveAttempt(actor.actorId, attempt)
               if (pass) {
-                await missionsRepo.markCompleted(actor.actorId, mission.id)
-                await syncMissionCompletionToActivity(mission)
+                await missionsRepo.markCompleted(actor.actorId, activeMission.id)
+                await syncMissionCompletionToActivity(activeMission)
                 setCompleted(true)
               }
               setResult({ pass, feedback })
@@ -133,11 +136,11 @@ export default function MissionBriefingPage() {
           ) : null}
         </div>
       ) : null}
-      {mission.requiredData ? (
+      {activeMission.requiredData ? (
         <div className="text-sm">
           <div className="text-cyan-300 font-semibold mb-2">Required Data</div>
           <ul className="list-disc ml-5 space-y-1">
-            {Object.entries(mission.requiredData).map(([key, value]) => (
+            {Object.entries(activeMission.requiredData).map(([key, value]) => (
               <li key={key}>
                 {key}: {value == null ? 'N/A' : String(value)}
               </li>

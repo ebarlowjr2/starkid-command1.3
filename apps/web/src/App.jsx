@@ -91,6 +91,7 @@ export default function App() {
                                                                           <Route path="/missions/artemis/sls" element={<SLSDetailPage />} />
                     <Route path="/missions/artemis/orion" element={<OrionDetailPage />} />
                     <Route path="/missions/briefing" element={<MissionBriefingPage />} />
+                    <Route path="/missions/briefing/:missionId" element={<MissionBriefingPage />} />
                     <Route path="/stem-activities" element={<StemActivitiesPage />} />
                     <Route path="/stem/progress" element={<StemProgressPage />} />
                     <Route path="/stem-activities/:activityId" element={<StemActivityDetailPage />} />

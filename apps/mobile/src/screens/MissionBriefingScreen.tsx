@@ -2,15 +2,16 @@ import React, { useEffect, useState } from 'react'
 import { View, Text, StyleSheet, Pressable, TextInput, SafeAreaView, ScrollView } from 'react-native'
 import { getMission } from '../state/missionStore'
 import { useNavigation } from '@react-navigation/native'
-import { gradeAttempt, getRepos, syncMissionCompletionToActivity } from '@starkid/core'
+import { gradeAttempt, getRepos, syncMissionCompletionToActivity, getMissionById } from '@starkid/core'
 import { SpaceBackground } from '../components/home/SpaceBackground'
 import { GlassCard } from '../components/home/GlassCard'
 import { PixelButton } from '../components/home/PixelButton'
 import { colors, spacing, typography } from '../theme/tokens'
 
-export default function MissionBriefingScreen() {
+export default function MissionBriefingScreen({ route }: { route: any }) {
   const navigation = useNavigation()
-  const mission = getMission()
+  const missionId = route?.params?.missionId
+  const mission = getMission() || (missionId ? getMissionById(missionId) : null)
   const [started, setStarted] = useState(false)
   const [answers, setAnswers] = useState<Record<string, string>>({})
   const [result, setResult] = useState<{ pass: boolean; feedback: string } | null>(null)

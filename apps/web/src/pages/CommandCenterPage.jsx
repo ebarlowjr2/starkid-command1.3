@@ -296,7 +296,7 @@ export default function CommandCenterPage() {
                       const mission = convertAlertToMission(alert, stemTrack, stemLevel)
                       if (mission) {
                         setMission(mission)
-                        nav('/missions/briefing')
+                        nav(`/missions/briefing/${mission.id}`)
                       }
                     }}
                   >
