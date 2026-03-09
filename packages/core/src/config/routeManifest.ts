@@ -12,5 +12,6 @@ export const ROUTE_MANIFEST = {
   STREAMS: 'Streams',
   PLANETS: 'Visit Another Planet',
   BEYOND: 'Beyond Our Solar System',
+  MISSION_ALERTS: 'Mission Alerts',
   MISSIONS_BRIEFING: 'Mission Briefing',
 }

@@ -56,9 +56,15 @@ export function getTemplatesForEvent(
   track: StemTrack,
   level: StemLevel
 ) {
-  return TEMPLATES.filter((template) =>
+  const exact = TEMPLATES.filter((template) =>
     template.track === track &&
     template.level === level &&
     template.eventTypes.includes(eventType)
   )
+  if (exact.length) return exact
+
+  const byEvent = TEMPLATES.filter((template) => template.eventTypes.includes(eventType))
+  if (byEvent.length) return byEvent
+
+  return TEMPLATES
 }
