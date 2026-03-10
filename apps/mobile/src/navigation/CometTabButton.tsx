@@ -1,13 +1,12 @@
 import React from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import { colors, typography } from "../theme/tokens";
-import { Ionicons } from "@expo/vector-icons";
 
 export function CometTabButton({ onPress, focused }: { onPress?: () => void; focused?: boolean }) {
   return (
     <View style={styles.wrap}>
       <Pressable onPress={onPress} style={({ pressed }) => [styles.btn, pressed && { transform: [{ scale: 0.96 }] }]}>
-        <Ionicons name="sparkles" size={26} color={colors.text} />
+        <Text style={styles.icon}>✨</Text>
       </Pressable>
       <Text style={[styles.label, focused && styles.labelActive]}>C.O.M.E.T.</Text>
     </View>
@@ -31,6 +30,7 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 8 },
     elevation: 10,
   },
+  icon: { fontSize: 24, color: colors.text },
   label: { ...typography.pixel, color: colors.dim, marginTop: 6 },
   labelActive: { color: colors.text },
 });

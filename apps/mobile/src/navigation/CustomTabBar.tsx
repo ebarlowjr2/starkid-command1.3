@@ -1,18 +1,17 @@
 import React from "react";
 import { View, Text, Pressable, StyleSheet } from "react-native";
 import { BottomTabBarProps } from "@react-navigation/bottom-tabs";
-import { Ionicons } from "@expo/vector-icons";
 import { colors, typography } from "../theme/tokens";
 import { CometTabButton } from "./CometTabButton";
 
 const ICONS: Record<string, string> = {
-  Home: "home",
-  Explore: "compass",
-  "Command Center": "pulse",
-  "Lunar Events": "moon",
-  "STEM Activities": "flask",
-  Profile: "person",
-  "C.O.M.E.T.": "sparkles",
+  Home: "🏠",
+  Explore: "🧭",
+  "Command Center": "📡",
+  "Lunar Events": "🌙",
+  "STEM Activities": "🧪",
+  Profile: "👤",
+  "C.O.M.E.T.": "✨",
 };
 
 export function CustomTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
@@ -24,7 +23,7 @@ export function CustomTabBar({ state, descriptors, navigation }: BottomTabBarPro
         const focused = state.index === index;
         const { options } = descriptors[route.key];
         const label = options.tabBarLabel ?? options.title ?? route.name;
-        const iconName = ICONS[route.name] || "ellipse";
+        const icon = ICONS[route.name] || "•";
 
         const onPress = () => {
           const event = navigation.emit({ type: "tabPress", target: route.key, canPreventDefault: true });
@@ -43,11 +42,7 @@ export function CustomTabBar({ state, descriptors, navigation }: BottomTabBarPro
 
         return (
           <Pressable key={route.key} onPress={onPress} style={styles.tab}>
-            <Ionicons
-              name={iconName as any}
-              size={20}
-              color={focused ? colors.cyan : colors.dim}
-            />
+            <Text style={[styles.icon, focused && styles.iconActive]}>{icon}</Text>
             <Text style={[styles.label, focused && styles.labelActive]}>{String(label)}</Text>
           </Pressable>
         );
@@ -78,4 +73,6 @@ const styles = StyleSheet.create({
   },
   label: { ...typography.pixel, color: colors.dim, fontSize: 9 },
   labelActive: { color: colors.cyan },
+  icon: { fontSize: 18, color: colors.dim },
+  iconActive: { color: colors.cyan },
 });
