@@ -4,22 +4,19 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack'
 import { configureCore, configureStorage, ROUTE_MANIFEST } from '@starkid/core'
 import { storageAdapter } from './src/platform/storage.native'
 
-import HomeScreen from './src/screens/HomeScreen'
-import ExploreHubV2 from './src/screens/ExploreHubV2'
-import CommandCenterScreen from './src/screens/CommandCenterScreen'
 import LaunchesScreen from './src/screens/LaunchesScreen'
 import SkyEventsScreen from './src/screens/SkyEventsScreen'
 import CometsScreen from './src/screens/CometsScreen'
 import SolarMapScreen from './src/screens/SolarMapScreen'
 import StreamsScreen from './src/screens/StreamsScreen'
 import MissionBriefingScreen from './src/screens/MissionBriefingScreen'
-import StemActivitiesScreen from './src/screens/StemActivitiesScreen'
 import StemActivityDetailScreen from './src/screens/StemActivityDetailScreen'
 import StemProgressScreen from './src/screens/StemProgressScreen'
 import PlanetsScreen from './src/screens/PlanetsScreen'
 import BeyondSolarSystemScreen from './src/screens/BeyondSolarSystemScreen'
 import MissionAlertsScreen from './src/screens/MissionAlertsScreen'
 import RocketsScreen from './src/screens/RocketsScreen'
+import AppTabs from './src/navigation/AppTabs'
 
 const Stack = createNativeStackNavigator()
 
@@ -72,15 +69,12 @@ export default function App() {
           contentStyle: { backgroundColor: '#0b0f1a' },
         }}
       >
-        <Stack.Screen name={ROUTE_MANIFEST.HOME} component={HomeScreen} />
-        <Stack.Screen name={ROUTE_MANIFEST.EXPLORE} component={ExploreHubV2} />
-        <Stack.Screen name={ROUTE_MANIFEST.COMMAND_CENTER} component={CommandCenterScreen} />
+        <Stack.Screen name="AppTabs" component={AppTabs} options={{ headerShown: false }} />
         <Stack.Screen name={ROUTE_MANIFEST.LAUNCHES} component={LaunchesScreen} />
         <Stack.Screen name={ROUTE_MANIFEST.SKY_EVENTS} component={SkyEventsScreen} />
         <Stack.Screen name={ROUTE_MANIFEST.COMETS} component={CometsScreen} />
         <Stack.Screen name={ROUTE_MANIFEST.SOLAR_MAP} component={SolarMapScreen} />
         <Stack.Screen name={ROUTE_MANIFEST.STREAMS} component={StreamsScreen} />
-        <Stack.Screen name={ROUTE_MANIFEST.STEM_ACTIVITIES} component={StemActivitiesScreen} />
         <Stack.Screen name={ROUTE_MANIFEST.STEM_ACTIVITY_DETAIL} component={StemActivityDetailScreen} />
         <Stack.Screen name={ROUTE_MANIFEST.STEM_PROGRESS} component={StemProgressScreen} />
         <Stack.Screen name={ROUTE_MANIFEST.PLANETS} component={PlanetsScreen} />

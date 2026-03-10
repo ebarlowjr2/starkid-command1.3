@@ -14,5 +14,8 @@ export const ROUTE_MANIFEST = {
   BEYOND: 'Beyond Our Solar System',
   MISSION_ALERTS: 'Mission Alerts',
   ROCKETS: 'Rockets',
+  COMET: 'C.O.M.E.T.',
+  LUNAR_EVENTS: 'Lunar Events',
+  PROFILE: 'Profile',
   MISSIONS_BRIEFING: 'Mission Briefing',
 }
