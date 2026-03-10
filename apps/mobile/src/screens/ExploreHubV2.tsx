@@ -73,6 +73,12 @@ export default function ExploreHubV2({ navigation }: any) {
               onPress={() => navigation?.navigate?.(ROUTE_MANIFEST.STREAMS)}
             />
             <ExploreTile
+              icon="🚀"
+              title="Rockets"
+              subtitle="Active launch vehicles and specs."
+              onPress={() => navigation?.navigate?.(ROUTE_MANIFEST.ROCKETS)}
+            />
+            <ExploreTile
               icon="🪐"
               title="Visit Another Planet"
               subtitle="Planetary command centers and destinations."

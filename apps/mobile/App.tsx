@@ -19,6 +19,7 @@ import StemProgressScreen from './src/screens/StemProgressScreen'
 import PlanetsScreen from './src/screens/PlanetsScreen'
 import BeyondSolarSystemScreen from './src/screens/BeyondSolarSystemScreen'
 import MissionAlertsScreen from './src/screens/MissionAlertsScreen'
+import RocketsScreen from './src/screens/RocketsScreen'
 
 const Stack = createNativeStackNavigator()
 
@@ -85,6 +86,7 @@ export default function App() {
         <Stack.Screen name={ROUTE_MANIFEST.PLANETS} component={PlanetsScreen} />
         <Stack.Screen name={ROUTE_MANIFEST.BEYOND} component={BeyondSolarSystemScreen} />
         <Stack.Screen name={ROUTE_MANIFEST.MISSION_ALERTS} component={MissionAlertsScreen} />
+        <Stack.Screen name={ROUTE_MANIFEST.ROCKETS} component={RocketsScreen} />
         <Stack.Screen name={ROUTE_MANIFEST.MISSIONS_BRIEFING} component={MissionBriefingScreen} />
       </Stack.Navigator>
     </NavigationContainer>
