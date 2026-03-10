@@ -26,7 +26,7 @@ export const NextMajorEventCard = memo(function NextMajorEventCard({
       <Text style={styles.countdownLabel}>COUNTDOWN</Text>
       <Text style={styles.countdown}>{countdown ?? "--:--:--"}</Text>
 
-      <PixelButton label="OPEN BRIEF →" onPress={onOpenBrief} style={{ marginTop: spacing.md, marginLeft: 92 }} />
+      <PixelButton label="OPEN BRIEF →" onPress={onOpenBrief} style={{ marginTop: spacing.md, alignSelf: "center" }} />
 
       {description ? (
         <Text style={styles.desc} numberOfLines={2}>{description}</Text>

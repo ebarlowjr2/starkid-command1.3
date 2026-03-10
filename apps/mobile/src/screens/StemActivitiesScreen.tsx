@@ -2,6 +2,7 @@ import React, { useMemo, useState, useEffect } from 'react'
 import { SafeAreaView, StyleSheet, Text, View, FlatList, Pressable } from 'react-native'
 import { SpaceBackground } from '../components/home/SpaceBackground'
 import { GlassCard } from '../components/home/GlassCard'
+import { PixelButton } from '../components/home/PixelButton'
 import { colors, spacing, typography } from '../theme/tokens'
 import { listStemActivities, listTracks, listLevels, ROUTE_MANIFEST, listCompletedStemActivities } from '@starkid/core'
 
@@ -47,12 +48,11 @@ export default function StemActivitiesScreen({ navigation }: { navigation: any }
               <Text style={styles.subtitle}>
                 Filter by track or level and explore structured STEM activities.
               </Text>
-              <Pressable
-                style={styles.progressButton}
+              <PixelButton
+                label="VIEW PROGRESS →"
                 onPress={() => navigation?.navigate?.(ROUTE_MANIFEST.STEM_PROGRESS)}
-              >
-                <Text style={styles.progressButtonText}>VIEW PROGRESS →</Text>
-              </Pressable>
+                style={styles.progressButton}
+              />
 
               <View style={styles.filterRow}>
                 <Pressable style={styles.filterButton} onPress={() => setTrack('')}>
@@ -136,5 +136,4 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(61,235,255,0.6)',
     backgroundColor: 'rgba(6, 10, 22, 0.7)',
   },
-  progressButtonText: { ...typography.pixel, color: colors.text },
 })

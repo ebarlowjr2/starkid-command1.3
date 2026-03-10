@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react'
-import { SafeAreaView, StyleSheet, Text, View, ScrollView, Pressable } from 'react-native'
+import { SafeAreaView, StyleSheet, Text, View, ScrollView } from 'react-native'
 import { SpaceBackground } from '../components/home/SpaceBackground'
 import { GlassCard } from '../components/home/GlassCard'
+import { PixelButton } from '../components/home/PixelButton'
 import { colors, spacing, typography } from '../theme/tokens'
 import { getStemActivityById, isStemActivityCompleted, markStemActivityCompleted } from '@starkid/core'
 
@@ -60,8 +61,8 @@ export default function StemActivityDetailScreen({ route }: { route: any }) {
             {completed ? (
               <Text style={styles.completedBadge}>COMPLETED</Text>
             ) : (
-              <Pressable
-                style={styles.completeButton}
+              <PixelButton
+                label="MARK COMPLETE"
                 onPress={async () => {
                   try {
                     setSaving(true)
@@ -71,10 +72,8 @@ export default function StemActivityDetailScreen({ route }: { route: any }) {
                     setSaving(false)
                   }
                 }}
-                disabled={saving}
-              >
-                <Text style={styles.completeButtonText}>MARK COMPLETE</Text>
-              </Pressable>
+                style={styles.completeButton}
+              />
             )}
           </View>
         </ScrollView>
@@ -102,6 +101,5 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(61,235,255,0.7)',
     backgroundColor: 'rgba(6, 10, 22, 0.8)',
   },
-  completeButtonText: { ...typography.pixel, color: colors.text },
   completedBadge: { ...typography.pixel, color: colors.green },
 })

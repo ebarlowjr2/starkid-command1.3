@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react'
-import { SafeAreaView, StyleSheet, Text, View, ScrollView, Pressable } from 'react-native'
+import { SafeAreaView, StyleSheet, Text, View, ScrollView } from 'react-native'
 import { SpaceBackground } from '../components/home/SpaceBackground'
 import { GlassCard } from '../components/home/GlassCard'
+import { PixelButton } from '../components/home/PixelButton'
 import { colors, spacing, typography } from '../theme/tokens'
 import { getStemProgressOverview, ROUTE_MANIFEST } from '@starkid/core'
 
@@ -72,16 +73,15 @@ export default function StemProgressScreen({ navigation }: { navigation: any }) 
                 <Text style={styles.recommendMeta}>
                   {overview.recommendedNextActivity.track} • {overview.recommendedNextActivity.level}
                 </Text>
-                <Pressable
-                  style={styles.continueButton}
+                <PixelButton
+                  label="CONTINUE →"
                   onPress={() =>
                     navigation?.navigate?.(ROUTE_MANIFEST.STEM_ACTIVITY_DETAIL, {
                       activityId: overview.recommendedNextActivity.id,
                     })
                   }
-                >
-                  <Text style={styles.continueText}>CONTINUE →</Text>
-                </Pressable>
+                  style={styles.continueButton}
+                />
               </>
             ) : (
               <Text style={styles.muted}>All activities complete.</Text>
@@ -145,7 +145,6 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(61,235,255,0.7)',
     backgroundColor: 'rgba(6, 10, 22, 0.8)',
   },
-  continueText: { ...typography.pixel, color: colors.text },
   recentRow: { flexDirection: 'row', justifyContent: 'space-between', marginTop: 6, alignItems: 'center' },
   recentTitle: { ...typography.body, color: colors.muted },
   recentMeta: { ...typography.pixel, color: colors.dim },

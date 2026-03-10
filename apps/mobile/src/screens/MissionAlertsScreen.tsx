@@ -6,6 +6,7 @@ import { useNavigation } from '@react-navigation/native'
 import { SpaceBackground } from '../components/home/SpaceBackground'
 import { GlassCard } from '../components/home/GlassCard'
 import { Badge } from '../components/home/Badge'
+import { PixelButton } from '../components/home/PixelButton'
 import { colors, spacing, typography } from '../theme/tokens'
 
 export default function MissionAlertsScreen() {
@@ -136,17 +137,16 @@ export default function MissionAlertsScreen() {
                   {item.completed ? (
                     <Text style={styles.completedBadge}>COMPLETED</Text>
                   ) : item.missionAvailable ? (
-                    <Pressable
-                      style={styles.alertButton}
+                    <PixelButton
+                      label="ACCEPT →"
                       onPress={async () => {
                         const mission = convertAlertToMission(item, stemTrack, stemLevel)
                         if (!mission) return
                         setMission(mission)
                         navigation.navigate(ROUTE_MANIFEST.MISSIONS_BRIEFING as never, { missionId: mission.id } as never)
                       }}
-                    >
-                      <Text style={styles.alertButtonText}>ACCEPT →</Text>
-                    </Pressable>
+                      style={styles.alertButton}
+                    />
                   ) : null}
                 </GlassCard>
               ))
@@ -209,7 +209,6 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(61,235,255,0.6)',
     backgroundColor: 'rgba(6, 10, 22, 0.6)',
   },
-  alertButtonText: { ...typography.small, color: colors.text },
   completedBadge: { ...typography.pixel, color: colors.green },
   emptyText: { ...typography.body, color: colors.muted },
   missionBadge: { ...typography.pixel, color: colors.accent },

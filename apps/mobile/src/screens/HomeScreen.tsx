@@ -1,11 +1,12 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { View, Text, StyleSheet, ActivityIndicator, ScrollView, SafeAreaView, ImageBackground, Pressable } from "react-native";
+import { View, Text, StyleSheet, ActivityIndicator, ScrollView, SafeAreaView, ImageBackground } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { getUpcomingSkyEventsService, getUpcomingLaunches, ROUTE_MANIFEST } from "@starkid/core";
 import { SpaceBackground } from "../components/home/SpaceBackground";
 import { NextMajorEventCard } from "../components/home/NextMajorEventCard";
 import { UpcomingSkyEventsCard } from "../components/home/UpcomingSkyEventsCard";
 import { LinearGradient } from "expo-linear-gradient";
+import { PixelButton } from "../components/home/PixelButton";
 import { colors, spacing, typography } from "../theme/tokens";
 
 export default function HomeScreen() {
@@ -102,12 +103,11 @@ export default function HomeScreen() {
               <Text style={styles.heroDescription}>
                 StarKid Command is a live mission-control interface for tracking, understanding, and exploring space.
               </Text>
-              <Pressable
-                style={styles.heroButton}
+              <PixelButton
+                label="EXPLORE →"
                 onPress={() => navigation.navigate(ROUTE_MANIFEST.EXPLORE as never)}
-              >
-                <Text style={styles.heroButtonText}>EXPLORE →</Text>
-              </Pressable>
+                style={styles.heroButton}
+              />
             </View>
           </View>
           <View style={styles.cardStack}>
@@ -152,6 +152,9 @@ const styles = StyleSheet.create({
     overflow: "hidden",
     marginBottom: 24,
     justifyContent: "center",
+    borderWidth: 2,
+    borderColor: "rgba(61,235,255,0.55)",
+    backgroundColor: "rgba(6,10,22,0.35)",
   },
   heroGradient: {
     ...StyleSheet.absoluteFillObject,
@@ -189,6 +192,7 @@ const styles = StyleSheet.create({
   },
   heroButton: {
     marginTop: 10,
+    alignSelf: "center",
     paddingHorizontal: 22,
     paddingVertical: 10,
     borderRadius: 14,
@@ -199,11 +203,6 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.9,
     shadowRadius: 12,
     shadowOffset: { width: 0, height: 0 },
-  },
-  heroButtonText: {
-    ...typography.pixel,
-    color: colors.text,
-    letterSpacing: 1,
   },
   planetAccent: {
     position: "absolute",
