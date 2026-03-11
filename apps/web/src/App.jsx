@@ -32,6 +32,7 @@ import StemActivityDetailPage from './pages/StemActivityDetailPage.jsx'
 import StemProgressPage from './pages/StemProgressPage.jsx'
 import SupportPage from './pages/SupportPage.jsx'
 import AboutPage from './pages/AboutPage.jsx'
+import ProfilePage from './pages/ProfilePage.jsx'
 import SocialQueuePage from './pages/ops/SocialQueuePage.jsx'
 import CometWidget from './components/comet/CometWidget.jsx'
 import DesktopNav from './components/nav/DesktopNav.jsx'
@@ -95,9 +96,10 @@ export default function App() {
                     <Route path="/stem-activities" element={<StemActivitiesPage />} />
                     <Route path="/stem/progress" element={<StemProgressPage />} />
                     <Route path="/stem-activities/:activityId" element={<StemActivityDetailPage />} />
-                                                                                                                                                  <Route path="/support" element={<SupportPage />} />
-                                                                                                                                                  <Route path="/about" element={<AboutPage />} />
-                                                                                                                                                  <Route path="/ops/social-queue" element={<SocialQueuePage />} />
+                                                                          <Route path="/support" element={<SupportPage />} />
+                                                                          <Route path="/profile" element={<ProfilePage />} />
+                                                                          <Route path="/about" element={<AboutPage />} />
+                                                                          <Route path="/ops/social-queue" element={<SocialQueuePage />} />
                                                                                                                                                 </Routes>
                 </main>
 
