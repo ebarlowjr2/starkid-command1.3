@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { View, Text, StyleSheet, Pressable, TextInput, SafeAreaView, ScrollView } from 'react-native'
 import { getMission } from '../state/missionStore'
 import { useNavigation } from '@react-navigation/native'
-import { gradeAttempt, getRepos, syncMissionCompletionToActivity, getMissionById } from '@starkid/core'
+import { gradeStemAttempt, getRepos, syncMissionCompletionToActivity, getMissionById } from '@starkid/core'
 import { SpaceBackground } from '../components/home/SpaceBackground'
 import { GlassCard } from '../components/home/GlassCard'
 import { PixelButton } from '../components/home/PixelButton'
@@ -111,7 +111,7 @@ export default function MissionBriefingScreen({ route }: { route: any }) {
                 onPress={async () => {
                   const firstStep = mission.steps[0]
                   const payload = firstStep ? { main: answers[firstStep.id] } : { main: null }
-                  const { pass, feedback } = gradeAttempt(mission, payload)
+                  const { pass, feedback } = gradeStemAttempt(mission, payload)
                   const { missionsRepo, actor } = await getRepos()
                   const attempt = {
                     missionId: mission.id,

@@ -8,7 +8,7 @@ import Globe from '../components/Globe.jsx'
 import AdminPanel from '../components/AdminPanel.jsx'
 import MissionCard from '../components/MissionCard.jsx'
 
-import { getUpcomingLaunches, getLatestLaunch, getAlertsForUser, convertAlertToMission, getRepos, getSolarActivity, formatSourceStatus, listTracks, listLevels } from '@starkid/core'
+import { getUpcomingLaunches, getLatestLaunch, getAlertsForUser, generateMissionFromAlert, getRepos, getSolarActivity, formatSourceStatus, listTracks, listLevels } from '@starkid/core'
 import {
   getAPOD,
   getNEOsToday,
@@ -121,7 +121,7 @@ export default function CommandCenterPage() {
         const { missionsRepo, actor } = await getRepos()
         const enriched = await Promise.all(
           alerts.map(async (alert) => {
-            const mission = convertAlertToMission(alert, stemTrack, stemLevel)
+            const mission = generateMissionFromAlert(alert, stemTrack, stemLevel)
             if (!mission) return { ...alert, completed: false }
             const completed = await missionsRepo.isCompleted(actor.actorId, mission.id)
             return { ...alert, completed, missionId: mission.id }
@@ -293,7 +293,7 @@ export default function CommandCenterPage() {
                   <button
                     className="px-3 py-1 text-xs rounded bg-cyan-600 hover:bg-cyan-500 text-white"
                     onClick={() => {
-                      const mission = convertAlertToMission(alert, stemTrack, stemLevel)
+                      const mission = generateMissionFromAlert(alert, stemTrack, stemLevel)
                       if (mission) {
                         setMission(mission)
                         nav(`/missions/briefing/${mission.id}`)

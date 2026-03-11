@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { View, Text, StyleSheet, ActivityIndicator, Pressable, SafeAreaView, ScrollView } from 'react-native'
-import { getAlertsForUser, convertAlertToMission, getRepos, ROUTE_MANIFEST, listTracks, listLevels, formatSourceStatus } from '@starkid/core'
+import { getAlertsForUser, generateMissionFromAlert, getRepos, ROUTE_MANIFEST, listTracks, listLevels, formatSourceStatus } from '@starkid/core'
 import { setMission } from '../state/missionStore'
 import { useNavigation } from '@react-navigation/native'
 import { SpaceBackground } from '../components/home/SpaceBackground'
@@ -28,7 +28,7 @@ export default function MissionAlertsScreen() {
         const { missionsRepo, actor } = await getRepos()
         const enriched = await Promise.all(
           (list || []).map(async (alert) => {
-            const mission = convertAlertToMission(alert, stemTrack, stemLevel)
+            const mission = generateMissionFromAlert(alert, stemTrack, stemLevel)
             if (!mission) return { ...alert, completed: false }
             const completed = await missionsRepo.isCompleted(actor.actorId, mission.id)
             return {
@@ -140,7 +140,7 @@ export default function MissionAlertsScreen() {
                     <PixelButton
                       label="ACCEPT →"
                       onPress={async () => {
-                        const mission = convertAlertToMission(item, stemTrack, stemLevel)
+                        const mission = generateMissionFromAlert(item, stemTrack, stemLevel)
                         if (!mission) return
                         setMission(mission)
                         navigation.navigate(ROUTE_MANIFEST.MISSIONS_BRIEFING as never, { missionId: mission.id } as never)

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { getMission } from '../state/missionStore.js'
-import { gradeAttempt, getRepos, syncMissionCompletionToActivity, getMissionById } from '@starkid/core'
+import { gradeStemAttempt, getRepos, syncMissionCompletionToActivity, getMissionById } from '@starkid/core'
 
 export default function MissionBriefingPage() {
   const nav = useNavigate()
@@ -106,7 +106,7 @@ export default function MissionBriefingPage() {
             onClick={async () => {
               const firstStep = activeMission.steps[0]
               const payload = firstStep ? { main: answers[firstStep.id] } : { main: null }
-              const { pass, feedback } = gradeAttempt(activeMission, payload)
+              const { pass, feedback } = gradeStemAttempt(activeMission, payload)
               const { missionsRepo, actor } = await getRepos()
               const attempt = {
                 missionId: activeMission.id,
