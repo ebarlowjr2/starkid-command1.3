@@ -23,6 +23,12 @@ export type StemProgressRepo = {
   listCompleted(actorId: string): Promise<any[]>
 }
 
+export type ProfileRepo = {
+  getProfile(actorId: string): Promise<any | null>
+  saveProfile(actorId: string, profile: any): Promise<void>
+  updateProfile(actorId: string, patch: any): Promise<any>
+}
+
 export class RepoNotEnabledError extends Error {
   constructor(message) {
     super(message)
@@ -59,6 +65,15 @@ export class NotEnabledRepo {
     throw new RepoNotEnabledError('Repo not enabled yet')
   }
   async set() {
+    throw new RepoNotEnabledError('Repo not enabled yet')
+  }
+  async getProfile() {
+    throw new RepoNotEnabledError('Repo not enabled yet')
+  }
+  async saveProfile() {
+    throw new RepoNotEnabledError('Repo not enabled yet')
+  }
+  async updateProfile() {
     throw new RepoNotEnabledError('Repo not enabled yet')
   }
 }
