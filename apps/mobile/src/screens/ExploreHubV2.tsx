@@ -96,6 +96,12 @@ export default function ExploreHubV2({ navigation }: any) {
               subtitle="Hands-on challenges and mini-labs (coming soon)."
               onPress={() => navigation?.navigate?.(ROUTE_MANIFEST.STEM_ACTIVITIES)}
             />
+            <ExploreTile
+              icon="📰"
+              title="Updates"
+              subtitle="News, blog, and official mission updates."
+              onPress={() => navigation?.navigate?.(ROUTE_MANIFEST.UPDATES_HUB)}
+            />
           </View>
         </ScrollView>
       </SafeAreaView>
