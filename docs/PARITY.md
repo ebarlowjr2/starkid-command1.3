@@ -13,6 +13,7 @@
 | `/stem-activities` | STEM Activities | Partial |
 | `/stem-activities/:activityId` | STEM Activity Detail | Partial |
 | `/stem/progress` | STEM Progress | Partial |
+| `/profile` | Profile | Partial |
 | `/updates` Updates Hub | Updates Hub | Partial |
 | `/updates/news` | Updates News | Placeholder |
 | `/updates/blog` | Updates Blog | Placeholder |

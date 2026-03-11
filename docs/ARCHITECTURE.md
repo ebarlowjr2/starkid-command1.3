@@ -66,3 +66,10 @@ Command Center Missions and STEM Activities are separate user experiences.
 - **STEM Activities** is a structured learning catalog with progress tracking.
 
 Both are powered by the STEM engine internally, but the UI must keep them distinct.
+
+## Profile Service
+Profile is auth-ready and derives from the actor identity layer.
+
+- Profile reads/writes go through `packages/core/src/profile/service.ts`.
+- Alert preferences are persisted via the repo layer and used by alerts filtering.
+- Rank and progress are calculated from mission + STEM completion stats.

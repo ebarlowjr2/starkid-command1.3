@@ -76,3 +76,6 @@ syncMissionCompletionToActivity(mission)
 ```
 
 This keeps structured activities and dynamic missions in sync across web + mobile.
+
+## Profile + Rank Integration
+Profile uses STEM progress and mission completion to calculate rank and show progress summaries.
