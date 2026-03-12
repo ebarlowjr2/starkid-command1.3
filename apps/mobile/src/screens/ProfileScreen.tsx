@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { SafeAreaView, StyleSheet, Text, View, ScrollView, TextInput, Pressable } from "react-native";
+import { SafeAreaView, StyleSheet, Text, View, ScrollView, TextInput, Pressable, Switch } from "react-native";
 import { SpaceBackground } from "../components/home/SpaceBackground";
 import { GlassCard } from "../components/home/GlassCard";
 import { PixelButton } from "../components/home/PixelButton";
@@ -85,14 +85,18 @@ export default function ProfileScreen() {
               ["spaceWeather", "Space Weather"],
               ["stemRecommendations", "STEM Recommendations"],
             ].map(([key, label]) => (
-              <Pressable
+              <View
                 key={key}
                 style={[styles.prefRow, prefs[key] ? styles.prefOn : styles.prefOff]}
-                onPress={() => toggle(key)}
               >
                 <Text style={styles.prefLabel}>{label}</Text>
-                <Text style={styles.prefValue}>{prefs[key] ? "ON" : "OFF"}</Text>
-              </Pressable>
+                <Switch
+                  value={!!prefs[key]}
+                  onValueChange={() => toggle(key)}
+                  trackColor={{ false: "rgba(148,163,184,0.4)", true: "rgba(61,235,255,0.6)" }}
+                  thumbColor={prefs[key] ? colors.text : "#cbd5f5"}
+                />
+              </View>
             ))}
           </GlassCard>
 

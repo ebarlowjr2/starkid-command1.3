@@ -85,14 +85,26 @@ export default function ProfilePage() {
             ['spaceWeather', 'Space Weather'],
             ['stemRecommendations', 'STEM Recommendations'],
           ].map(([key, label]) => (
-            <button
+            <label
               key={key}
-              className={`px-3 py-2 rounded border ${prefs[key] ? 'border-cyan-500 bg-cyan-900/40' : 'border-cyan-800/50 bg-black/40'} text-left`}
-              onClick={() => toggle(key)}
+              className="flex items-center justify-between gap-3 px-3 py-2 rounded border border-cyan-800/50 bg-black/40"
             >
-              <div className="text-cyan-200">{label}</div>
-              <div className="text-xs text-cyan-400">{prefs[key] ? 'ON' : 'OFF'}</div>
-            </button>
+              <span className="text-cyan-200">{label}</span>
+              <button
+                type="button"
+                className={`relative inline-flex h-6 w-11 items-center rounded-full transition ${
+                  prefs[key] ? 'bg-cyan-500/80' : 'bg-zinc-700/70'
+                }`}
+                onClick={() => toggle(key)}
+                aria-pressed={prefs[key]}
+              >
+                <span
+                  className={`inline-block h-4 w-4 transform rounded-full bg-white transition ${
+                    prefs[key] ? 'translate-x-6' : 'translate-x-1'
+                  }`}
+                />
+              </button>
+            </label>
           ))}
         </div>
       </section>
