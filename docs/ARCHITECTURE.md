@@ -73,3 +73,10 @@ Profile is auth-ready and derives from the actor identity layer.
 - Profile reads/writes go through `packages/core/src/profile/service.ts`.
 - Alert preferences are persisted via the repo layer and used by alerts filtering.
 - Rank and progress are calculated from mission + STEM completion stats.
+
+## Guest-First Identity Model
+StarKid Command uses a guest-first identity model.
+
+- Anonymous users get a local actorId and full access to public features.
+- Authenticated users (future) will map to userId while keeping the same repo APIs.
+- Guest data is stored locally and can be migrated to a user account later.

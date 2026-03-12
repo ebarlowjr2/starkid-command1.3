@@ -79,3 +79,6 @@ This keeps structured activities and dynamic missions in sync across web + mobil
 
 ## Profile + Rank Integration
 Profile uses STEM progress and mission completion to calculate rank and show progress summaries.
+
+## Guest-First Behavior
+Missions and STEM activities work in guest mode and store progress locally under the anonymous actorId.
