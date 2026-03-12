@@ -1,13 +1,14 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { View, Text, StyleSheet, ActivityIndicator, ScrollView, SafeAreaView, ImageBackground } from "react-native";
 import { useNavigation } from "@react-navigation/native";
-import { getUpcomingSkyEventsService, getUpcomingLaunches, ROUTE_MANIFEST } from "@starkid/core";
+import { getUpcomingSkyEventsService, getUpcomingLaunches, ROUTE_MANIFEST, getCurrentActor } from "@starkid/core";
 import { SpaceBackground } from "../components/home/SpaceBackground";
 import { NextMajorEventCard } from "../components/home/NextMajorEventCard";
 import { UpcomingSkyEventsCard } from "../components/home/UpcomingSkyEventsCard";
 import { LinearGradient } from "expo-linear-gradient";
 import { PixelButton } from "../components/home/PixelButton";
 import { colors, spacing, typography } from "../theme/tokens";
+import { SyncIdentityModal } from "../components/auth/SyncIdentityModal";
 
 export default function HomeScreen() {
   const navigation = useNavigation();
@@ -15,6 +16,8 @@ export default function HomeScreen() {
   const [events, setEvents] = useState<any[]>([]);
   const [nextLaunch, setNextLaunch] = useState<any | null>(null);
   const [now, setNow] = useState(Date.now());
+  const [isGuest, setIsGuest] = useState(true);
+  const [showSync, setShowSync] = useState(false);
 
   useEffect(() => {
     let active = true;
@@ -35,6 +38,18 @@ export default function HomeScreen() {
       setLoading(false);
     }
     load();
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    let active = true;
+    async function loadActor() {
+      const actor = await getCurrentActor();
+      if (active) setIsGuest(actor?.mode !== "user");
+    }
+    loadActor();
     return () => {
       active = false;
     };
@@ -96,6 +111,14 @@ export default function HomeScreen() {
             />
             <Text style={styles.planetAccent}>🪐</Text>
             <Text style={styles.ufoAccent}>🛸</Text>
+            {isGuest ? (
+              <View style={styles.syncButton}>
+                <PixelButton
+                  label="SYNC COMMAND PROFILE"
+                  onPress={() => setShowSync(true)}
+                />
+              </View>
+            ) : null}
             <View style={styles.heroOverlay}>
               <Text style={styles.heroKicker}>WELCOME TO</Text>
               <Text style={styles.heroTitle}>STARKID COMMAND</Text>
@@ -133,6 +156,7 @@ export default function HomeScreen() {
             />
           </View>
         </ScrollView>
+        <SyncIdentityModal open={showSync} onClose={() => setShowSync(false)} onSync={() => setShowSync(false)} />
       </SafeAreaView>
     </ImageBackground>
   );
@@ -203,6 +227,11 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.9,
     shadowRadius: 12,
     shadowOffset: { width: 0, height: 0 },
+  },
+  syncButton: {
+    position: "absolute",
+    top: 10,
+    right: 10,
   },
   planetAccent: {
     position: "absolute",

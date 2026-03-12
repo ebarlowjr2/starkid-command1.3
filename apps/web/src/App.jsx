@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { BrowserRouter, Routes, Route, NavLink } from 'react-router-dom'
 import LandingPage from './pages/LandingPage.jsx'
 import ExploreHubPage from './pages/ExploreHubPage.jsx'
@@ -38,8 +38,25 @@ import CometWidget from './components/comet/CometWidget.jsx'
 import DesktopNav from './components/nav/DesktopNav.jsx'
 import MobileNav from './components/nav/MobileNav.jsx'
 import { navSections } from './config/navConfig.js'
+import { getCurrentActor } from '@starkid/core'
+import SyncIdentityModal from './components/auth/SyncIdentityModal.jsx'
 
 export default function App() {
+  const [isGuest, setIsGuest] = useState(true)
+  const [showSync, setShowSync] = useState(false)
+
+  useEffect(() => {
+    let active = true
+    async function loadActor() {
+      const actor = await getCurrentActor()
+      if (active) setIsGuest(actor?.mode !== 'user')
+    }
+    loadActor()
+    return () => {
+      active = false
+    }
+  }, [])
+
   return (
     <BrowserRouter>
       <div className="min-h-screen bg-black text-cyan-200 font-mono flex flex-col">
@@ -59,6 +76,15 @@ export default function App() {
             
             {/* Mobile Navigation */}
             <MobileNav navSections={navSections} />
+
+            {isGuest ? (
+              <button
+                className="ml-auto md:ml-0 px-3 py-2 rounded border border-cyan-600/60 text-cyan-200 hover:text-cyan-100 bg-black/40 text-xs"
+                onClick={() => setShowSync(true)}
+              >
+                Sync Command Profile
+              </button>
+            ) : null}
           </div>
         </header>
 
@@ -120,6 +146,11 @@ export default function App() {
                   </div>
                 </footer>
         <CometWidget />
+        <SyncIdentityModal
+          open={showSync}
+          onClose={() => setShowSync(false)}
+          onSync={() => setShowSync(false)}
+        />
       </div>
     </BrowserRouter>
   )
