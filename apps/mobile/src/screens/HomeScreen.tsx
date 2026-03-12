@@ -100,6 +100,14 @@ export default function HomeScreen() {
     >
       <SafeAreaView style={{ flex: 1 }}>
         <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+          {isGuest ? (
+            <View style={styles.syncBanner}>
+              <PixelButton
+                label="SYNC COMMAND PROFILE"
+                onPress={() => setShowSync(true)}
+              />
+            </View>
+          ) : null}
           <View style={styles.hero}>
             <LinearGradient
               colors={[
@@ -111,14 +119,6 @@ export default function HomeScreen() {
             />
             <Text style={styles.planetAccent}>🪐</Text>
             <Text style={styles.ufoAccent}>🛸</Text>
-            {isGuest ? (
-              <View style={styles.syncButton}>
-                <PixelButton
-                  label="SYNC COMMAND PROFILE"
-                  onPress={() => setShowSync(true)}
-                />
-              </View>
-            ) : null}
             <View style={styles.heroOverlay}>
               <Text style={styles.heroKicker}>WELCOME TO</Text>
               <Text style={styles.heroTitle}>STARKID COMMAND</Text>
@@ -228,10 +228,9 @@ const styles = StyleSheet.create({
     shadowRadius: 12,
     shadowOffset: { width: 0, height: 0 },
   },
-  syncButton: {
-    position: "absolute",
-    top: 10,
-    right: 10,
+  syncBanner: {
+    alignSelf: "flex-end",
+    marginBottom: 12,
   },
   planetAccent: {
     position: "absolute",
