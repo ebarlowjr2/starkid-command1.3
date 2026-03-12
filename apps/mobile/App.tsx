@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { NavigationContainer } from '@react-navigation/native'
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
-import { configureCore, configureStorage, ROUTE_MANIFEST } from '@starkid/core'
+import { configureCore, configureStorage, ROUTE_MANIFEST, getSession, onAuthChange } from '@starkid/core'
 import { storageAdapter } from './src/platform/storage.native'
 
 import LaunchesScreen from './src/screens/LaunchesScreen'
@@ -63,6 +63,19 @@ export default function App() {
     loadFonts()
     return () => {
       active = false
+    }
+  }, [])
+
+  useEffect(() => {
+    let active = true
+    async function initAuth() {
+      await getSession()
+    }
+    initAuth()
+    const unsubscribe = onAuthChange(() => {})
+    return () => {
+      active = false
+      unsubscribe?.()
     }
   }, [])
 

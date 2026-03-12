@@ -1,7 +1,8 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { Modal, View, Text, StyleSheet, TextInput, Pressable } from 'react-native'
 import { PixelButton } from '../home/PixelButton'
 import { colors, spacing, typography } from '../../theme/tokens'
+import { signInWithPassword, signUpWithPassword } from '@starkid/core'
 
 export function SyncIdentityModal({
   open,
@@ -12,6 +13,37 @@ export function SyncIdentityModal({
   onClose: () => void
   onSync: () => void
 }) {
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [error, setError] = useState<string | null>(null)
+  const [loading, setLoading] = useState(false)
+
+  const handleSync = async () => {
+    try {
+      setLoading(true)
+      setError(null)
+      await signInWithPassword(email, password)
+      onSync()
+    } catch (e: any) {
+      setError(e?.message || 'Unable to sync profile')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleEstablish = async () => {
+    try {
+      setLoading(true)
+      setError(null)
+      await signUpWithPassword(email, password)
+      onSync()
+    } catch (e: any) {
+      setError(e?.message || 'Unable to establish profile')
+    } finally {
+      setLoading(false)
+    }
+  }
+
   return (
     <Modal visible={open} transparent animationType="fade" onRequestClose={onClose}>
       <View style={styles.backdrop}>
@@ -21,15 +53,33 @@ export function SyncIdentityModal({
             Connect your StarKid Command profile to sync missions, ranks, alerts, and STEM progress.
           </Text>
 
-          <TextInput style={styles.input} placeholder="Email" placeholderTextColor="rgba(234,242,255,0.4)" />
-          <TextInput style={styles.input} placeholder="Password" placeholderTextColor="rgba(234,242,255,0.4)" secureTextEntry />
+          <TextInput
+            style={styles.input}
+            placeholder="Email"
+            placeholderTextColor="rgba(234,242,255,0.4)"
+            value={email}
+            onChangeText={setEmail}
+            autoCapitalize="none"
+          />
+          <TextInput
+            style={styles.input}
+            placeholder="Password"
+            placeholderTextColor="rgba(234,242,255,0.4)"
+            secureTextEntry
+            value={password}
+            onChangeText={setPassword}
+          />
 
           <View style={styles.actions}>
-            <PixelButton label="SYNC COMMAND PROFILE" onPress={onSync} />
+            <PixelButton label={loading ? 'SYNCING…' : 'SYNC COMMAND PROFILE'} onPress={handleSync} />
+            <Pressable onPress={handleEstablish} disabled={loading}>
+              <Text style={styles.secondary}>Establish Command Profile</Text>
+            </Pressable>
             <Pressable onPress={onClose}>
               <Text style={styles.secondary}>Continue as Guest</Text>
             </Pressable>
           </View>
+          {error ? <Text style={styles.error}>{error}</Text> : null}
         </View>
       </View>
     </Modal>
@@ -65,4 +115,5 @@ const styles = StyleSheet.create({
   },
   actions: { marginTop: spacing.md, gap: spacing.sm },
   secondary: { ...typography.pixel, color: colors.dim, textAlign: 'center', marginTop: spacing.sm },
+  error: { ...typography.small, color: '#fca5a5', marginTop: spacing.sm, textAlign: 'center' },
 })

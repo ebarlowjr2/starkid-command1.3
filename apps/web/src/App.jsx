@@ -38,7 +38,7 @@ import CometWidget from './components/comet/CometWidget.jsx'
 import DesktopNav from './components/nav/DesktopNav.jsx'
 import MobileNav from './components/nav/MobileNav.jsx'
 import { navSections } from './config/navConfig.js'
-import { getCurrentActor } from '@starkid/core'
+import { getCurrentActor, getSession, onAuthChange } from '@starkid/core'
 import SyncIdentityModal from './components/auth/SyncIdentityModal.jsx'
 
 export default function App() {
@@ -48,12 +48,18 @@ export default function App() {
   useEffect(() => {
     let active = true
     async function loadActor() {
+      await getSession()
       const actor = await getCurrentActor()
       if (active) setIsGuest(actor?.mode !== 'user')
     }
     loadActor()
+    const unsubscribe = onAuthChange((session) => {
+      if (!active) return
+      setIsGuest(!session)
+    })
     return () => {
       active = false
+      unsubscribe?.()
     }
   }, [])
 

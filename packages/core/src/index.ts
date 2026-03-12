@@ -33,6 +33,7 @@ export * from './storage/repos/types.ts'
 export * from './auth/types.ts'
 export * from './auth/noAuthProvider.ts'
 export * from './auth/supabaseAuthProvider.ts'
+export * from './auth/service.ts'
 
 export * from './utils/uuid.ts'
 
