@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { getMission } from '../state/missionStore.js'
-import { gradeStemAttempt, getRepos, syncMissionCompletionToActivity, getMissionById } from '@starkid/core'
+import { gradeStemAttempt, getRepos, syncMissionCompletionToActivity, getMissionById, getCurrentActor } from '@starkid/core'
+import SyncIdentityModal from '../components/auth/SyncIdentityModal.jsx'
 
 export default function MissionBriefingPage() {
   const nav = useNavigate()
@@ -18,6 +19,8 @@ export default function MissionBriefingPage() {
     : 0
   const progressPct = totalSteps ? Math.round((answeredSteps / totalSteps) * 100) : 0
   const [completed, setCompleted] = useState(false)
+  const [isGuest, setIsGuest] = useState(true)
+  const [showSync, setShowSync] = useState(false)
 
   useEffect(() => {
     async function loadCompleted() {
@@ -28,6 +31,18 @@ export default function MissionBriefingPage() {
     }
     loadCompleted()
   }, [activeMission])
+
+  useEffect(() => {
+    let active = true
+    async function loadActor() {
+      const actor = await getCurrentActor()
+      if (active) setIsGuest(actor?.mode !== 'user')
+    }
+    loadActor()
+    return () => {
+      active = false
+    }
+  }, [])
 
   if (!activeMission) {
     return (
@@ -134,6 +149,17 @@ export default function MissionBriefingPage() {
           {completed ? (
             <div className="mt-2 text-xs text-green-300">✅ Completed</div>
           ) : null}
+          {completed && isGuest ? (
+            <div className="mt-4 text-xs text-cyan-300/70">
+              Sync Command Profile to save your rank and mission progress across devices.
+              <button
+                className="ml-3 px-2 py-1 rounded border border-cyan-600/60 text-cyan-300 hover:text-cyan-200"
+                onClick={() => setShowSync(true)}
+              >
+                Sync Command Profile
+              </button>
+            </div>
+          ) : null}
         </div>
       ) : null}
       {activeMission.requiredData ? (
@@ -154,6 +180,11 @@ export default function MissionBriefingPage() {
       >
         Back to Command Center
       </button>
+      <SyncIdentityModal
+        open={showSync}
+        onClose={() => setShowSync(false)}
+        onSync={() => setShowSync(false)}
+      />
     </div>
   )
 }

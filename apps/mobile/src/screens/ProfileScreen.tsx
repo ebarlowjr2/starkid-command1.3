@@ -4,18 +4,23 @@ import { SpaceBackground } from "../components/home/SpaceBackground";
 import { GlassCard } from "../components/home/GlassCard";
 import { PixelButton } from "../components/home/PixelButton";
 import { colors, spacing, typography } from "../theme/tokens";
-import { getProfile, updateProfile } from "@starkid/core";
+import { getProfile, updateProfile, getCurrentActor } from "@starkid/core";
+import { SyncIdentityModal } from "../components/auth/SyncIdentityModal";
 
 export default function ProfileScreen() {
   const [profile, setProfile] = useState<any | null>(null);
   const [form, setForm] = useState({ displayName: "", bio: "" });
+  const [isGuest, setIsGuest] = useState(true);
+  const [showSync, setShowSync] = useState(false);
 
   useEffect(() => {
     let active = true;
     async function load() {
       const data = await getProfile();
+      const actor = await getCurrentActor();
       if (!active) return;
       setProfile(data);
+      setIsGuest(actor?.mode !== "user");
       setForm({ displayName: data.displayName, bio: data.bio || "" });
     }
     load();
@@ -54,11 +59,20 @@ export default function ProfileScreen() {
       <SafeAreaView style={{ flex: 1 }}>
         <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
           <Text style={styles.kicker}>COMMANDER PROFILE</Text>
-          <Text style={styles.title}>{profile.displayName}</Text>
-          <Text style={styles.subtitle}>{profile.rank} • Joined {new Date(profile.joinedAt).toLocaleDateString()}</Text>
+          <Text style={styles.title}>{isGuest ? `Guest ${profile.rank}` : profile.displayName}</Text>
+          <Text style={styles.subtitle}>
+            {isGuest ? "Local Profile" : profile.rank} • Joined {new Date(profile.joinedAt).toLocaleDateString()}
+          </Text>
 
           <GlassCard variant="secondary" style={{ marginTop: spacing.lg }}>
-            <Text style={styles.body}>{profile.bio || "Guest profile — sign in later to sync across devices."}</Text>
+            <Text style={styles.body}>{profile.bio || "Guest profile — sync later to access on other devices."}</Text>
+            {isGuest ? (
+              <PixelButton
+                label="SYNC COMMAND PROFILE"
+                onPress={() => setShowSync(true)}
+                style={{ marginTop: spacing.md, alignSelf: "flex-start" }}
+              />
+            ) : null}
           </GlassCard>
 
           <View style={styles.statsGrid}>
@@ -98,6 +112,9 @@ export default function ProfileScreen() {
                 />
               </View>
             ))}
+            {isGuest ? (
+              <Text style={styles.note}>Preferences stored locally. Sync Command Profile to preserve them.</Text>
+            ) : null}
           </GlassCard>
 
           <GlassCard variant="secondary" style={{ marginTop: spacing.lg }}>
@@ -129,7 +146,11 @@ export default function ProfileScreen() {
               multiline
             />
             <PixelButton label="SAVE PROFILE" onPress={saveProfile} style={{ marginTop: spacing.md, alignSelf: "flex-start" }} />
+            {isGuest ? (
+              <Text style={styles.note}>Initialize Identity to sync this profile.</Text>
+            ) : null}
           </GlassCard>
+          <SyncIdentityModal open={showSync} onClose={() => setShowSync(false)} onSync={() => setShowSync(false)} />
         </ScrollView>
       </SafeAreaView>
     </SpaceBackground>
@@ -160,6 +181,7 @@ const styles = StyleSheet.create({
   prefValue: { ...typography.pixel, color: colors.accent },
   savedRow: { flexDirection: "row", flexWrap: "wrap", gap: 8 },
   savedItem: { ...typography.small, color: colors.muted },
+  note: { ...typography.small, color: colors.dim, marginTop: spacing.sm },
   input: {
     borderWidth: 1,
     borderColor: "rgba(61,235,255,0.3)",

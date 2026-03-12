@@ -1,17 +1,22 @@
 import React, { useEffect, useState } from 'react'
-import { getProfile, updateProfile } from '@starkid/core'
+import { getProfile, updateProfile, getCurrentActor } from '@starkid/core'
+import SyncIdentityModal from '../components/auth/SyncIdentityModal.jsx'
 
 export default function ProfilePage() {
   const [profile, setProfile] = useState(null)
   const [loading, setLoading] = useState(true)
   const [form, setForm] = useState({ displayName: '', bio: '' })
+  const [isGuest, setIsGuest] = useState(true)
+  const [showSync, setShowSync] = useState(false)
 
   useEffect(() => {
     let active = true
     async function load() {
       const data = await getProfile()
+      const actor = await getCurrentActor()
       if (!active) return
       setProfile(data)
+      setIsGuest(actor?.mode !== 'user')
       setForm({ displayName: data.displayName, bio: data.bio || '' })
       setLoading(false)
     }
@@ -44,20 +49,36 @@ export default function ProfilePage() {
     <div className="p-6 max-w-5xl mx-auto text-white">
       <div className="mb-6">
         <h1 className="text-2xl md:text-3xl font-bold tracking-wider text-cyan-300">COMMANDER PROFILE</h1>
-        <p className="text-sm text-cyan-200/70">Local profile • Sign in later to sync across devices.</p>
+        <p className="text-sm text-cyan-200/70">Local profile • Sync Command Profile to access across devices.</p>
       </div>
 
       <section className="border border-cyan-700/60 rounded-lg p-4 bg-black/60 mb-6">
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div>
-            <div className="text-xl font-semibold text-white">{profile.displayName}</div>
-            <div className="text-xs text-cyan-300">{profile.rank} • Joined {new Date(profile.joinedAt).toLocaleDateString()}</div>
-            <div className="text-sm text-cyan-200/70 mt-2">{profile.bio || 'Guest profile'}</div>
+            <div className="text-xl font-semibold text-white">
+              {isGuest ? `Guest ${profile.rank}` : profile.displayName}
+            </div>
+            <div className="text-xs text-cyan-300">
+              {isGuest ? 'Local Profile' : profile.rank} • Joined {new Date(profile.joinedAt).toLocaleDateString()}
+            </div>
+            <div className="text-sm text-cyan-200/70 mt-2">
+              {profile.bio || (isGuest ? 'Guest profile' : '')}
+            </div>
           </div>
           <div className="px-3 py-2 border border-cyan-500/60 rounded text-cyan-300 text-xs">
             RANK: {profile.rank.toUpperCase()}
           </div>
         </div>
+        {isGuest ? (
+          <div className="mt-4">
+            <button
+              className="px-4 py-2 rounded bg-cyan-600 hover:bg-cyan-500 text-white"
+              onClick={() => setShowSync(true)}
+            >
+              Sync Command Profile
+            </button>
+          </div>
+        ) : null}
       </section>
 
       <section className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
@@ -107,6 +128,11 @@ export default function ProfilePage() {
             </label>
           ))}
         </div>
+        {isGuest ? (
+          <div className="mt-3 text-xs text-cyan-300/70">
+            Preferences stored locally. Sync Command Profile to preserve them.
+          </div>
+        ) : null}
       </section>
 
       <section className="border border-cyan-700/60 rounded-lg p-4 bg-black/60 mb-6">
@@ -139,8 +165,18 @@ export default function ProfilePage() {
           <button className="px-4 py-2 rounded bg-cyan-600 hover:bg-cyan-500 text-white w-fit" onClick={saveProfile}>
             Save Profile
           </button>
+          {isGuest ? (
+            <div className="text-xs text-cyan-300/70 mt-2">
+              Initialize Identity to sync this profile.
+            </div>
+          ) : null}
         </div>
       </section>
+      <SyncIdentityModal
+        open={showSync}
+        onClose={() => setShowSync(false)}
+        onSync={() => setShowSync(false)}
+      />
     </div>
   )
 }

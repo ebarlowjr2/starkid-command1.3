@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
-import { getStemProgressOverview } from '@starkid/core'
+import { getStemProgressOverview, getCurrentActor } from '@starkid/core'
 import { useNavigate } from 'react-router-dom'
+import SyncIdentityModal from '../components/auth/SyncIdentityModal.jsx'
 
 const TRACK_LABELS = {
   math: 'Math',
@@ -12,13 +13,19 @@ const TRACK_LABELS = {
 
 export default function StemProgressPage() {
   const [overview, setOverview] = useState(null)
+  const [isGuest, setIsGuest] = useState(true)
+  const [showSync, setShowSync] = useState(false)
   const nav = useNavigate()
 
   useEffect(() => {
     let active = true
     async function load() {
       const data = await getStemProgressOverview()
-      if (active) setOverview(data)
+      const actor = await getCurrentActor()
+      if (active) {
+        setOverview(data)
+        setIsGuest(actor?.mode !== 'user')
+      }
     }
     load()
     return () => {
@@ -41,6 +48,17 @@ export default function StemProgressPage() {
         <p className="text-sm text-cyan-200/70 font-mono">
           Track your learning progress across all STEM tracks.
         </p>
+        {isGuest ? (
+          <div className="mt-3 text-xs text-cyan-300/70">
+            Your progress is stored locally. Sync Command Profile to access it on other devices.
+            <button
+              onClick={() => setShowSync(true)}
+              className="ml-3 px-2 py-1 rounded border border-cyan-600/60 text-cyan-300 hover:text-cyan-200"
+            >
+              Sync Command Profile
+            </button>
+          </div>
+        ) : null}
       </div>
 
       <div className="grid gap-4 md:grid-cols-2">
@@ -118,5 +136,10 @@ export default function StemProgressPage() {
         </div>
       </div>
     </div>
+    <SyncIdentityModal
+      open={showSync}
+      onClose={() => setShowSync(false)}
+      onSync={() => setShowSync(false)}
+    />
   )
 }

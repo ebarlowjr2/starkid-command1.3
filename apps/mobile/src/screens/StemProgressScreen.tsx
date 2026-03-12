@@ -4,7 +4,8 @@ import { SpaceBackground } from '../components/home/SpaceBackground'
 import { GlassCard } from '../components/home/GlassCard'
 import { PixelButton } from '../components/home/PixelButton'
 import { colors, spacing, typography } from '../theme/tokens'
-import { getStemProgressOverview, ROUTE_MANIFEST } from '@starkid/core'
+import { getStemProgressOverview, ROUTE_MANIFEST, getCurrentActor } from '@starkid/core'
+import { SyncIdentityModal } from '../components/auth/SyncIdentityModal'
 
 const TRACK_LABELS: Record<string, string> = {
   math: 'Math',
@@ -16,12 +17,18 @@ const TRACK_LABELS: Record<string, string> = {
 
 export default function StemProgressScreen({ navigation }: { navigation: any }) {
   const [overview, setOverview] = useState<any | null>(null)
+  const [isGuest, setIsGuest] = useState(true)
+  const [showSync, setShowSync] = useState(false)
 
   useEffect(() => {
     let active = true
     async function load() {
       const data = await getStemProgressOverview()
-      if (active) setOverview(data)
+      const actor = await getCurrentActor()
+      if (active) {
+        setOverview(data)
+        setIsGuest(actor?.mode !== 'user')
+      }
     }
     load()
     return () => {
@@ -46,6 +53,18 @@ export default function StemProgressScreen({ navigation }: { navigation: any }) 
           <Text style={styles.kicker}>STEM PROGRESS</Text>
           <Text style={styles.title}>Your Learning Map</Text>
           <Text style={styles.subtitle}>Track completion by STEM track and level.</Text>
+          {isGuest ? (
+            <Text style={styles.guestNote}>
+              Your progress is stored locally. Sync Command Profile to access it on other devices.
+            </Text>
+          ) : null}
+          {isGuest ? (
+            <PixelButton
+              label="SYNC COMMAND PROFILE"
+              onPress={() => setShowSync(true)}
+              style={{ marginTop: spacing.sm, alignSelf: 'flex-start' }}
+            />
+          ) : null}
 
           <View style={{ marginTop: spacing.lg, gap: spacing.md }}>
             {overview.tracks.map((track: any) => (
@@ -107,6 +126,7 @@ export default function StemProgressScreen({ navigation }: { navigation: any }) 
             )}
           </GlassCard>
         </ScrollView>
+        <SyncIdentityModal open={showSync} onClose={() => setShowSync(false)} onSync={() => setShowSync(false)} />
       </SafeAreaView>
     </SpaceBackground>
   )
@@ -118,6 +138,7 @@ const styles = StyleSheet.create({
   kicker: { ...typography.pixel, color: colors.dim, marginBottom: 8 },
   title: { ...typography.hero, color: colors.text },
   subtitle: { ...typography.body, color: colors.muted, marginTop: 6 },
+  guestNote: { ...typography.small, color: colors.dim, marginTop: spacing.sm },
   trackHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   trackTitle: { ...typography.h2, color: colors.text },
   levelBadge: {

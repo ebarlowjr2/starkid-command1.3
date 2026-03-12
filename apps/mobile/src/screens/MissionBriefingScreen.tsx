@@ -2,11 +2,12 @@ import React, { useEffect, useState } from 'react'
 import { View, Text, StyleSheet, Pressable, TextInput, SafeAreaView, ScrollView } from 'react-native'
 import { getMission } from '../state/missionStore'
 import { useNavigation } from '@react-navigation/native'
-import { gradeStemAttempt, getRepos, syncMissionCompletionToActivity, getMissionById } from '@starkid/core'
+import { gradeStemAttempt, getRepos, syncMissionCompletionToActivity, getMissionById, getCurrentActor } from '@starkid/core'
 import { SpaceBackground } from '../components/home/SpaceBackground'
 import { GlassCard } from '../components/home/GlassCard'
 import { PixelButton } from '../components/home/PixelButton'
 import { colors, spacing, typography } from '../theme/tokens'
+import { SyncIdentityModal } from '../components/auth/SyncIdentityModal'
 
 export default function MissionBriefingScreen({ route }: { route: any }) {
   const navigation = useNavigation()
@@ -21,6 +22,8 @@ export default function MissionBriefingScreen({ route }: { route: any }) {
     : 0
   const progressPct = totalSteps ? Math.round((answeredSteps / totalSteps) * 100) : 0
   const [completed, setCompleted] = useState(false)
+  const [isGuest, setIsGuest] = useState(true)
+  const [showSync, setShowSync] = useState(false)
 
   useEffect(() => {
     async function loadCompleted() {
@@ -31,6 +34,18 @@ export default function MissionBriefingScreen({ route }: { route: any }) {
     }
     loadCompleted()
   }, [mission])
+
+  useEffect(() => {
+    let active = true
+    async function loadActor() {
+      const actor = await getCurrentActor()
+      if (active) setIsGuest(actor?.mode !== 'user')
+    }
+    loadActor()
+    return () => {
+      active = false
+    }
+  }, [])
 
   if (!mission) {
     return (
@@ -139,6 +154,12 @@ export default function MissionBriefingScreen({ route }: { route: any }) {
               {completed ? (
                 <Text style={[styles.panelItem, { color: colors.green, marginTop: spacing.md }]}>✅ Completed</Text>
               ) : null}
+              {completed && isGuest ? (
+                <View style={{ marginTop: spacing.md }}>
+                  <Text style={styles.guestNote}>Sync Command Profile to save your rank and mission progress across devices.</Text>
+                  <PixelButton label="SYNC COMMAND PROFILE" onPress={() => setShowSync(true)} style={{ marginTop: spacing.sm }} />
+                </View>
+              ) : null}
             </GlassCard>
           ) : null}
 
@@ -153,6 +174,7 @@ export default function MissionBriefingScreen({ route }: { route: any }) {
 
           <PixelButton label="BACK" onPress={() => navigation.goBack()} style={{ marginTop: spacing.lg, alignSelf: 'center' }} />
         </ScrollView>
+        <SyncIdentityModal open={showSync} onClose={() => setShowSync(false)} onSync={() => setShowSync(false)} />
       </SafeAreaView>
     </SpaceBackground>
   )
@@ -198,4 +220,5 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(26, 12, 32, 0.6)',
   },
   choiceText: { ...typography.small, color: colors.text },
+  guestNote: { ...typography.small, color: colors.dim },
 })
