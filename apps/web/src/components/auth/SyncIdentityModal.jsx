@@ -26,7 +26,8 @@ export default function SyncIdentityModal({ open, onClose, onSync }) {
     try {
       setLoading(true)
       setError(null)
-      const redirectTo = `${window.location.origin}/auth/callback`
+      const redirectPath = encodeURIComponent(window.location.pathname + window.location.search)
+      const redirectTo = `${window.location.origin}/auth/callback?redirect=${redirectPath}`
       await signUpWithPassword(email, password, redirectTo)
       onSync?.()
       onClose?.()
