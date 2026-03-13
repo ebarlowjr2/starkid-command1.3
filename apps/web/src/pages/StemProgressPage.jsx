@@ -40,6 +40,7 @@ export default function StemProgressPage() {
   }
 
   return (
+    <>
     <div className="p-4 max-w-5xl mx-auto">
       <div className="mb-6">
         <h2 className="text-2xl md:text-3xl font-bold tracking-wider text-cyan-400 font-mono mb-2">
@@ -141,5 +142,6 @@ export default function StemProgressPage() {
       onClose={() => setShowSync(false)}
       onSync={() => setShowSync(false)}
     />
+    </>
   )
 }
