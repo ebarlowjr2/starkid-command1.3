@@ -33,12 +33,13 @@ import StemProgressPage from './pages/StemProgressPage.jsx'
 import SupportPage from './pages/SupportPage.jsx'
 import AboutPage from './pages/AboutPage.jsx'
 import ProfilePage from './pages/ProfilePage.jsx'
+import AuthCallbackPage from './pages/AuthCallbackPage.jsx'
 import SocialQueuePage from './pages/ops/SocialQueuePage.jsx'
 import CometWidget from './components/comet/CometWidget.jsx'
 import DesktopNav from './components/nav/DesktopNav.jsx'
 import MobileNav from './components/nav/MobileNav.jsx'
 import { navSections } from './config/navConfig.js'
-import { getCurrentActor, getSession, onAuthChange } from '@starkid/core'
+import { getCurrentActor, getSession, onAuthChange, getSupabaseClient } from '@starkid/core'
 import SyncIdentityModal from './components/auth/SyncIdentityModal.jsx'
 
 export default function App() {
@@ -48,6 +49,18 @@ export default function App() {
   useEffect(() => {
     let active = true
     async function loadActor() {
+      const hash = window.location.hash
+      if (hash && hash.includes('access_token')) {
+        const supabase = getSupabaseClient()
+        if (supabase) {
+          try {
+            await supabase.auth.getSessionFromUrl({ storeSession: true })
+            window.history.replaceState({}, document.title, window.location.pathname + window.location.search)
+          } catch (e) {
+            // ignore
+          }
+        }
+      }
       await getSession()
       const actor = await getCurrentActor()
       if (active) setIsGuest(actor?.mode !== 'user')
@@ -130,6 +143,7 @@ export default function App() {
                     <Route path="/stem-activities/:activityId" element={<StemActivityDetailPage />} />
                                                                           <Route path="/support" element={<SupportPage />} />
                                                                           <Route path="/profile" element={<ProfilePage />} />
+                                                                          <Route path="/auth/callback" element={<AuthCallbackPage />} />
                                                                           <Route path="/about" element={<AboutPage />} />
                                                                           <Route path="/ops/social-queue" element={<SocialQueuePage />} />
                                                                                                                                                 </Routes>

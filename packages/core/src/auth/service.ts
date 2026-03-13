@@ -27,10 +27,14 @@ export async function signInWithPassword(email: string, password: string) {
   return session
 }
 
-export async function signUpWithPassword(email: string, password: string) {
+export async function signUpWithPassword(email: string, password: string, redirectTo?: string) {
   const supabase = getSupabaseClient()
   if (!supabase) throw new Error('Supabase not configured')
-  const { data, error } = await supabase.auth.signUp({ email, password })
+  const { data, error } = await supabase.auth.signUp({
+    email,
+    password,
+    options: redirectTo ? { emailRedirectTo: redirectTo } : undefined,
+  })
   if (error) throw error
   const session = toSession(data?.session)
   await setUserSession(session)
