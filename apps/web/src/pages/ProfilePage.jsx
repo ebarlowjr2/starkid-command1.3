@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { getProfile, updateProfile, getCurrentActor } from '@starkid/core'
+import { getProfile, updateProfile, getCurrentActor, signOut } from '@starkid/core'
 import SyncIdentityModal from '../components/auth/SyncIdentityModal.jsx'
 
 export default function ProfilePage() {
@@ -65,8 +65,22 @@ export default function ProfilePage() {
               {profile.bio || (isGuest ? 'Guest profile' : '')}
             </div>
           </div>
-          <div className="px-3 py-2 border border-cyan-500/60 rounded text-cyan-300 text-xs">
-            RANK: {profile.rank.toUpperCase()}
+          <div className="flex items-center gap-3">
+            <div className="px-3 py-2 border border-cyan-500/60 rounded text-cyan-300 text-xs">
+              RANK: {profile.rank.toUpperCase()}
+            </div>
+            {!isGuest ? (
+              <button
+                className="px-3 py-2 rounded border border-cyan-700/60 text-cyan-200 hover:text-cyan-100 text-xs"
+                onClick={async () => {
+                  await signOut()
+                  const actor = await getCurrentActor()
+                  setIsGuest(actor?.mode !== 'user')
+                }}
+              >
+                Sign Out
+              </button>
+            ) : null}
           </div>
         </div>
         {isGuest ? (

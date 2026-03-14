@@ -4,7 +4,7 @@ import { SpaceBackground } from "../components/home/SpaceBackground";
 import { GlassCard } from "../components/home/GlassCard";
 import { PixelButton } from "../components/home/PixelButton";
 import { colors, spacing, typography } from "../theme/tokens";
-import { getProfile, updateProfile, getCurrentActor } from "@starkid/core";
+import { getProfile, updateProfile, getCurrentActor, signOut } from "@starkid/core";
 import { SyncIdentityModal } from "../components/auth/SyncIdentityModal";
 
 export default function ProfileScreen() {
@@ -13,19 +13,20 @@ export default function ProfileScreen() {
   const [isGuest, setIsGuest] = useState(true);
   const [showSync, setShowSync] = useState(false);
 
+  const loadProfile = async (activeRef?: { current: boolean }) => {
+    const data = await getProfile();
+    const actor = await getCurrentActor();
+    if (activeRef && !activeRef.current) return;
+    setProfile(data);
+    setIsGuest(actor?.mode !== "user");
+    setForm({ displayName: data.displayName, bio: data.bio || "" });
+  };
+
   useEffect(() => {
-    let active = true;
-    async function load() {
-      const data = await getProfile();
-      const actor = await getCurrentActor();
-      if (!active) return;
-      setProfile(data);
-      setIsGuest(actor?.mode !== "user");
-      setForm({ displayName: data.displayName, bio: data.bio || "" });
-    }
-    load();
+    const activeRef = { current: true };
+    loadProfile(activeRef);
     return () => {
-      active = false;
+      activeRef.current = false;
     };
   }, []);
 
@@ -72,7 +73,17 @@ export default function ProfileScreen() {
                 onPress={() => setShowSync(true)}
                 style={{ marginTop: spacing.md, alignSelf: "flex-start" }}
               />
-            ) : null}
+            ) : (
+              <Pressable
+                onPress={async () => {
+                  await signOut();
+                  await loadProfile();
+                }}
+                style={{ marginTop: spacing.md, alignSelf: "flex-start" }}
+              >
+                <Text style={styles.signOut}>Sign Out</Text>
+              </Pressable>
+            )}
           </GlassCard>
 
           <View style={styles.statsGrid}>
@@ -150,7 +161,14 @@ export default function ProfileScreen() {
               <Text style={styles.note}>Initialize Identity to sync this profile.</Text>
             ) : null}
           </GlassCard>
-          <SyncIdentityModal open={showSync} onClose={() => setShowSync(false)} onSync={() => setShowSync(false)} />
+          <SyncIdentityModal
+            open={showSync}
+            onClose={() => setShowSync(false)}
+            onSync={async () => {
+              setShowSync(false);
+              await loadProfile();
+            }}
+          />
         </ScrollView>
       </SafeAreaView>
     </SpaceBackground>
@@ -182,6 +200,15 @@ const styles = StyleSheet.create({
   savedRow: { flexDirection: "row", flexWrap: "wrap", gap: 8 },
   savedItem: { ...typography.small, color: colors.muted },
   note: { ...typography.small, color: colors.dim, marginTop: spacing.sm },
+  signOut: {
+    ...typography.pixel,
+    color: colors.accent,
+    paddingVertical: 6,
+    paddingHorizontal: 10,
+    borderWidth: 1,
+    borderColor: "rgba(61,235,255,0.35)",
+    borderRadius: 8,
+  },
   input: {
     borderWidth: 1,
     borderColor: "rgba(61,235,255,0.3)",
