@@ -43,7 +43,6 @@ export default function LandingPage() {
         <TelemetryStrip />
       </div>
 
-            <style>{`
       <style>{`
         .landing-page-bg {
           min-height: calc(100vh - 120px);
