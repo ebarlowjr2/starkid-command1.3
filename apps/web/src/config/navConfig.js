@@ -39,5 +39,13 @@ export const navSections = [
       { label: 'News', to: '/updates/news' },
       { label: 'Blog', to: '/updates/blog' }
     ]
+  },
+  {
+    label: 'Account',
+    color: 'cyan',
+    items: [
+      { label: 'Profile', to: '/profile' },
+      { label: 'STEM Progress', to: '/stem/progress' }
+    ]
   }
 ]

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { SafeAreaView, StyleSheet, Text, View, ScrollView, TextInput, Pressable, Switch } from "react-native";
 import { SpaceBackground } from "../components/home/SpaceBackground";
 import { GlassCard } from "../components/home/GlassCard";
@@ -6,6 +6,7 @@ import { PixelButton } from "../components/home/PixelButton";
 import { colors, spacing, typography } from "../theme/tokens";
 import { getProfile, updateProfile, getCurrentActor, signOut, getSession } from "@starkid/core";
 import { SyncIdentityModal } from "../components/auth/SyncIdentityModal";
+import { useFocusEffect } from "@react-navigation/native";
 
 export default function ProfileScreen() {
   const [profile, setProfile] = useState<any | null>(null);
@@ -30,6 +31,12 @@ export default function ProfileScreen() {
       activeRef.current = false;
     };
   }, []);
+
+  useFocusEffect(
+    useCallback(() => {
+      loadProfile();
+    }, [])
+  );
 
   if (!profile) {
     return (
