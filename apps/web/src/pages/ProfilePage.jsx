@@ -9,21 +9,22 @@ export default function ProfilePage() {
   const [isGuest, setIsGuest] = useState(true)
   const [showSync, setShowSync] = useState(false)
 
+  const loadProfile = async (activeRef) => {
+    const session = await getSession()
+    const data = await getProfile()
+    const actor = await getCurrentActor()
+    if (activeRef && !activeRef.current) return
+    setProfile(data)
+    setIsGuest(!session?.userId && actor?.mode !== 'user')
+    setForm({ displayName: data.displayName, bio: data.bio || '' })
+    setLoading(false)
+  }
+
   useEffect(() => {
-    let active = true
-    async function load() {
-      const session = await getSession()
-      const data = await getProfile()
-      const actor = await getCurrentActor()
-      if (!active) return
-      setProfile(data)
-      setIsGuest(!session?.userId && actor?.mode !== 'user')
-      setForm({ displayName: data.displayName, bio: data.bio || '' })
-      setLoading(false)
-    }
-    load()
+    const activeRef = { current: true }
+    loadProfile(activeRef)
     return () => {
-      active = false
+      activeRef.current = false
     }
   }, [])
 
@@ -190,7 +191,10 @@ export default function ProfilePage() {
       <SyncIdentityModal
         open={showSync}
         onClose={() => setShowSync(false)}
-        onSync={() => setShowSync(false)}
+        onSync={async () => {
+          setShowSync(false)
+          await loadProfile()
+        }}
       />
     </div>
   )
