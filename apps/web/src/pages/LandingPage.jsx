@@ -1,5 +1,4 @@
 import { useNavigate } from "react-router-dom"
-import NebulaHero from "../components/hero/NebulaHero.jsx"
 import { TelemetryStrip } from "../components/TelemetryStrip.jsx"
 import { FeaturedEventOrb } from "../components/FeaturedEventOrb.jsx"
 import UpcomingEventsBanner from "../components/UpcomingEventsBanner.jsx"
@@ -8,235 +7,164 @@ export default function LandingPage() {
   const nav = useNavigate()
 
   return (
-    <div
-      className="landing-page-bg"
-      style={{
-        minHeight: "calc(100vh - 120px)",
-        padding: "28px 18px",
-        position: "relative",
-        overflow: "hidden",
-      }}
-    >
-      <div
-        className="landing-grid"
-        style={{
-          maxWidth: 1200,
-          margin: "0 auto",
-          display: "grid",
-          gridTemplateColumns: "1.05fr 1fr",
-          gap: 22,
-          alignItems: "center",
-        }}
-      >
-        <div className="landing-hero">
-          <div className="landing-hero-title">
-            WELCOME TO <br /> 
-            <span style={{ color: "#22d3ee" }}>STARKID</span> COMMAND
-          </div>
-          <div className="landing-hero-body">
-            StarKid Command is a live mission-control interface for tracking, understanding, and exploring space — built for enthusiasts and learners alike.
-          </div>
-
-          <div style={{ marginTop: 18 }}>
-            <button
-              onClick={() => nav("/explore")}
-              style={{
-                padding: "14px 24px",
-                borderRadius: 12,
-                border: "1px solid rgba(34, 211, 238, 0.4)",
-                background: "rgba(34, 211, 238, 0.15)",
-                fontWeight: 800,
-                cursor: "pointer",
-                fontSize: 16,
-                color: "#22d3ee",
-                fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace",
-                transition: "all 0.2s ease",
-              }}
-              onMouseOver={(e) => {
-                e.target.style.background = "rgba(34, 211, 238, 0.25)"
-                e.target.style.borderColor = "rgba(34, 211, 238, 0.6)"
-              }}
-              onMouseOut={(e) => {
-                e.target.style.background = "rgba(34, 211, 238, 0.15)"
-                e.target.style.borderColor = "rgba(34, 211, 238, 0.4)"
-              }}
-            >
-              EXPLORE →
-            </button>
-          </div>
-
-          <div className="landing-hero-stats">
-            <div>
-              <div style={{ color: "#22d3ee", marginBottom: 4 }}>SYSTEMS</div>
-              <div>ONLINE</div>
+    <div className="landing-page-bg">
+      <div className="landing-hero-image">
+        <div className="landing-hero-overlay">
+          <div className="landing-hero">
+            <div className="landing-hero-kicker">WELCOME TO</div>
+            <div className="landing-hero-title">
+              STARKID <span className="landing-hero-accent">COMMAND</span>
             </div>
-            <div>
-              <div style={{ color: "#22d3ee", marginBottom: 4 }}>MISSIONS</div>
-              <div>8 ACTIVE</div>
+            <div className="landing-hero-subtitle">Junior Science Officer Control Network</div>
+            <div className="landing-hero-body">
+              StarKid Command is a live mission-control interface for tracking, understanding, and exploring space — built for enthusiasts and learners alike.
             </div>
-            <div>
-              <div style={{ color: "#22d3ee", marginBottom: 4 }}>DATA</div>
-              <div>LIVE</div>
+            <div style={{ marginTop: 18 }}>
+              <button
+                onClick={() => nav("/explore")}
+                className="landing-hero-button"
+              >
+                EXPLORE →
+              </button>
             </div>
           </div>
         </div>
+      </div>
 
-              <div className="nebula-container" style={{ height: 520 }}>
-                <NebulaHero />
-              </div>
-            </div>
+      <div className="landing-section">
+        <FeaturedEventOrb />
+      </div>
 
-                        <div
-                          style={{
-                            maxWidth: 1200,
-                            margin: "24px auto 0",
-                            padding: "0 18px",
-                          }}
-                        >
-                          <FeaturedEventOrb />
-                        </div>
+      <div className="landing-section">
+        <UpcomingEventsBanner />
+      </div>
 
-                        <div
-                          style={{
-                            maxWidth: 1200,
-                            margin: "18px auto 0",
-                            padding: "0 18px",
-                          }}
-                        >
-                          <UpcomingEventsBanner />
-                        </div>
-
-                        <div
-                          style={{
-                            maxWidth: 1200,
-                            margin: "18px auto 0",
-                            padding: "0 18px",
-                          }}
-                        >
-                          <TelemetryStrip />
-                        </div>
+      <div className="landing-section">
+        <TelemetryStrip />
+      </div>
 
             <style>{`
-              .landing-page-bg {
-                background: 
-                  radial-gradient(ellipse at 20% 80%, rgba(30, 64, 175, 0.15) 0%, transparent 50%),
-                  radial-gradient(ellipse at 80% 20%, rgba(88, 28, 135, 0.12) 0%, transparent 50%),
-                  radial-gradient(ellipse at 50% 50%, rgba(6, 182, 212, 0.08) 0%, transparent 60%),
-                  linear-gradient(to bottom, #000000 0%, #0a0a1a 50%, #000000 100%);
-              }
-        
-              .landing-page-bg::before {
-                content: '';
-                position: absolute;
-                top: 0;
-                left: 0;
-                right: 0;
-                bottom: 0;
-                background-image: 
-                  radial-gradient(1px 1px at 10% 10%, rgba(255,255,255,0.8) 0%, transparent 100%),
-                  radial-gradient(1px 1px at 20% 30%, rgba(255,255,255,0.6) 0%, transparent 100%),
-                  radial-gradient(1px 1px at 35% 15%, rgba(255,255,255,0.9) 0%, transparent 100%),
-                  radial-gradient(1px 1px at 45% 45%, rgba(255,255,255,0.5) 0%, transparent 100%),
-                  radial-gradient(1px 1px at 55% 25%, rgba(255,255,255,0.7) 0%, transparent 100%),
-                  radial-gradient(1px 1px at 65% 55%, rgba(255,255,255,0.6) 0%, transparent 100%),
-                  radial-gradient(1px 1px at 75% 35%, rgba(255,255,255,0.8) 0%, transparent 100%),
-                  radial-gradient(1px 1px at 85% 65%, rgba(255,255,255,0.5) 0%, transparent 100%),
-                  radial-gradient(1px 1px at 95% 20%, rgba(255,255,255,0.7) 0%, transparent 100%),
-                  radial-gradient(1px 1px at 5% 50%, rgba(255,255,255,0.6) 0%, transparent 100%),
-                  radial-gradient(1px 1px at 15% 70%, rgba(255,255,255,0.8) 0%, transparent 100%),
-                  radial-gradient(1px 1px at 25% 85%, rgba(255,255,255,0.5) 0%, transparent 100%),
-                  radial-gradient(1px 1px at 40% 75%, rgba(255,255,255,0.7) 0%, transparent 100%),
-                  radial-gradient(1px 1px at 50% 90%, rgba(255,255,255,0.6) 0%, transparent 100%),
-                  radial-gradient(1px 1px at 60% 80%, rgba(255,255,255,0.8) 0%, transparent 100%),
-                  radial-gradient(1px 1px at 70% 95%, rgba(255,255,255,0.5) 0%, transparent 100%),
-                  radial-gradient(1px 1px at 80% 5%, rgba(255,255,255,0.9) 0%, transparent 100%),
-                  radial-gradient(1px 1px at 90% 40%, rgba(255,255,255,0.6) 0%, transparent 100%),
-                  radial-gradient(2px 2px at 12% 22%, rgba(255,255,255,0.4) 0%, transparent 100%),
-                  radial-gradient(2px 2px at 32% 62%, rgba(255,255,255,0.3) 0%, transparent 100%),
-                  radial-gradient(2px 2px at 52% 12%, rgba(255,255,255,0.5) 0%, transparent 100%),
-                  radial-gradient(2px 2px at 72% 72%, rgba(255,255,255,0.4) 0%, transparent 100%),
-                  radial-gradient(2px 2px at 92% 52%, rgba(255,255,255,0.3) 0%, transparent 100%),
-                  radial-gradient(1.5px 1.5px at 8% 88%, rgba(200,220,255,0.6) 0%, transparent 100%),
-                  radial-gradient(1.5px 1.5px at 28% 38%, rgba(255,200,200,0.5) 0%, transparent 100%),
-                  radial-gradient(1.5px 1.5px at 48% 58%, rgba(200,255,220,0.4) 0%, transparent 100%),
-                  radial-gradient(1.5px 1.5px at 68% 18%, rgba(255,255,200,0.5) 0%, transparent 100%),
-                  radial-gradient(1.5px 1.5px at 88% 78%, rgba(220,200,255,0.6) 0%, transparent 100%);
-                pointer-events: none;
-                z-index: 0;
-              }
-        
-              .landing-page-bg > * {
-                position: relative;
-                z-index: 1;
-              }
+      <style>{`
+        .landing-page-bg {
+          min-height: calc(100vh - 120px);
+          padding: 0 18px 36px;
+          background: linear-gradient(to bottom, #0b0f1a 0%, #05070f 100%);
+        }
 
-              .landing-hero {
-                display: flex;
-                flex-direction: column;
-                gap: 12px;
-              }
+        .landing-hero-image {
+          position: relative;
+          min-height: 420px;
+          border-radius: 22px;
+          margin: 24px auto 0;
+          max-width: 1200px;
+          overflow: hidden;
+          background-image: url('/assets/backgrounds/starkid-home-hero-web.png');
+          background-size: cover;
+          background-position: center;
+          border: 1px solid rgba(34, 211, 238, 0.25);
+          box-shadow: 0 24px 60px rgba(0,0,0,0.45);
+        }
 
-              .landing-hero-title {
-                font-size: 52px;
-                font-weight: 800;
-                line-height: 1.05;
-                font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-                letter-spacing: -0.02em;
-              }
+        .landing-hero-overlay {
+          position: absolute;
+          inset: 0;
+          background: linear-gradient(180deg, rgba(4,8,20,0.15) 0%, rgba(4,8,20,0.65) 60%, rgba(4,8,20,0.9) 100%);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 36px;
+          text-align: center;
+        }
 
-              .landing-hero-body {
-                opacity: 0.85;
-                max-width: 520px;
-                line-height: 1.6;
-                font-size: 18px;
-                color: rgba(255,255,255,0.8);
-              }
+        .landing-hero {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 10px;
+          max-width: 720px;
+        }
 
-              .landing-hero-stats {
-                margin-top: 32px;
-                display: flex;
-                gap: 24px;
-                opacity: 0.6;
-                font-size: 12px;
-                font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-              }
-        
-              @media (max-width: 900px) {
-                .landing-grid {
-                  grid-template-columns: 1fr !important;
-                  text-align: center;
-                }
-                .landing-grid > div:first-child {
-                  align-items: center;
-                }
-                .nebula-container {
-                  height: 380px !important;
-                }
-                .landing-hero-title {
-                  font-size: 36px;
-                }
-                .landing-hero-body {
-                  font-size: 16px;
-                  max-width: 100%;
-                }
-                .landing-hero-stats {
-                  justify-content: center;
-                }
-              }
+        .landing-hero-kicker {
+          font-size: 12px;
+          letter-spacing: 0.35em;
+          color: rgba(255,255,255,0.7);
+          font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+        }
 
-              @media (max-width: 600px) {
-                .landing-hero-title {
-                  font-size: 30px;
-                  line-height: 1.15;
-                }
-                .landing-page-bg {
-                  padding: 22px 14px !important;
-                }
-                .landing-hero-stats {
-                  gap: 16px;
-                }
-              }
-            `}</style>
+        .landing-hero-title {
+          font-size: 42px;
+          font-weight: 800;
+          color: #f8fafc;
+          letter-spacing: 0.04em;
+          font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+        }
+
+        .landing-hero-accent {
+          color: #22d3ee;
+        }
+
+        .landing-hero-subtitle {
+          color: rgba(148, 163, 184, 0.85);
+          font-size: 16px;
+          font-weight: 600;
+        }
+
+        .landing-hero-body {
+          opacity: 0.9;
+          line-height: 1.6;
+          font-size: 16px;
+          color: rgba(226,232,240,0.82);
+        }
+
+        .landing-hero-button {
+          padding: 12px 28px;
+          border-radius: 14px;
+          border: 2px solid rgba(34, 211, 238, 0.7);
+          background: rgba(0,0,0,0.35);
+          font-weight: 800;
+          cursor: pointer;
+          font-size: 14px;
+          color: #22d3ee;
+          font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+          box-shadow: 0 0 18px rgba(34, 211, 238, 0.45);
+          transition: all 0.2s ease;
+        }
+
+        .landing-hero-button:hover {
+          background: rgba(34, 211, 238, 0.2);
+          box-shadow: 0 0 24px rgba(34, 211, 238, 0.6);
+        }
+
+        .landing-section {
+          max-width: 1200px;
+          margin: 22px auto 0;
+          padding: 0 6px;
+        }
+
+        @media (max-width: 900px) {
+          .landing-hero-image {
+            min-height: 360px;
+          }
+          .landing-hero-title {
+            font-size: 32px;
+          }
+          .landing-hero-subtitle {
+            font-size: 14px;
+          }
+        }
+
+        @media (max-width: 600px) {
+          .landing-hero-image {
+            min-height: 320px;
+          }
+          .landing-hero-title {
+            font-size: 26px;
+          }
+          .landing-hero-overlay {
+            padding: 24px 16px;
+          }
+        }
+      `}</style>
     </div>
   )
 }

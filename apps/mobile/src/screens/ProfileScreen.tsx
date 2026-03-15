@@ -210,11 +210,12 @@ const styles = StyleSheet.create({
   note: { ...typography.small, color: colors.dim, marginTop: spacing.sm },
   signOut: {
     ...typography.pixel,
-    color: colors.accent,
+    color: colors.text,
     paddingVertical: 6,
     paddingHorizontal: 10,
     borderWidth: 1,
-    borderColor: "rgba(61,235,255,0.35)",
+    borderColor: "rgba(61,235,255,0.6)",
+    backgroundColor: "rgba(61,235,255,0.18)",
     borderRadius: 8,
   },
   input: {

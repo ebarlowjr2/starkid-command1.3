@@ -118,43 +118,31 @@ export default function ExploreHubPage() {
   const nav = useNavigate()
 
   return (
-        <div className="p-4">
-          <div className="mb-6">
-            <h1
-              className="text-2xl md:text-3xl font-bold tracking-wider text-cyan-400 font-mono"
-              style={{ marginBottom: 8 }}
-            >
-              EXPLORE
-            </h1>
-            <p className="text-sm text-cyan-200/70 font-mono">
-              SELECT A MISSION MODULE TO BEGIN
-            </p>
+    <div className="explore-page-bg">
+      <div className="explore-hero">
+        <div className="explore-hero-overlay">
+          <div>
+            <div className="explore-hero-kicker">EXPLORE HUB</div>
+            <div className="explore-hero-title">Choose a console to jump into and start tracking missions.</div>
           </div>
+        </div>
+      </div>
 
-          <div
-            onClick={() => nav('/missions/artemis')}
-            style={{
-              marginBottom: 24,
-              padding: 20,
-              borderRadius: 16,
-              background: 'linear-gradient(135deg, rgba(34, 211, 238, 0.15), rgba(168, 85, 247, 0.1))',
-              border: '2px solid rgba(34, 211, 238, 0.4)',
-              cursor: 'pointer',
-              transition: 'all 0.2s ease',
-            }}
-          >
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
-              <span style={{ fontSize: 10, padding: '2px 8px', borderRadius: 4, background: 'rgba(34, 211, 238, 0.3)', color: '#22d3ee', fontFamily: 'monospace', fontWeight: 700 }}>FEATURED EXPERIENCE</span>
+      <div className="explore-content">
+        <div
+          onClick={() => nav('/missions/artemis')}
+          className="explore-featured"
+        >
+          <div className="explore-featured-badge">FEATURED EXPERIENCE</div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <span style={{ fontSize: 32 }}>🌙</span>
+            <div>
+              <div style={{ fontSize: 20, fontWeight: 700, color: '#22d3ee', marginBottom: 4 }}>Artemis Program</div>
+              <div style={{ fontSize: 14, color: 'rgba(255,255,255,0.7)' }}>Track NASA's return to the Moon — mission control dashboard with live status, crew info, and hardware specs.</div>
             </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-              <span style={{ fontSize: 32 }}>🌙</span>
-              <div>
-                <div style={{ fontSize: 20, fontWeight: 700, color: '#22d3ee', marginBottom: 4 }}>Artemis Program</div>
-                <div style={{ fontSize: 14, color: 'rgba(255,255,255,0.7)' }}>Track NASA's return to the Moon — mission control dashboard with live status, crew info, and hardware specs.</div>
-              </div>
-              <div style={{ marginLeft: 'auto', fontSize: 24, color: '#22d3ee' }}>→</div>
-            </div>
+            <div style={{ marginLeft: 'auto', fontSize: 24, color: '#22d3ee' }}>→</div>
           </div>
+        </div>
 
           <div
         className="features-grid"
@@ -245,12 +233,90 @@ export default function ExploreHubPage() {
       </div>
 
       <style>{`
+        .explore-page-bg {
+          min-height: calc(100vh - 120px);
+          padding: 0 18px 36px;
+          background: linear-gradient(to bottom, #0b0f1a 0%, #05070f 100%);
+        }
+
+        .explore-hero {
+          position: relative;
+          min-height: 260px;
+          border-radius: 22px;
+          margin: 24px auto 0;
+          max-width: 1200px;
+          overflow: hidden;
+          background-image: url('/assets/backgrounds/starkid-explore-hero-web.png');
+          background-size: cover;
+          background-position: center;
+          border: 1px solid rgba(34, 211, 238, 0.22);
+          box-shadow: 0 20px 50px rgba(0,0,0,0.45);
+        }
+
+        .explore-hero-overlay {
+          position: absolute;
+          inset: 0;
+          background: linear-gradient(180deg, rgba(4,8,20,0.2) 0%, rgba(4,8,20,0.55) 55%, rgba(4,8,20,0.88) 100%);
+          display: flex;
+          align-items: flex-end;
+          padding: 24px;
+        }
+
+        .explore-hero-kicker {
+          font-size: 12px;
+          letter-spacing: 0.32em;
+          color: rgba(255,255,255,0.7);
+          font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+          margin-bottom: 8px;
+        }
+
+        .explore-hero-title {
+          font-size: 20px;
+          font-weight: 700;
+          color: #e2e8f0;
+          max-width: 680px;
+        }
+
+        .explore-content {
+          max-width: 1200px;
+          margin: 22px auto 0;
+          padding: 0 6px;
+        }
+
+        .explore-featured {
+          margin-bottom: 24px;
+          padding: 20px;
+          border-radius: 16px;
+          background: linear-gradient(135deg, rgba(34, 211, 238, 0.15), rgba(168, 85, 247, 0.1));
+          border: 2px solid rgba(34, 211, 238, 0.4);
+          cursor: pointer;
+          transition: all 0.2s ease;
+        }
+
+        .explore-featured-badge {
+          font-size: 10px;
+          padding: 2px 8px;
+          border-radius: 4px;
+          background: rgba(34, 211, 238, 0.3);
+          color: #22d3ee;
+          font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+          font-weight: 700;
+          display: inline-block;
+          margin-bottom: 10px;
+        }
+
         @media (max-width: 500px) {
           .features-grid {
             grid-template-columns: 1fr !important;
           }
           .feature-card {
             grid-template-columns: 1fr !important;
+          }
+          .explore-hero {
+            min-height: 220px;
+          }
+          .explore-hero-title {
+            font-size: 16px;
           }
         }
       `}</style>
