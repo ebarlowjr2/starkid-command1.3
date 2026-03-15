@@ -4,7 +4,7 @@ import { SpaceBackground } from "../components/home/SpaceBackground";
 import { GlassCard } from "../components/home/GlassCard";
 import { PixelButton } from "../components/home/PixelButton";
 import { colors, spacing, typography } from "../theme/tokens";
-import { getProfile, updateProfile, getCurrentActor, signOut } from "@starkid/core";
+import { getProfile, updateProfile, getCurrentActor, signOut, getSession } from "@starkid/core";
 import { SyncIdentityModal } from "../components/auth/SyncIdentityModal";
 
 export default function ProfileScreen() {
@@ -14,6 +14,7 @@ export default function ProfileScreen() {
   const [showSync, setShowSync] = useState(false);
 
   const loadProfile = async (activeRef?: { current: boolean }) => {
+    await getSession();
     const data = await getProfile();
     const actor = await getCurrentActor();
     if (activeRef && !activeRef.current) return;

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { getProfile, updateProfile, getCurrentActor, signOut } from '@starkid/core'
+import { getProfile, updateProfile, getCurrentActor, signOut, getSession } from '@starkid/core'
 import SyncIdentityModal from '../components/auth/SyncIdentityModal.jsx'
 
 export default function ProfilePage() {
@@ -12,6 +12,7 @@ export default function ProfilePage() {
   useEffect(() => {
     let active = true
     async function load() {
+      await getSession()
       const data = await getProfile()
       const actor = await getCurrentActor()
       if (!active) return
