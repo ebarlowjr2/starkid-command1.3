@@ -232,6 +232,8 @@ export default function ExploreHubPage() {
         ))}
       </div>
 
+      </div>
+
       <style>{`
         .explore-page-bg {
           min-height: calc(100vh - 120px);
