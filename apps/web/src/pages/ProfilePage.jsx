@@ -12,12 +12,12 @@ export default function ProfilePage() {
   useEffect(() => {
     let active = true
     async function load() {
-      await getSession()
+      const session = await getSession()
       const data = await getProfile()
       const actor = await getCurrentActor()
       if (!active) return
       setProfile(data)
-      setIsGuest(actor?.mode !== 'user')
+      setIsGuest(!session?.userId && actor?.mode !== 'user')
       setForm({ displayName: data.displayName, bio: data.bio || '' })
       setLoading(false)
     }

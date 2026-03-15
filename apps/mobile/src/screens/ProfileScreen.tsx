@@ -15,12 +15,12 @@ export default function ProfileScreen() {
   const [showSync, setShowSync] = useState(false);
 
   const loadProfile = async (activeRef?: { current: boolean }) => {
-    await getSession();
+    const session = await getSession();
     const data = await getProfile();
     const actor = await getCurrentActor();
     if (activeRef && !activeRef.current) return;
     setProfile(data);
-    setIsGuest(actor?.mode !== "user");
+    setIsGuest(!session?.userId && actor?.mode !== "user");
     setForm({ displayName: data.displayName, bio: data.bio || "" });
   };
 

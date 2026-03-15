@@ -9,10 +9,11 @@ import { createSupabasePreferencesRepo } from './supabasePreferencesRepo.ts'
 import { createSupabaseProfileRepo } from './supabaseProfileRepo.ts'
 import { createLocalStemProgressRepo } from './localStemProgressRepo.ts'
 import { createSupabaseStemProgressRepo } from './supabaseStemProgressRepo.ts'
+import { isSupabaseReposEnabled } from './supabaseReposEnabled.ts'
 
 export async function getRepos() {
   const actor = await getCurrentActor()
-  if (actor.mode === 'user') {
+  if (actor.mode === 'user' && isSupabaseReposEnabled()) {
     return {
       missionsRepo: createSupabaseMissionsRepo(),
       savedItemsRepo: createSupabaseSavedItemsRepo(),
