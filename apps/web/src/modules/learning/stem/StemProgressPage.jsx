@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { getStemProgressOverview, getCurrentActor } from '@starkid/core'
 import { useNavigate } from 'react-router-dom'
-import SyncIdentityModal from '../components/auth/SyncIdentityModal.jsx'
+import SyncIdentityModal from '../../../components/auth/SyncIdentityModal.jsx'
 
 const TRACK_LABELS = {
   math: 'Math',
