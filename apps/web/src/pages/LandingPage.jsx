@@ -7,7 +7,14 @@ export default function LandingPage() {
   const nav = useNavigate()
 
   return (
-    <div className="landing-page-bg">
+    <div
+      className="landing-page-bg"
+      style={{
+        backgroundImage: "url('/assets/backgrounds/starkid-home-hero-web.png')",
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+      }}
+    >
       <div className="landing-hero-image">
         <div className="landing-hero-overlay">
           <div className="landing-hero">
@@ -47,20 +54,33 @@ export default function LandingPage() {
         .landing-page-bg {
           min-height: calc(100vh - 120px);
           padding: 0 18px 36px;
-          background: linear-gradient(to bottom, #0b0f1a 0%, #05070f 100%);
+          background-repeat: no-repeat;
+          position: relative;
+        }
+
+        .landing-page-bg::before {
+          content: '';
+          position: absolute;
+          inset: 0;
+          background: linear-gradient(180deg, rgba(4,8,20,0.35) 0%, rgba(4,8,20,0.75) 55%, rgba(4,8,20,0.92) 100%);
+          z-index: 0;
+          pointer-events: none;
+        }
+
+        .landing-page-bg > * {
+          position: relative;
+          z-index: 1;
         }
 
         .landing-hero-image {
           position: relative;
-          min-height: 420px;
+          min-height: 360px;
           border-radius: 22px;
           margin: 24px auto 0;
           max-width: 1200px;
           overflow: hidden;
-          background-image: url('/assets/backgrounds/starkid-home-hero-web.png');
-          background-size: cover;
-          background-position: center;
-          border: 1px solid rgba(34, 211, 238, 0.25);
+          background: rgba(8, 12, 24, 0.35);
+          border: 1px solid rgba(34, 211, 238, 0.28);
           box-shadow: 0 24px 60px rgba(0,0,0,0.45);
         }
 
