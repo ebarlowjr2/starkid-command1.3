@@ -238,27 +238,43 @@ export default function ExploreHubPage() {
         .explore-page-bg {
           min-height: calc(100vh - 120px);
           padding: 0 18px 36px;
-          background: linear-gradient(to bottom, #0b0f1a 0%, #05070f 100%);
+          background-image: url('/assets/backgrounds/starkid-explore-hero-web.png');
+          background-size: cover;
+          background-position: center;
+          background-attachment: fixed;
+          background-repeat: no-repeat;
+        }
+
+        .explore-page-bg::before {
+          content: '';
+          position: fixed;
+          inset: 0;
+          background: linear-gradient(180deg, rgba(4,8,20,0.35) 0%, rgba(4,8,20,0.75) 55%, rgba(4,8,20,0.92) 100%);
+          z-index: 0;
+          pointer-events: none;
+        }
+
+        .explore-page-bg > * {
+          position: relative;
+          z-index: 1;
         }
 
         .explore-hero {
           position: relative;
-          min-height: 260px;
+          min-height: 240px;
           border-radius: 22px;
           margin: 24px auto 0;
           max-width: 1200px;
           overflow: hidden;
-          background-image: url('/assets/backgrounds/starkid-explore-hero-web.png');
-          background-size: cover;
-          background-position: center;
-          border: 1px solid rgba(34, 211, 238, 0.22);
+          background: rgba(8, 12, 24, 0.6);
+          border: 1px solid rgba(34, 211, 238, 0.28);
           box-shadow: 0 20px 50px rgba(0,0,0,0.45);
         }
 
         .explore-hero-overlay {
           position: absolute;
           inset: 0;
-          background: linear-gradient(180deg, rgba(4,8,20,0.2) 0%, rgba(4,8,20,0.55) 55%, rgba(4,8,20,0.88) 100%);
+          background: linear-gradient(180deg, rgba(4,8,20,0.25) 0%, rgba(4,8,20,0.6) 55%, rgba(4,8,20,0.85) 100%);
           display: flex;
           align-items: flex-end;
           padding: 24px;
