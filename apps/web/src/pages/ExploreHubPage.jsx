@@ -118,7 +118,14 @@ export default function ExploreHubPage() {
   const nav = useNavigate()
 
   return (
-    <div className="explore-page-bg">
+    <div
+      className="explore-page-bg"
+      style={{
+        backgroundImage: "url('/assets/backgrounds/starkid-explore-hero-web.png')",
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+      }}
+    >
       <div className="explore-hero">
         <div className="explore-hero-overlay">
           <div>
@@ -238,16 +245,13 @@ export default function ExploreHubPage() {
         .explore-page-bg {
           min-height: calc(100vh - 120px);
           padding: 0 18px 36px;
-          background-image: url('/assets/backgrounds/starkid-explore-hero-web.png');
-          background-size: cover;
-          background-position: center;
-          background-attachment: fixed;
           background-repeat: no-repeat;
+          position: relative;
         }
 
         .explore-page-bg::before {
           content: '';
-          position: fixed;
+          position: absolute;
           inset: 0;
           background: linear-gradient(180deg, rgba(4,8,20,0.35) 0%, rgba(4,8,20,0.75) 55%, rgba(4,8,20,0.92) 100%);
           z-index: 0;
@@ -266,7 +270,7 @@ export default function ExploreHubPage() {
           margin: 24px auto 0;
           max-width: 1200px;
           overflow: hidden;
-          background: rgba(8, 12, 24, 0.6);
+          background: rgba(8, 12, 24, 0.35);
           border: 1px solid rgba(34, 211, 238, 0.28);
           box-shadow: 0 20px 50px rgba(0,0,0,0.45);
         }
