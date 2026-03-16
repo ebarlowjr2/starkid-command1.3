@@ -1,6 +1,6 @@
 import type { ExpectedAnswer } from '@starkid/types'
 import type { StemActivity, StemMission } from '../types'
-import { gradeAttempt } from '../../domain/missions/grading.ts'
+import { gradeAttempt } from '../../../domain/missions/grading.ts'
 
 type GradeResult = {
   pass: boolean
