@@ -5,7 +5,7 @@ import HomeScreen from "../screens/HomeScreen";
 import ExploreHubV2 from "../screens/ExploreHubV2";
 import CommandCenterScreen from "../screens/CommandCenterScreen";
 import SkyEventsScreen from "../screens/SkyEventsScreen";
-import StemActivitiesScreen from "../screens/StemActivitiesScreen";
+import LearningHubScreen from "../modules/learning/LearningHubScreen";
 import ProfileScreen from "../screens/ProfileScreen";
 import CometScreen from "../screens/CometScreen";
 import { CustomTabBar } from "./CustomTabBar";
@@ -20,7 +20,7 @@ export default function AppTabs() {
       <Tab.Screen name={ROUTE_MANIFEST.COMMAND_CENTER} component={CommandCenterScreen} options={{ title: "Command" }} />
       <Tab.Screen name={ROUTE_MANIFEST.COMET} component={CometScreen} options={{ title: "C.O.M.E.T." }} />
       <Tab.Screen name={ROUTE_MANIFEST.LUNAR_EVENTS} component={SkyEventsScreen} options={{ title: "Lunar Events" }} />
-      <Tab.Screen name={ROUTE_MANIFEST.STEM_ACTIVITIES} component={StemActivitiesScreen} options={{ title: "S.T.E.M." }} />
+      <Tab.Screen name={ROUTE_MANIFEST.LEARNING} component={LearningHubScreen} options={{ title: "Learning" }} />
       <Tab.Screen name={ROUTE_MANIFEST.PROFILE} component={ProfileScreen} options={{ title: "Profile" }} />
     </Tab.Navigator>
   );

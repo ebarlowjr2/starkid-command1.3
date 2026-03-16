@@ -1,4 +1,4 @@
-import type { StemActivity, StemLevel, StemTrack } from '../types'
+import type { StemActivity, StemLevel, StemTrack } from '../stem/types'
 
 export type StemActivityCompletion = {
   activityId: string

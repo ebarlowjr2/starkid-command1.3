@@ -1,7 +1,7 @@
-import type { StemActivity, StemMission, StemTrack } from '../types'
+import type { StemActivity, StemMission, StemTrack } from '../stem/types'
 import type { StemActivityCompletion, StemProgressOverview } from './types'
 import { getRepos } from '../../storage/repos/repoFactory.ts'
-import { listStemActivities } from '../service'
+import { listStemActivities } from '../stem/service'
 import { calculateTrackProgress, getRecommendedNextActivity } from './calculators'
 
 async function loadCompletions(): Promise<StemActivityCompletion[]> {

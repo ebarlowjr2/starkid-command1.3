@@ -105,7 +105,7 @@ export default function StemProgressPage() {
               </div>
               <button
                 className="mt-3 text-xs text-cyan-300 border border-cyan-600/60 px-2 py-1 rounded hover:text-cyan-200"
-                onClick={() => nav(`/stem-activities/${overview.recommendedNextActivity.id}`)}
+                onClick={() => nav(`/learning/stem/${overview.recommendedNextActivity.id}`)}
               >
                 Continue →
               </button>

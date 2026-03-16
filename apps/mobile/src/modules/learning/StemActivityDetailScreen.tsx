@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react'
 import { SafeAreaView, StyleSheet, Text, View, ScrollView } from 'react-native'
-import { SpaceBackground } from '../components/home/SpaceBackground'
-import { GlassCard } from '../components/home/GlassCard'
-import { PixelButton } from '../components/home/PixelButton'
-import { colors, spacing, typography } from '../theme/tokens'
+import { SpaceBackground } from '../../components/home/SpaceBackground'
+import { GlassCard } from '../../components/home/GlassCard'
+import { PixelButton } from '../../components/home/PixelButton'
+import { colors, spacing, typography } from '../../theme/tokens'
 import { getStemActivityById, isStemActivityCompleted, markStemActivityCompleted } from '@starkid/core'
 
 export default function StemActivityDetailScreen({ route }: { route: any }) {

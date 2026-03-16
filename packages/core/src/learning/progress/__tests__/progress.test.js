@@ -1,6 +1,6 @@
 import { describe, expect, test, beforeEach } from 'vitest'
 import { configureStorage } from '../../../storage/storage.ts'
-import { listStemActivities } from '../../service'
+import { listStemActivities } from '../../stem/service'
 import { getStemProgressOverview, markStemActivityCompleted, syncMissionCompletionToActivity } from '../service'
 import { calculateTrackProgress, getRecommendedNextActivity } from '../calculators'
 

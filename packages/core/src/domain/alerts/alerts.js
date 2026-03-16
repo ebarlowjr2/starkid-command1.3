@@ -1,4 +1,4 @@
-import { generateMissionFromAlert } from '../../stem/service.ts'
+import { generateMissionFromAlert } from '../../learning/stem/service.ts'
 import { getUpcomingLaunchesFromLibrary } from '../launches/launchLibrary.js'
 import { getAllSkyEvents } from '../skyEvents/skyEventsDb.js'
 import { getRecentSolarActivity } from '../../clients/nasa/nasa.js'

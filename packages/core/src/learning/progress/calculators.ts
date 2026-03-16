@@ -1,4 +1,4 @@
-import type { StemActivity, StemLevel, StemTrack } from '../types'
+import type { StemActivity, StemLevel, StemTrack } from '../stem/types'
 import type { StemActivityCompletion, TrackProgress } from './types'
 
 const LEVEL_ORDER: StemLevel[] = ['cadet', 'explorer', 'specialist', 'operator']

@@ -1,8 +1,8 @@
 import type { UserProfile, UserRank, SavedObjectType, AlertPreference } from './types'
 import { getDefaultProfile } from './defaults'
 import { getRepos } from '../storage/repos/repoFactory'
-import { listTracks, listLevels } from '../stem/service'
-import { listStemActivities } from '../stem/service'
+import { listTracks, listLevels } from '../learning/stem/service'
+import { listStemActivities } from '../learning/stem/service'
 
 const SAVED_TYPES: SavedObjectType[] = [
   'near_earth_object',

@@ -10,8 +10,11 @@ import CometsScreen from './src/screens/CometsScreen'
 import SolarMapScreen from './src/screens/SolarMapScreen'
 import StreamsScreen from './src/screens/StreamsScreen'
 import MissionBriefingScreen from './src/screens/MissionBriefingScreen'
-import StemActivityDetailScreen from './src/screens/StemActivityDetailScreen'
-import StemProgressScreen from './src/screens/StemProgressScreen'
+import LearningHubScreen from './src/modules/learning/LearningHubScreen'
+import StemActivitiesScreen from './src/modules/learning/StemActivitiesScreen'
+import StemActivityDetailScreen from './src/modules/learning/StemActivityDetailScreen'
+import StemProgressScreen from './src/modules/learning/StemProgressScreen'
+import CyberLabScreen from './src/modules/learning/CyberLabScreen'
 import PlanetsScreen from './src/screens/PlanetsScreen'
 import BeyondSolarSystemScreen from './src/screens/BeyondSolarSystemScreen'
 import MissionAlertsScreen from './src/screens/MissionAlertsScreen'
@@ -98,6 +101,9 @@ export default function App() {
         <Stack.Screen name={ROUTE_MANIFEST.COMETS} component={CometsScreen} />
         <Stack.Screen name={ROUTE_MANIFEST.SOLAR_MAP} component={SolarMapScreen} />
         <Stack.Screen name={ROUTE_MANIFEST.STREAMS} component={StreamsScreen} />
+        <Stack.Screen name={ROUTE_MANIFEST.LEARNING} component={LearningHubScreen} />
+        <Stack.Screen name={ROUTE_MANIFEST.LEARNING_STEM} component={StemActivitiesScreen} />
+        <Stack.Screen name={ROUTE_MANIFEST.LEARNING_CYBERLAB} component={CyberLabScreen} />
         <Stack.Screen name={ROUTE_MANIFEST.STEM_ACTIVITY_DETAIL} component={StemActivityDetailScreen} />
         <Stack.Screen name={ROUTE_MANIFEST.STEM_PROGRESS} component={StemProgressScreen} />
         <Stack.Screen name={ROUTE_MANIFEST.PLANETS} component={PlanetsScreen} />

@@ -91,12 +91,6 @@ export default function ExploreHubV2({ navigation }: any) {
               onPress={() => navigation?.navigate?.(ROUTE_MANIFEST.BEYOND)}
             />
             <ExploreTile
-              icon="🧪"
-              title="STEM Activities"
-              subtitle="Hands-on challenges and mini-labs (coming soon)."
-              onPress={() => navigation?.navigate?.(ROUTE_MANIFEST.STEM_ACTIVITIES)}
-            />
-            <ExploreTile
               icon="📰"
               title="Updates"
               subtitle="News, blog, and official mission updates."

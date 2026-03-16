@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react'
 import { SafeAreaView, StyleSheet, Text, View, ScrollView } from 'react-native'
-import { SpaceBackground } from '../components/home/SpaceBackground'
-import { GlassCard } from '../components/home/GlassCard'
-import { PixelButton } from '../components/home/PixelButton'
-import { colors, spacing, typography } from '../theme/tokens'
+import { SpaceBackground } from '../../components/home/SpaceBackground'
+import { GlassCard } from '../../components/home/GlassCard'
+import { PixelButton } from '../../components/home/PixelButton'
+import { colors, spacing, typography } from '../../theme/tokens'
 import { getStemProgressOverview, ROUTE_MANIFEST, getCurrentActor } from '@starkid/core'
-import { SyncIdentityModal } from '../components/auth/SyncIdentityModal'
+import { SyncIdentityModal } from '../../components/auth/SyncIdentityModal'
 
 const TRACK_LABELS: Record<string, string> = {
   math: 'Math',

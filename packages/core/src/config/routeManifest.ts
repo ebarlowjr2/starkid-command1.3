@@ -1,6 +1,9 @@
 export const ROUTE_MANIFEST = {
   HOME: 'Home',
   EXPLORE: 'Explore',
+  LEARNING: 'Learning',
+  LEARNING_STEM: 'Learning STEM',
+  LEARNING_CYBERLAB: 'Learning Cyber Lab',
   STEM_ACTIVITIES: 'STEM Activities',
   STEM_ACTIVITY_DETAIL: 'STEM Activity Detail',
   STEM_PROGRESS: 'STEM Progress',

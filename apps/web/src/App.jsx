@@ -27,9 +27,11 @@ import ArtemisPage from './pages/missions/ArtemisPage.jsx'
 import SLSDetailPage from './pages/missions/SLSDetailPage.jsx'
 import OrionDetailPage from './pages/missions/OrionDetailPage.jsx'
 import MissionBriefingPage from './pages/MissionBriefingPage.jsx'
-import StemActivitiesPage from './pages/StemActivitiesPage.jsx'
-import StemActivityDetailPage from './pages/StemActivityDetailPage.jsx'
-import StemProgressPage from './pages/StemProgressPage.jsx'
+import LearningHubPage from './modules/learning/learningHub/LearningHubPage.jsx'
+import StemActivitiesPage from './modules/learning/stem/StemActivitiesPage.jsx'
+import StemActivityDetailPage from './modules/learning/stem/StemActivityDetailPage.jsx'
+import StemProgressPage from './modules/learning/stem/StemProgressPage.jsx'
+import CyberLabPage from './modules/learning/cyberlab/CyberLabPage.jsx'
 import SupportPage from './pages/SupportPage.jsx'
 import AboutPage from './pages/AboutPage.jsx'
 import ProfilePage from './pages/ProfilePage.jsx'
@@ -138,9 +140,14 @@ export default function App() {
                     <Route path="/missions/artemis/orion" element={<OrionDetailPage />} />
                     <Route path="/missions/briefing" element={<MissionBriefingPage />} />
                     <Route path="/missions/briefing/:missionId" element={<MissionBriefingPage />} />
+                    <Route path="/learning" element={<LearningHubPage />} />
+                    <Route path="/learning/stem" element={<StemActivitiesPage />} />
+                    <Route path="/learning/stem/:activityId" element={<StemActivityDetailPage />} />
+                    <Route path="/learning/cyberlab" element={<CyberLabPage />} />
+                    <Route path="/learning/stem/progress" element={<StemProgressPage />} />
                     <Route path="/stem-activities" element={<StemActivitiesPage />} />
-                    <Route path="/stem/progress" element={<StemProgressPage />} />
                     <Route path="/stem-activities/:activityId" element={<StemActivityDetailPage />} />
+                    <Route path="/stem/progress" element={<StemProgressPage />} />
                                                                           <Route path="/support" element={<SupportPage />} />
                                                                           <Route path="/profile" element={<ProfilePage />} />
                                                                           <Route path="/auth/callback" element={<AuthCallbackPage />} />

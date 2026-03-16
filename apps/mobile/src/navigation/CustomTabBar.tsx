@@ -9,7 +9,7 @@ const ICONS: Record<string, string> = {
   Explore: "🧭",
   "Command Center": "📡",
   "Lunar Events": "🌙",
-  "STEM Activities": "🧪",
+  Learning: "🧪",
   Profile: "👤",
   "C.O.M.E.T.": "✨",
 };

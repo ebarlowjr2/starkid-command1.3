@@ -1,5 +1,5 @@
 export * from './types'
 export * from './service'
 export * from './levels/levels'
-export * from './progress/service'
-export * from './progress/types'
+export * from '../progress/service'
+export * from '../progress/types'
