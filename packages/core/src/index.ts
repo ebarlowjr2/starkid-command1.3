@@ -45,3 +45,4 @@ export * from './storage/storage.ts'
 
 export * from './utils/normalize.js'
 export * from './config/routeManifest.ts'
+export * from './data/artemisData.ts'

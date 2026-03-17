@@ -9,7 +9,7 @@ import {
   ARTEMIS_SYSTEMS,
   ARTEMIS_KNOWLEDGE,
   MISSION_STATUS_COLORS,
-} from '../../config/missions/artemis'
+} from '@starkid/core'
 
 const STATUS_DOT_STYLES = `
 @keyframes telemetryPulse {

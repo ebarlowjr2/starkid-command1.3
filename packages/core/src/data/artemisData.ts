@@ -1,7 +1,3 @@
-// src/config/missions/artemis.js
-// Artemis Program configuration for mission control dashboard
-// Data-driven architecture for easy updates and expansion
-
 export const ARTEMIS_PROGRAM = {
   id: 'artemis',
   name: 'ARTEMIS PROGRAM',
@@ -12,7 +8,8 @@ export const ARTEMIS_PROGRAM = {
   crewVehicle: 'Orion',
   destination: 'Lunar Orbit / Surface',
   firstMission: 'ARTEMIS I (COMPLETED)',
-  description: 'NASA\'s Artemis program will land the first woman and first person of color on the Moon, using innovative technologies to explore more of the lunar surface than ever before.',
+  description:
+    "NASA's Artemis program will land the first woman and first person of color on the Moon, using innovative technologies to explore more of the lunar surface than ever before.",
 }
 
 export const ARTEMIS_IMAGES = {
@@ -122,20 +119,24 @@ export const ARTEMIS_SYSTEMS = [
   {
     id: 'navigation',
     name: 'Navigation & Guidance',
-    description: 'Advanced inertial navigation with star tracker and GPS backup for cislunar operations.',
-    importance: 'Enables precise trajectory corrections for lunar orbit insertion and Earth return.',
+    description:
+      'Advanced inertial navigation with star tracker and GPS backup for cislunar operations.',
+    importance:
+      'Enables precise trajectory corrections for lunar orbit insertion and Earth return.',
   },
   {
     id: 'life-support',
     name: 'Life Support (ECLSS)',
-    description: 'Environmental Control and Life Support System providing atmosphere, water, and thermal regulation.',
+    description:
+      'Environmental Control and Life Support System providing atmosphere, water, and thermal regulation.',
     importance: 'Sustains crew for up to 21 days in deep space without resupply.',
   },
   {
     id: 'power',
     name: 'Power Systems',
     description: 'Solar array wings on European Service Module generating 11 kW of electrical power.',
-    importance: 'Powers all spacecraft systems including propulsion, life support, and communications.',
+    importance:
+      'Powers all spacecraft systems including propulsion, life support, and communications.',
   },
   {
     id: 'communications',
@@ -147,7 +148,8 @@ export const ARTEMIS_SYSTEMS = [
     id: 'heat-shield',
     name: 'Heat Shield',
     description: 'AVCOAT ablative heat shield rated for lunar return velocities.',
-    importance: 'Protects crew during re-entry at 40,000 km/h, the fastest human re-entry ever.',
+    importance:
+      'Protects crew during re-entry at 40,000 km/h, the fastest human re-entry ever.',
   },
   {
     id: 'propulsion',
@@ -161,22 +163,26 @@ export const ARTEMIS_KNOWLEDGE = [
   {
     id: 'why-return',
     title: 'Why Return to the Moon?',
-    content: 'The Moon serves as a proving ground for deep space exploration technologies. Artemis will establish sustainable lunar presence, test systems for Mars missions, and unlock scientific discoveries about the Moon\'s south pole water ice deposits.',
+    content:
+      "The Moon serves as a proving ground for deep space exploration technologies. Artemis will establish sustainable lunar presence, test systems for Mars missions, and unlock scientific discoveries about the Moon's south pole water ice deposits.",
   },
   {
     id: 'apollo-difference',
     title: 'How Artemis Differs from Apollo',
-    content: 'Unlike Apollo\'s flags-and-footprints approach, Artemis aims for sustainable presence. Key differences include: international partnerships, commercial providers, Gateway station, south pole landing sites, and technology development for Mars.',
+    content:
+      "Unlike Apollo's flags-and-footprints approach, Artemis aims for sustainable presence. Key differences include: international partnerships, commercial providers, Gateway station, south pole landing sites, and technology development for Mars.",
   },
   {
     id: 'gateway-overview',
     title: 'Lunar Gateway Overview',
-    content: 'Gateway is a small space station in lunar orbit serving as a staging point for lunar surface missions. It will orbit the Moon in a near-rectilinear halo orbit, providing access to the entire lunar surface over time.',
+    content:
+      'Gateway is a small space station in lunar orbit serving as a staging point for lunar surface missions. It will orbit the Moon in a near-rectilinear halo orbit, providing access to the entire lunar surface over time.',
   },
   {
     id: 'mars-preparation',
     title: 'Mars Preparation Role',
-    content: 'Artemis serves as a testbed for Mars mission technologies including: long-duration life support, deep space navigation, radiation protection, and crew health monitoring. Lessons learned will directly inform Mars mission architecture.',
+    content:
+      'Artemis serves as a testbed for Mars mission technologies including: long-duration life support, deep space navigation, radiation protection, and crew health monitoring. Lessons learned will directly inform Mars mission architecture.',
   },
 ]
 
@@ -186,7 +192,8 @@ export const ARTEMIS_MISSIONS = [
     name: 'ARTEMIS I',
     status: 'COMPLETED',
     missionType: 'Uncrewed Test Flight',
-    summary: 'First integrated flight test of SLS and Orion, sending an uncrewed spacecraft around the Moon to validate systems for future crewed missions.',
+    summary:
+      'First integrated flight test of SLS and Orion, sending an uncrewed spacecraft around the Moon to validate systems for future crewed missions.',
     launchDate: 'November 16, 2022',
     splashdownDate: 'December 11, 2022',
     duration: '25 days, 10 hours, 53 minutes',
@@ -238,7 +245,8 @@ export const ARTEMIS_MISSIONS = [
     name: 'ARTEMIS II',
     status: 'PLANNED',
     missionType: 'Crewed Lunar Flyby',
-    summary: 'First crewed Artemis mission, sending four astronauts on a lunar flyby to test Orion life support systems and validate crew operations in deep space.',
+    summary:
+      'First crewed Artemis mission, sending four astronauts on a lunar flyby to test Orion life support systems and validate crew operations in deep space.',
     targetLaunch: 'September 2025',
     duration: '~10 days',
     rocket: 'sls',
@@ -313,7 +321,8 @@ export const ARTEMIS_MISSIONS = [
       ctaLabel: 'ISSUE BOARDING PASS →',
       url: 'https://www.nasa.gov/send-your-name-with-artemis/',
       note: 'Official NASA activity. Opens in a new tab.',
-      moreInfoUrl: 'https://www.nasa.gov/news-release/launch-your-name-around-moon-in-2026-on-nasas-artemis-ii-mission/',
+      moreInfoUrl:
+        'https://www.nasa.gov/news-release/launch-your-name-around-moon-in-2026-on-nasas-artemis-ii-mission/',
     },
   },
   {
@@ -321,7 +330,8 @@ export const ARTEMIS_MISSIONS = [
     name: 'ARTEMIS III',
     status: 'PLANNED',
     missionType: 'Crewed Lunar Landing',
-    summary: 'Historic return to the lunar surface, landing the first woman and first person of color on the Moon near the south pole using SpaceX Starship HLS.',
+    summary:
+      'Historic return to the lunar surface, landing the first woman and first person of color on the Moon near the south pole using SpaceX Starship HLS.',
     targetLaunch: '2026',
     duration: '~30 days',
     rocket: 'sls',
@@ -373,7 +383,8 @@ export const ARTEMIS_MISSIONS = [
     name: 'ARTEMIS IV',
     status: 'PLANNED',
     missionType: 'Gateway Assembly',
-    summary: 'First crewed mission to the Lunar Gateway station, delivering the I-HAB module and establishing a permanent human presence in lunar orbit.',
+    summary:
+      'First crewed mission to the Lunar Gateway station, delivering the I-HAB module and establishing a permanent human presence in lunar orbit.',
     targetLaunch: '2028',
     duration: '~30 days',
     rocket: 'sls',

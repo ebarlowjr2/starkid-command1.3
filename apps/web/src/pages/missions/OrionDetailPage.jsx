@@ -4,7 +4,7 @@ import {
   ARTEMIS_IMAGES,
   ARTEMIS_SYSTEMS,
   MISSION_STATUS_COLORS,
-} from '../../config/missions/artemis'
+} from '@starkid/core'
 
 export default function OrionDetailPage() {
   const navigate = useNavigate()
