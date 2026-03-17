@@ -118,12 +118,6 @@ export function filterByUserPreference(alerts: Alert[], userPreference: UserPref
   })
 }
 
-export function formatSourceStatus(sources: SourceStatus[]) {
-  return (sources || [])
-    .map((source) => `${source.name}:${source.ok ? 'ok' : 'error'}:${source.count ?? 0}`)
-    .join(' | ')
-}
-
 function mapSkyEventsToAlerts(events: any[], category?: Alert['category']) {
   return (events || []).map((event) => {
     const startTime = event.start || null
