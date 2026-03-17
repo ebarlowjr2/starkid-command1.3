@@ -1,10 +1,25 @@
 import { useNavigate } from "react-router-dom"
+import { useEffect, useState } from "react"
+import { getArtemisProgramSummary } from "@starkid/core"
 import { TelemetryStrip } from "../components/TelemetryStrip.jsx"
 import { FeaturedEventOrb } from "../components/FeaturedEventOrb.jsx"
 import UpcomingEventsBanner from "../components/UpcomingEventsBanner.jsx"
 
 export default function LandingPage() {
   const nav = useNavigate()
+  const [artemis, setArtemis] = useState(null)
+
+  useEffect(() => {
+    let active = true
+    async function load() {
+      const result = await getArtemisProgramSummary()
+      if (active) setArtemis(result.data || null)
+    }
+    load()
+    return () => {
+      active = false
+    }
+  }, [])
 
   return (
     <div
@@ -40,6 +55,23 @@ export default function LandingPage() {
 
       <div className="landing-section">
         <FeaturedEventOrb />
+      </div>
+
+      <div className="landing-section">
+        <div
+          className="artemis-card"
+          onClick={() => nav("/artemis")}
+          role="button"
+          tabIndex={0}
+          onKeyDown={(e) => e.key === "Enter" && nav("/artemis")}
+        >
+          <div className="artemis-label">ARTEMIS SPOTLIGHT</div>
+          <div className="artemis-title">{artemis?.nextMission || "Artemis II"}</div>
+          <div className="artemis-body">
+            {artemis?.description || "NASA’s priority lunar exploration program."}
+          </div>
+          <div className="artemis-cta">OPEN ARTEMIS →</div>
+        </div>
       </div>
 
       <div className="landing-section">
@@ -158,6 +190,48 @@ export default function LandingPage() {
           max-width: 1200px;
           margin: 22px auto 0;
           padding: 0 6px;
+        }
+
+        .artemis-card {
+          padding: 18px;
+          border-radius: 16px;
+          border: 1px solid rgba(34, 211, 238, 0.35);
+          background: rgba(8, 12, 24, 0.55);
+          cursor: pointer;
+          transition: transform 0.2s ease, border-color 0.2s ease;
+        }
+
+        .artemis-card:hover {
+          transform: translateY(-2px);
+          border-color: rgba(34, 211, 238, 0.6);
+        }
+
+        .artemis-label {
+          font-size: 10px;
+          letter-spacing: 0.2em;
+          color: rgba(255,255,255,0.6);
+          font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+        }
+
+        .artemis-title {
+          font-size: 20px;
+          font-weight: 700;
+          color: #22d3ee;
+          margin-top: 8px;
+        }
+
+        .artemis-body {
+          font-size: 14px;
+          color: rgba(226,232,240,0.8);
+          margin-top: 6px;
+        }
+
+        .artemis-cta {
+          margin-top: 12px;
+          font-size: 11px;
+          letter-spacing: 0.14em;
+          color: rgba(34,211,238,0.8);
+          font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
         }
 
         @media (max-width: 900px) {

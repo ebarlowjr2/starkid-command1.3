@@ -3,6 +3,8 @@ export type Launch = {
   name?: string
   net?: string
   window_start?: string
+  providerName?: string
+  providerType?: string
   rocketId?: string
   pad?: {
     name?: string
@@ -41,14 +43,33 @@ export type Comet = {
 
 export type AlertSeverity = 'info' | 'medium' | 'high'
 
+export type AlertCategory =
+  | 'launch'
+  | 'artemis'
+  | 'lunar_event'
+  | 'moon_cycle'
+  | 'meteor_shower'
+  | 'planet_conjunction'
+  | 'space_weather'
+  | 'asteroid_flyby'
+  | 'mission_alert'
+
 export type Alert = {
   id: string
   type: 'launch' | 'sky-event' | 'solar' | string
+  category?: AlertCategory
   title: string
+  description?: string
   severity: AlertSeverity
   source?: string
+  sourceUrl?: string
   startTime?: string | null
+  endTime?: string | null
   priority?: number
+  programTag?: string
+  relatedMissionId?: string
+  providerName?: string
+  providerType?: string
   missionAvailable?: boolean
   payload?: unknown
 }

@@ -4,6 +4,7 @@ import { getUpcomingLaunchesFromLibrary } from '../domain/launches/launchLibrary
 import { getUpcomingLaunches as getUpcomingSpaceXLaunches } from '../clients/spacex/spacex.js'
 import { getLatestLaunch as getLatestSpaceXLaunch } from '../clients/spacex/spacex.js'
 import { getWithTTL, setWithTTL } from '../storage/cache.js'
+import type { Alert } from '@starkid/types'
 
 type LaunchSourceOverrides = {
   launchLibrary?: Launch[]
@@ -90,6 +91,44 @@ export async function getLatestLaunch(): Promise<ServiceResult<Launch | null>> {
   return { data, sources, warnings: data ? undefined : ['Latest launch unavailable'] }
 }
 
+export async function getLaunchAlerts(): Promise<ServiceResult<Alert[]>> {
+  const result = await getUpcomingLaunches({ limit: 25 })
+  const alerts: Alert[] = (result.data || []).map((launch) => {
+    const startTime = launch.net || launch.window_start || null
+    return {
+      id: `launch:${launch.id || launch.name || 'unknown'}`,
+      type: 'launch',
+      category: 'launch',
+      title: launch.name || 'Upcoming Launch',
+      description: launch.providerName ? `${launch.providerName} launch` : 'Upcoming launch window',
+      severity: 'medium',
+      priority: 2,
+      startTime,
+      missionAvailable: true,
+      providerName: launch.providerName,
+      providerType: launch.providerType,
+      payload: launch,
+    }
+  })
+
+  return {
+    data: alerts,
+    sources: result.sources,
+    warnings: result.warnings,
+  }
+}
+
+export async function getPriorityLaunches(): Promise<ServiceResult<Launch[]>> {
+  const result = await getUpcomingLaunches({ limit: 15 })
+  const now = Date.now()
+  const horizon = now + 7 * 24 * 60 * 60 * 1000
+  const filtered = (result.data || []).filter((launch) => {
+    const time = getLaunchTime(launch)
+    return time !== Number.POSITIVE_INFINITY && time <= horizon
+  })
+  return { data: filtered, sources: result.sources, warnings: result.warnings }
+}
+
 export function normalizeLaunches(launchLibraryData: any[], spaceXData: any[]): Launch[] {
   const items: Launch[] = []
   const seen = new Set<string>()
@@ -118,12 +157,16 @@ export function normalizeLaunches(launchLibraryData: any[], spaceXData: any[]): 
 }
 
 function normalizeLaunch(raw: any, source: string): Launch {
+  const providerName = raw?.launch_service_provider?.name || raw?.provider?.name || raw?.provider || raw?.operator || undefined
+  const providerType = inferProviderType(providerName || (source === 'spacex' ? 'SpaceX' : 'Other'))
   if (source === 'spacex') {
     return {
       id: raw.id,
       name: raw.name,
       net: raw.date_utc,
       window_start: raw.date_utc,
+      providerName: providerName || 'SpaceX',
+      providerType,
       rocketId: raw.rocket,
       pad: raw.launchpad ? { name: raw.launchpad } : undefined,
     }
@@ -133,6 +176,8 @@ function normalizeLaunch(raw: any, source: string): Launch {
     name: raw.name,
     net: raw.net,
     window_start: raw.window_start,
+    providerName,
+    providerType,
     pad: raw.pad
       ? {
           name: raw.pad?.name,
@@ -155,4 +200,13 @@ function getLaunchTime(launch: Launch) {
   if (!dateStr) return Number.POSITIVE_INFINITY
   const time = new Date(dateStr).getTime()
   return Number.isNaN(time) ? Number.POSITIVE_INFINITY : time
+}
+
+function inferProviderType(name: string) {
+  const lower = name.toLowerCase()
+  if (lower.includes('spacex')) return 'SpaceX'
+  if (lower.includes('nasa') || lower.includes('artemis') || lower.includes('sls')) return 'NASA'
+  if (lower.includes('blue origin')) return 'Blue Origin'
+  if (lower.includes('virgin')) return 'Virgin Galactic'
+  return 'Other'
 }

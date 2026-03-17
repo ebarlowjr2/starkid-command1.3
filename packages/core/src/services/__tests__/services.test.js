@@ -42,7 +42,7 @@ describe('services layer', () => {
   test('alertsService uses service inputs', async () => {
     const alertsResult = await getAlertsForUser(undefined, {
       launches: {
-        data: [{ id: '1', name: 'Test Launch', net: '2026-01-01T00:00:00Z' }],
+        data: [{ id: 'launch:1', type: 'launch', title: 'Test Launch', severity: 'medium', startTime: '2026-01-01T00:00:00Z' }],
         sources: [{ name: 'launch-library', ok: true, count: 1 }],
       },
       skyEvents: {
@@ -52,6 +52,10 @@ describe('services layer', () => {
       solar: {
         data: { strongestClass: 'M1', severityPct: 70 },
         sources: [{ name: 'donki', ok: true, count: 1 }],
+      },
+      artemis: {
+        data: [],
+        sources: [{ name: 'nasa-artemis', ok: true, count: 0 }],
       },
     })
     expect(alertsResult.data.length).toBeGreaterThan(0)

@@ -135,7 +135,8 @@ export default function App() {
                                       <Route path="/updates/blog/:slug" element={<BlogDetailPage />} />
                                       <Route path="/updates/live" element={<LivePage />} />
                                       <Route path="/updates/x" element={<XPage />} />
-                                      <Route path="/missions/artemis" element={<ArtemisPage />} />
+                    <Route path="/missions/artemis" element={<ArtemisPage />} />
+                    <Route path="/artemis" element={<ArtemisPage />} />
                                                                           <Route path="/missions/artemis/sls" element={<SLSDetailPage />} />
                     <Route path="/missions/artemis/orion" element={<OrionDetailPage />} />
                     <Route path="/missions/briefing" element={<MissionBriefingPage />} />

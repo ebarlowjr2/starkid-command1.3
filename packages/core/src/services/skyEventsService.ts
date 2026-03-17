@@ -71,6 +71,30 @@ export async function getUpcomingSkyEventsService({
   return { data: merged, sources, warnings: warnings.length ? warnings : undefined }
 }
 
+export async function getMoonCycleEvents(rangeDays = 30): Promise<ServiceResult<SkyEvent[]>> {
+  const result = await getUpcomingSkyEventsService({ days: rangeDays })
+  const data = (result.data || []).filter((event) => isMoonCycle(event))
+  return { data, sources: result.sources, warnings: result.warnings }
+}
+
+export async function getMeteorShowerEvents(rangeDays = 60): Promise<ServiceResult<SkyEvent[]>> {
+  const result = await getUpcomingSkyEventsService({ days: rangeDays })
+  const data = (result.data || []).filter((event) => isMeteorShower(event))
+  return { data, sources: result.sources, warnings: result.warnings }
+}
+
+export async function getPlanetConjunctionEvents(rangeDays = 60): Promise<ServiceResult<SkyEvent[]>> {
+  const result = await getUpcomingSkyEventsService({ days: rangeDays })
+  const data = (result.data || []).filter((event) => isConjunction(event))
+  return { data, sources: result.sources, warnings: result.warnings }
+}
+
+export async function getLunarEvents(rangeDays = 60): Promise<ServiceResult<SkyEvent[]>> {
+  const result = await getUpcomingSkyEventsService({ days: rangeDays })
+  const data = (result.data || []).filter((event) => isLunarEvent(event))
+  return { data, sources: result.sources, warnings: result.warnings }
+}
+
 export function normalizeSkyEvents(dbEvents: SkyEvent[], staticEvents: SkyEvent[]) {
   const items: SkyEvent[] = []
   const seen = new Set<string>()
@@ -136,4 +160,33 @@ function getEventTime(event: SkyEvent) {
   if (!event.start) return Number.POSITIVE_INFINITY
   const time = new Date(event.start).getTime()
   return Number.isNaN(time) ? Number.POSITIVE_INFINITY : time
+}
+
+function matchAny(text: string, terms: string[]) {
+  const lower = text.toLowerCase()
+  return terms.some((term) => lower.includes(term))
+}
+
+function isMoonCycle(event: SkyEvent) {
+  const type = (event.type || '').toLowerCase()
+  const title = (event.title || '').toLowerCase()
+  return matchAny(type, ['moon-phase', 'moon phase']) || matchAny(title, ['new moon', 'full moon', 'first quarter', 'third quarter'])
+}
+
+function isMeteorShower(event: SkyEvent) {
+  const type = (event.type || '').toLowerCase()
+  const title = (event.title || '').toLowerCase()
+  return matchAny(type, ['meteor', 'meteor-shower']) || matchAny(title, ['meteor shower'])
+}
+
+function isConjunction(event: SkyEvent) {
+  const type = (event.type || '').toLowerCase()
+  const title = (event.title || '').toLowerCase()
+  return matchAny(type, ['conjunction']) || matchAny(title, ['conjunction'])
+}
+
+function isLunarEvent(event: SkyEvent) {
+  const type = (event.type || '').toLowerCase()
+  const title = (event.title || '').toLowerCase()
+  return matchAny(type, ['eclipse', 'lunar']) || matchAny(title, ['lunar', 'eclipse', 'perigee', 'apogee'])
 }

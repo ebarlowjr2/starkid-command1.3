@@ -29,6 +29,7 @@ import UpdatesBlogScreen from './src/screens/UpdatesBlogScreen'
 import UpdatesOfficialScreen from './src/screens/UpdatesOfficialScreen'
 import UpdatesLiveScreen from './src/screens/UpdatesLiveScreen'
 import UpdatesXScreen from './src/screens/UpdatesXScreen'
+import ArtemisScreen from './src/screens/ArtemisScreen'
 import AppTabs from './src/navigation/AppTabs'
 
 const Stack = createNativeStackNavigator()
@@ -120,6 +121,7 @@ export default function App() {
         <Stack.Screen name={ROUTE_MANIFEST.UPDATES_OFFICIAL} component={UpdatesOfficialScreen} />
         <Stack.Screen name={ROUTE_MANIFEST.UPDATES_LIVE} component={UpdatesLiveScreen} />
         <Stack.Screen name={ROUTE_MANIFEST.UPDATES_X} component={UpdatesXScreen} />
+        <Stack.Screen name={ROUTE_MANIFEST.ARTEMIS} component={ArtemisScreen} />
         <Stack.Screen name={ROUTE_MANIFEST.MISSIONS_BRIEFING} component={MissionBriefingScreen} />
       </Stack.Navigator>
     </NavigationContainer>

@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import { configureStorage } from '../../storage/storage.ts'
-import { generateAlerts, convertAlertToMission } from '../alerts/alerts.js'
+import { convertAlertToMission } from '../alerts/alerts.js'
+import { getAlertsForUser } from '../../services/alertsService.ts'
 import { gradeAttempt } from '../missions/grading.ts'
 import { getRepos } from '../../storage/repos/repoFactory.ts'
 
@@ -25,14 +26,15 @@ configureStorage({
 
 describe('integration', () => {
   it('generates alert, converts to mission, grades attempt, saves completion', async () => {
-    const alerts = await generateAlerts({
-      launches: [{ id: 'l1', name: 'Test Launch', net: '2025-01-02T00:00:00Z' }],
-      skyEvents: [],
-      solarActivity: null,
+    const result = await getAlertsForUser(undefined, {
+      launches: { data: [{ id: 'launch:l1', type: 'launch', title: 'Test Launch', severity: 'medium', startTime: '2025-01-02T00:00:00Z' }], sources: [] },
+      skyEvents: { data: [], sources: [] },
+      solar: { data: null, sources: [] },
+      artemis: { data: [], sources: [] },
     })
-    expect(alerts.length).toBeGreaterThan(0)
+    expect(result.data.length).toBeGreaterThan(0)
 
-    const mission = convertAlertToMission(alerts[0])
+    const mission = convertAlertToMission(result.data[0])
     expect(mission).toBeTruthy()
 
     const { pass } = gradeAttempt(mission, { main: 2 })

@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { View, Text, StyleSheet, ActivityIndicator, ScrollView, SafeAreaView, ImageBackground } from "react-native";
 import { useNavigation } from "@react-navigation/native";
-import { getUpcomingSkyEventsService, getUpcomingLaunches, ROUTE_MANIFEST, getCurrentActor } from "@starkid/core";
+import { getUpcomingSkyEventsService, getUpcomingLaunches, ROUTE_MANIFEST, getCurrentActor, getArtemisProgramSummary } from "@starkid/core";
 import { SpaceBackground } from "../components/home/SpaceBackground";
 import { NextMajorEventCard } from "../components/home/NextMajorEventCard";
 import { UpcomingSkyEventsCard } from "../components/home/UpcomingSkyEventsCard";
@@ -15,6 +15,7 @@ export default function HomeScreen() {
   const [loading, setLoading] = useState(true);
   const [events, setEvents] = useState<any[]>([]);
   const [nextLaunch, setNextLaunch] = useState<any | null>(null);
+  const [artemis, setArtemis] = useState<any | null>(null);
   const [now, setNow] = useState(Date.now());
   const [isGuest, setIsGuest] = useState(true);
   const [showSync, setShowSync] = useState(false);
@@ -22,19 +23,22 @@ export default function HomeScreen() {
   useEffect(() => {
     let active = true;
     async function load() {
-      const [eventsResult, launchesResult] = await Promise.allSettled([
+      const [eventsResult, launchesResult, artemisResult] = await Promise.allSettled([
         getUpcomingSkyEventsService({ days: 30 }),
         getUpcomingLaunches({ limit: 10 }),
+        getArtemisProgramSummary(),
       ]);
 
       if (!active) return;
 
       const skyEvents = eventsResult.status === "fulfilled" ? eventsResult.value?.data : [];
       const launches = launchesResult.status === "fulfilled" ? launchesResult.value?.data : [];
+      const artemisSummary = artemisResult.status === "fulfilled" ? artemisResult.value?.data : null;
       const artemis = launches.find((launch) => launch.name?.toLowerCase?.().includes("artemis")) || launches[0];
 
       setEvents(Array.isArray(skyEvents) ? skyEvents.slice(0, 4) : []);
       setNextLaunch(artemis || null);
+      setArtemis(artemisSummary || null);
       setLoading(false);
     }
     load();
@@ -134,6 +138,18 @@ export default function HomeScreen() {
             </View>
           </View>
           <View style={styles.cardStack}>
+            <View style={styles.artemisCard}>
+              <Text style={styles.artemisLabel}>ARTEMIS SPOTLIGHT</Text>
+              <Text style={styles.artemisTitle}>{artemis?.nextMission || "Artemis II"}</Text>
+              <Text style={styles.artemisBody}>
+                {artemis?.description || "NASA’s priority lunar exploration program."}
+              </Text>
+              <PixelButton
+                label="OPEN ARTEMIS →"
+                onPress={() => navigation.navigate(ROUTE_MANIFEST.ARTEMIS as never)}
+                style={styles.artemisButton}
+              />
+            </View>
             <NextMajorEventCard
               title={nextLaunch?.name || "Upcoming Launch"}
               netLine="Launch window opens (NET)"
@@ -246,6 +262,39 @@ const styles = StyleSheet.create({
   },
   cardStack: {
     marginTop: 24,
+  },
+  artemisCard: {
+    borderRadius: 16,
+    padding: 16,
+    borderWidth: 1,
+    borderColor: "rgba(61,235,255,0.45)",
+    backgroundColor: "rgba(6,10,22,0.6)",
+    marginBottom: 16,
+  },
+  artemisLabel: {
+    ...typography.pixel,
+    color: colors.dim,
+    marginBottom: 6,
+    letterSpacing: 2,
+  },
+  artemisTitle: {
+    ...typography.h2,
+    color: colors.accent,
+  },
+  artemisBody: {
+    ...typography.body,
+    color: colors.muted,
+    marginTop: 6,
+  },
+  artemisButton: {
+    alignSelf: "flex-start",
+    marginTop: spacing.md,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: "rgba(61,235,255,0.7)",
+    backgroundColor: "rgba(6, 10, 22, 0.8)",
   },
   center: {
     flex: 1,

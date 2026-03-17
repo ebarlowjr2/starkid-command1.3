@@ -15,6 +15,7 @@ export const ROUTE_MANIFEST = {
   STREAMS: 'Streams',
   PLANETS: 'Visit Another Planet',
   BEYOND: 'Beyond Our Solar System',
+  ARTEMIS: 'Artemis',
   MISSION_ALERTS: 'Mission Alerts',
   ROCKETS: 'Rockets',
   ROCKET_DETAIL: 'Rocket Detail',
