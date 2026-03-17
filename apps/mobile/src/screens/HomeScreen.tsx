@@ -75,6 +75,17 @@ export default function HomeScreen() {
     return `${days}d ${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
   }, [nextLaunch, now]);
 
+  const artemisCountdown = useMemo(() => {
+    if (!artemis?.nextMissionDate) return "TBD";
+    const target = new Date(artemis.nextMissionDate).getTime();
+    const diff = Math.max(0, target - now);
+    const days = Math.floor(diff / (24 * 3600 * 1000));
+    const hours = Math.floor((diff % (24 * 3600 * 1000)) / (3600 * 1000));
+    const minutes = Math.floor((diff % (3600 * 1000)) / (60 * 1000));
+    const seconds = Math.floor((diff % (60 * 1000)) / 1000);
+    return `${days}d ${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
+  }, [artemis, now]);
+
   const formatEventDate = (dateString?: string) => {
     if (!dateString) return "TBD";
     const date = new Date(dateString);
@@ -141,6 +152,7 @@ export default function HomeScreen() {
             <View style={styles.artemisCard}>
               <Text style={styles.artemisLabel}>ARTEMIS SPOTLIGHT</Text>
               <Text style={styles.artemisTitle}>{artemis?.nextMission || "Artemis II"}</Text>
+              <Text style={styles.artemisCountdown}>COUNTDOWN · {artemisCountdown}</Text>
               <Text style={styles.artemisBody}>
                 {artemis?.description || "NASA’s priority lunar exploration program."}
               </Text>
@@ -280,6 +292,12 @@ const styles = StyleSheet.create({
   artemisTitle: {
     ...typography.h2,
     color: colors.accent,
+  },
+  artemisCountdown: {
+    ...typography.pixel,
+    marginTop: 6,
+    color: "#9fe8ff",
+    letterSpacing: 1,
   },
   artemisBody: {
     ...typography.body,

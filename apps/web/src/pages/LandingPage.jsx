@@ -8,6 +8,7 @@ import UpcomingEventsBanner from "../components/UpcomingEventsBanner.jsx"
 export default function LandingPage() {
   const nav = useNavigate()
   const [artemis, setArtemis] = useState(null)
+  const [now, setNow] = useState(Date.now())
 
   useEffect(() => {
     let active = true
@@ -20,6 +21,22 @@ export default function LandingPage() {
       active = false
     }
   }, [])
+
+  useEffect(() => {
+    const timer = setInterval(() => setNow(Date.now()), 1000)
+    return () => clearInterval(timer)
+  }, [])
+
+  const artemisCountdown = (() => {
+    if (!artemis?.nextMissionDate) return "TBD"
+    const target = new Date(artemis.nextMissionDate).getTime()
+    const diff = Math.max(0, target - now)
+    const days = Math.floor(diff / (24 * 3600 * 1000))
+    const hours = Math.floor((diff % (24 * 3600 * 1000)) / (3600 * 1000))
+    const minutes = Math.floor((diff % (3600 * 1000)) / (60 * 1000))
+    const seconds = Math.floor((diff % (60 * 1000)) / 1000)
+    return `${days}d ${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`
+  })()
 
   return (
     <div
@@ -67,6 +84,9 @@ export default function LandingPage() {
         >
           <div className="artemis-label">ARTEMIS SPOTLIGHT</div>
           <div className="artemis-title">{artemis?.nextMission || "Artemis II"}</div>
+          <div className="artemis-countdown">
+            COUNTDOWN · <span>{artemisCountdown}</span>
+          </div>
           <div className="artemis-body">
             {artemis?.description || "NASA’s priority lunar exploration program."}
           </div>
@@ -224,6 +244,19 @@ export default function LandingPage() {
           font-size: 14px;
           color: rgba(226,232,240,0.8);
           margin-top: 6px;
+        }
+
+        .artemis-countdown {
+          margin-top: 8px;
+          font-size: 12px;
+          letter-spacing: 0.12em;
+          color: rgba(148, 163, 184, 0.9);
+          font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+        }
+
+        .artemis-countdown span {
+          color: #22d3ee;
+          font-weight: 700;
         }
 
         .artemis-cta {
