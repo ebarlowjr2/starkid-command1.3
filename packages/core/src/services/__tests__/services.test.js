@@ -49,6 +49,10 @@ describe('services layer', () => {
         data: [{ id: '2', title: 'Test Event', start: '2026-01-02T00:00:00Z', type: 'eclipse' }],
         sources: [{ name: 'sky-events-static', ok: true, count: 1 }],
       },
+      asteroids: {
+        data: [{ id: 'neo-1', name: 'NEO-1', close_approach_data: [{ close_approach_date: '2026-01-03' }] }],
+        sources: [{ name: 'neo-feed', ok: true, count: 1 }],
+      },
       solar: {
         data: { strongestClass: 'M1', severityPct: 70 },
         sources: [{ name: 'donki', ok: true, count: 1 }],
@@ -59,6 +63,8 @@ describe('services layer', () => {
       },
     })
     expect(alertsResult.data.length).toBeGreaterThan(0)
+    expect(alertsResult.data.some((alert) => alert.category === 'lunar_event')).toBe(true)
+    expect(alertsResult.data.some((alert) => alert.category === 'asteroid_flyby')).toBe(true)
     expect(alertsResult.sources.some((source) => source.name === 'alerts-engine')).toBe(true)
   })
 })

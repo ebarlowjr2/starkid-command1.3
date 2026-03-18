@@ -97,7 +97,10 @@ export function getFeaturedAlerts(): Promise<ServiceResult<Alert[]>> {
 
 export async function getMainPageAlerts(): Promise<ServiceResult<Alert[]>> {
   const result = await getAlertsForUser()
-  const top = (result.data || []).slice(0, 6)
+  const data = result.data || []
+  const artemis = data.find((alert) => alert.category === 'artemis')
+  const rest = data.filter((alert) => alert !== artemis)
+  const top = [artemis, ...rest].filter(Boolean).slice(0, 6) as Alert[]
   return { ...result, data: top }
 }
 
@@ -128,14 +131,17 @@ export function filterByUserPreference(alerts: Alert[], userPreference: UserPref
 function mapSkyEventsToAlerts(events: any[], category?: Alert['category']) {
   return (events || []).map((event) => {
     const startTime = event.start || null
+    const derivedCategory = category || categoryForSkyEvent(event)
+    const priority = skyEventPriority(derivedCategory)
+    const severity = skyEventSeverity(derivedCategory)
     return {
-      id: `sky:${category}:${event.id || event.title || 'unknown'}`,
+      id: `sky:${derivedCategory || 'general'}:${event.id || event.title || 'unknown'}`,
       type: 'sky-event',
-      category,
+      category: derivedCategory,
       title: event.title || 'Sky Event',
       description: event.description || '',
-      severity: category === 'lunar_event' ? 'high' : 'info',
-      priority: category === 'lunar_event' ? 3 : 1,
+      severity,
+      priority,
       source: event.source || 'sky-events',
       sourceUrl: event.sourceUrl,
       startTime,
@@ -186,6 +192,31 @@ function mapAsteroidsToAlerts(asteroids: any[]): Alert[] {
       payload: neo,
     } as Alert
   })
+}
+
+function categoryForSkyEvent(event: any): Alert['category'] {
+  const type = String(event?.type || '').toLowerCase()
+  const title = String(event?.title || '').toLowerCase()
+  const text = `${type} ${title}`
+  if (text.includes('meteor')) return 'meteor_shower'
+  if (text.includes('conjunction')) return 'planet_conjunction'
+  if (text.includes('new moon') || text.includes('full moon') || text.includes('moon phase')) return 'moon_cycle'
+  if (text.includes('eclipse') || text.includes('lunar')) return 'lunar_event'
+  return undefined
+}
+
+function skyEventPriority(category?: Alert['category']) {
+  if (category === 'lunar_event') return 4
+  if (category === 'meteor_shower') return 3
+  if (category === 'planet_conjunction') return 2
+  if (category === 'moon_cycle') return 1
+  return 1
+}
+
+function skyEventSeverity(category?: Alert['category']) {
+  if (category === 'lunar_event') return 'high'
+  if (category === 'meteor_shower') return 'medium'
+  return 'info'
 }
 
 function dedupeAlerts(alerts: Alert[]) {
