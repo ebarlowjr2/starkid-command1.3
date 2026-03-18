@@ -11,11 +11,13 @@ import {
 import { getSolarActivity } from './solarService'
 import { getArtemisUpcomingEvents, getArtemisPriorityAlert } from './artemisService'
 import { generateMissionFromAlert } from '../learning/stem/service'
+import { getAsteroidFlybys } from './asteroidsService'
 type AlertsOverrides = {
   launches?: ServiceResult<Alert[]>
   skyEvents?: ServiceResult<any[]>
   solar?: ServiceResult<any>
   artemis?: ServiceResult<Alert[]>
+  asteroids?: ServiceResult<any[]>
 }
 
 export async function getAlertsForUser(
@@ -29,6 +31,7 @@ export async function getAlertsForUser(
     moonCyclesResult,
     meteorResult,
     conjunctionResult,
+    asteroidResult,
     solarResult,
     artemisResult,
   ] = await Promise.all([
@@ -38,6 +41,7 @@ export async function getAlertsForUser(
     getMoonCycleEvents(60),
     getMeteorShowerEvents(120),
     getPlanetConjunctionEvents(120),
+    overrides?.asteroids ?? getAsteroidFlybys(),
     overrides?.solar ?? getSolarActivity(),
     overrides?.artemis ?? getArtemisUpcomingEvents(),
   ])
@@ -49,6 +53,7 @@ export async function getAlertsForUser(
     ...mapSkyEventsToAlerts(moonCyclesResult.data || [], 'moon_cycle'),
     ...mapSkyEventsToAlerts(meteorResult.data || [], 'meteor_shower'),
     ...mapSkyEventsToAlerts(conjunctionResult.data || [], 'planet_conjunction'),
+    ...mapAsteroidsToAlerts(asteroidResult.data || []),
     ...mapSolarToAlerts(solarResult.data),
     ...(artemisResult.data || []),
   ]
@@ -65,6 +70,7 @@ export async function getAlertsForUser(
     ...moonCyclesResult.sources,
     ...meteorResult.sources,
     ...conjunctionResult.sources,
+    ...asteroidResult.sources,
     ...solarResult.sources,
     ...artemisResult.sources,
     { name: 'alerts-engine', ok: true, count: filtered.length },
@@ -77,6 +83,7 @@ export async function getAlertsForUser(
     ...(moonCyclesResult.warnings || []),
     ...(meteorResult.warnings || []),
     ...(conjunctionResult.warnings || []),
+    ...(asteroidResult.warnings || []),
     ...(solarResult.warnings || []),
     ...(artemisResult.warnings || []),
   ]
@@ -156,6 +163,29 @@ function mapSolarToAlerts(solar: any): Alert[] {
       payload: solar,
     },
   ]
+}
+
+function mapAsteroidsToAlerts(asteroids: any[]): Alert[] {
+  return (asteroids || []).map((neo) => {
+    const closeApproach = Array.isArray(neo?.close_approach_data)
+      ? neo.close_approach_data[0]
+      : null
+    const date = closeApproach?.close_approach_date_full || closeApproach?.close_approach_date || null
+    const distance = closeApproach?.miss_distance?.lunar || closeApproach?.miss_distance?.kilometers
+    return {
+      id: `asteroid:${neo.id || neo.name}`,
+      type: 'asteroid',
+      category: 'asteroid_flyby',
+      title: neo.name || 'Asteroid Flyby',
+      description: distance ? `Closest approach: ${distance} ${closeApproach?.miss_distance?.lunar ? 'LD' : 'km'}` : 'Near-Earth object flyby',
+      severity: neo?.is_potentially_hazardous_asteroid ? 'high' : 'info',
+      priority: neo?.is_potentially_hazardous_asteroid ? 4 : 2,
+      source: 'neo-feed',
+      startTime: date,
+      missionAvailable: false,
+      payload: neo,
+    } as Alert
+  })
 }
 
 function dedupeAlerts(alerts: Alert[]) {

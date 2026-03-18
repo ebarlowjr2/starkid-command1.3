@@ -93,8 +93,9 @@ export async function getLatestLaunch(): Promise<ServiceResult<Launch | null>> {
 
 export async function getLaunchAlerts(): Promise<ServiceResult<Alert[]>> {
   const result = await getUpcomingLaunches({ limit: 25 })
-  const alerts: Alert[] = (result.data || []).map((launch) => {
+  const baseAlerts: Alert[] = (result.data || []).map((launch) => {
     const startTime = launch.net || launch.window_start || null
+    const isArtemis = launch.name?.toLowerCase?.().includes('artemis')
     return {
       id: `launch:${launch.id || launch.name || 'unknown'}`,
       type: 'launch',
@@ -107,9 +108,15 @@ export async function getLaunchAlerts(): Promise<ServiceResult<Alert[]>> {
       missionAvailable: true,
       providerName: launch.providerName,
       providerType: launch.providerType,
+      programTag: isArtemis ? 'Artemis' : undefined,
       payload: launch,
     }
   })
+
+  const providerAlerts = buildProviderAlerts(result.data || [])
+  const windowAlerts = buildWindowAlerts(result.data || [])
+
+  const alerts = dedupeAlertList([...baseAlerts, ...providerAlerts, ...windowAlerts])
 
   return {
     data: alerts,
@@ -209,4 +216,81 @@ function inferProviderType(name: string) {
   if (lower.includes('blue origin')) return 'Blue Origin'
   if (lower.includes('virgin')) return 'Virgin Galactic'
   return 'Other'
+}
+
+function buildProviderAlerts(launches: Launch[]): Alert[] {
+  const byProvider = new Map<string, Launch[]>()
+  for (const launch of launches) {
+    const key = launch.providerName || launch.providerType || 'Other'
+    const list = byProvider.get(key) || []
+    list.push(launch)
+    byProvider.set(key, list)
+  }
+
+  const alerts: Alert[] = []
+  for (const [provider, list] of byProvider.entries()) {
+    const sorted = [...list].sort((a, b) => getLaunchTime(a) - getLaunchTime(b))
+    const next = sorted[0]
+    if (!next) continue
+    alerts.push({
+      id: `launch:provider:${provider}:${next.id || next.name}`,
+      type: 'launch',
+      category: 'launch',
+      title: `${provider} • Next Launch`,
+      description: next.name || `${provider} upcoming launch`,
+      severity: 'medium',
+      priority: 3,
+      startTime: next.net || next.window_start || null,
+      missionAvailable: true,
+      providerName: next.providerName,
+      providerType: next.providerType,
+      payload: next,
+    })
+  }
+
+  return alerts
+}
+
+function buildWindowAlerts(launches: Launch[]): Alert[] {
+  const now = Date.now()
+  const windows = [
+    { hours: 24, label: 'Next 24 Hours', priority: 4 },
+    { hours: 72, label: 'Next 72 Hours', priority: 3 },
+    { hours: 168, label: 'Next 7 Days', priority: 2 },
+  ]
+
+  return windows.flatMap((window) => {
+    const cutoff = now + window.hours * 60 * 60 * 1000
+    const upcoming = launches.filter((launch) => {
+      const time = getLaunchTime(launch)
+      return time !== Number.POSITIVE_INFINITY && time <= cutoff
+    })
+    if (!upcoming.length) return []
+    return [
+      {
+        id: `launch:window:${window.hours}h`,
+        type: 'launch',
+        category: 'launch',
+        title: `Launches • ${window.label}`,
+        description: `${upcoming.length} launches scheduled`,
+        severity: window.hours <= 24 ? 'high' : 'medium',
+        priority: window.priority,
+        startTime: upcoming[0]?.net || upcoming[0]?.window_start || null,
+        missionAvailable: false,
+        payload: { launches: upcoming },
+      } as Alert,
+    ]
+  })
+}
+
+function dedupeAlertList(alerts: Alert[]) {
+  const seen = new Set<string>()
+  const result: Alert[] = []
+  for (const alert of alerts) {
+    const key = alert.id || `${alert.title}|${alert.startTime || ''}`
+    if (seen.has(key)) continue
+    seen.add(key)
+    result.push(alert)
+  }
+  return result
 }
