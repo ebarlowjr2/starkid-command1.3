@@ -144,15 +144,18 @@ export async function getUpcomingLaunchesWindow({
   const horizon = now + days * 24 * 60 * 60 * 1000
   const filtered = (result.data || []).filter((launch) => {
     const time = getLaunchTime(launch)
-    return time !== Number.POSITIVE_INFINITY && time <= horizon
+    return time !== Number.POSITIVE_INFINITY && time >= now && time <= horizon
   })
   return { data: filtered, sources: result.sources, warnings: result.warnings }
 }
 
 export async function getProviderSpotlights(): Promise<ServiceResult<Launch[]>> {
   const result = await getUpcomingLaunches({ limit: 25 })
+  const now = Date.now()
   const byProvider = new Map<string, Launch[]>()
   for (const launch of result.data || []) {
+    const time = getLaunchTime(launch)
+    if (time === Number.POSITIVE_INFINITY || time < now) continue
     const key = launch.providerName || launch.providerType || 'Other'
     const list = byProvider.get(key) || []
     list.push(launch)
