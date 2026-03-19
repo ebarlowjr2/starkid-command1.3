@@ -9,6 +9,7 @@ export const colors = {
   text: "#EAF2FF",
   muted: "rgba(234, 242, 255, 0.75)",
   dim: "rgba(234, 242, 255, 0.55)",
+  accent: "#3DEBFF",
   cyan: "#3DEBFF",
   magenta: "#FF4FD8",
   yellow: "#FFD166",

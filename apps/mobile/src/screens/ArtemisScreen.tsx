@@ -334,7 +334,7 @@ const styles = StyleSheet.create({
   },
   statusLabel: {
     ...typography.pixel,
-    color: colors.dim,
+    color: "rgba(234, 242, 255, 0.85)",
     fontSize: 10,
   },
   statusValue: {
@@ -405,7 +405,7 @@ const styles = StyleSheet.create({
   toggleText: {
     ...typography.pixel,
     fontSize: 10,
-    color: "rgba(255,255,255,0.5)",
+    color: "rgba(255,255,255,0.7)",
   },
   toggleTextActive: {
     color: colors.accent,
@@ -415,7 +415,7 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     ...typography.pixel,
-    color: colors.dim,
+    color: "rgba(234, 242, 255, 0.85)",
     marginBottom: spacing.sm,
     letterSpacing: 2,
   },
@@ -445,7 +445,7 @@ const styles = StyleSheet.create({
   },
   timelineType: {
     ...typography.body,
-    color: colors.muted,
+    color: "rgba(234, 242, 255, 0.85)",
     marginTop: 6,
   },
   cardStack: {
@@ -461,7 +461,7 @@ const styles = StyleSheet.create({
   },
   cardBody: {
     ...typography.body,
-    color: colors.muted,
+    color: "rgba(234, 242, 255, 0.9)",
     marginTop: 6,
     lineHeight: 20,
   },
@@ -478,7 +478,7 @@ const styles = StyleSheet.create({
   },
   keyLabel: {
     ...typography.pixel,
-    color: colors.dim,
+    color: "rgba(234, 242, 255, 0.9)",
     fontSize: 9,
   },
   keyValue: {
@@ -499,7 +499,7 @@ const styles = StyleSheet.create({
   },
   listText: {
     ...typography.body,
-    color: colors.muted,
+    color: "rgba(234, 242, 255, 0.92)",
     flex: 1,
   },
   subSection: {
@@ -516,7 +516,7 @@ const styles = StyleSheet.create({
   },
   subSectionText: {
     ...typography.body,
-    color: colors.muted,
+    color: "rgba(234, 242, 255, 0.9)",
     marginBottom: 4,
   },
   milestones: {
@@ -531,13 +531,13 @@ const styles = StyleSheet.create({
   },
   milestoneDate: {
     ...typography.pixel,
-    color: colors.accent,
+    color: "#EAF2FF",
     fontSize: 10,
     minWidth: 70,
   },
   milestoneText: {
     ...typography.body,
-    color: colors.muted,
+    color: "rgba(234, 242, 255, 0.9)",
     flex: 1,
   },
   hardwareRow: {
@@ -547,7 +547,7 @@ const styles = StyleSheet.create({
   },
   hardwareLabel: {
     ...typography.pixel,
-    color: colors.dim,
+    color: "rgba(234, 242, 255, 0.85)",
     fontSize: 10,
   },
   hardwareValue: {
@@ -602,12 +602,12 @@ const styles = StyleSheet.create({
   },
   pathLabel: {
     ...typography.pixel,
-    color: colors.dim,
+    color: "rgba(234, 242, 255, 0.85)",
     fontSize: 9,
   },
   pathNote: {
     ...typography.body,
-    color: colors.muted,
+    color: "rgba(234, 242, 255, 0.9)",
     marginTop: 10,
     fontSize: 12,
   },
@@ -624,12 +624,12 @@ const styles = StyleSheet.create({
   },
   systemDescription: {
     ...typography.body,
-    color: colors.muted,
+    color: "rgba(234, 242, 255, 0.9)",
     fontSize: 12,
   },
   factText: {
     ...typography.body,
-    color: colors.muted,
+    color: "rgba(234, 242, 255, 0.9)",
     marginBottom: 8,
   },
   knowledgeItem: {
@@ -657,7 +657,7 @@ const styles = StyleSheet.create({
   },
   knowledgeContent: {
     ...typography.body,
-    color: colors.muted,
+    color: "rgba(234, 242, 255, 0.9)",
     marginTop: 8,
     fontSize: 12,
   },
@@ -677,7 +677,7 @@ const styles = StyleSheet.create({
   },
   smallNote: {
     ...typography.body,
-    color: colors.dim,
+    color: "rgba(234, 242, 255, 0.85)",
     marginTop: 8,
     fontSize: 11,
   },
