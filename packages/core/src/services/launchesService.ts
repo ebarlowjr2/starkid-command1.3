@@ -93,7 +93,14 @@ export async function getLatestLaunch(): Promise<ServiceResult<Launch | null>> {
 
 export async function getLaunchAlerts(): Promise<ServiceResult<Alert[]>> {
   const result = await getUpcomingLaunches({ limit: 25 })
-  const baseAlerts: Alert[] = (result.data || []).map((launch) => {
+  const now = Date.now()
+  const horizon = now + 24 * 60 * 60 * 1000
+  const launchesWithin24h = (result.data || []).filter((launch) => {
+    const time = getLaunchTime(launch)
+    return time !== Number.POSITIVE_INFINITY && time <= horizon
+  })
+
+  const baseAlerts: Alert[] = launchesWithin24h.map((launch) => {
     const startTime = launch.net || launch.window_start || null
     const isArtemis = launch.name?.toLowerCase?.().includes('artemis')
     return {
@@ -113,8 +120,8 @@ export async function getLaunchAlerts(): Promise<ServiceResult<Alert[]>> {
     }
   })
 
-  const providerAlerts = buildProviderAlerts(result.data || [])
-  const windowAlerts = buildWindowAlerts(result.data || [])
+  const providerAlerts = buildProviderAlerts(launchesWithin24h)
+  const windowAlerts = buildWindowAlerts(launchesWithin24h, [24])
 
   const alerts = dedupeAlertList([...baseAlerts, ...providerAlerts, ...windowAlerts])
 
@@ -123,6 +130,45 @@ export async function getLaunchAlerts(): Promise<ServiceResult<Alert[]>> {
     sources: result.sources,
     warnings: result.warnings,
   }
+}
+
+export async function getUpcomingLaunchesWindow({
+  days = 7,
+  limit = 20,
+}: {
+  days?: number
+  limit?: number
+} = {}): Promise<ServiceResult<Launch[]>> {
+  const result = await getUpcomingLaunches({ limit })
+  const now = Date.now()
+  const horizon = now + days * 24 * 60 * 60 * 1000
+  const filtered = (result.data || []).filter((launch) => {
+    const time = getLaunchTime(launch)
+    return time !== Number.POSITIVE_INFINITY && time <= horizon
+  })
+  return { data: filtered, sources: result.sources, warnings: result.warnings }
+}
+
+export async function getProviderSpotlights(): Promise<ServiceResult<Launch[]>> {
+  const result = await getUpcomingLaunches({ limit: 25 })
+  const byProvider = new Map<string, Launch[]>()
+  for (const launch of result.data || []) {
+    const key = launch.providerName || launch.providerType || 'Other'
+    const list = byProvider.get(key) || []
+    list.push(launch)
+    byProvider.set(key, list)
+  }
+
+  const spotlights: Launch[] = []
+  for (const [provider, list] of byProvider.entries()) {
+    const sorted = [...list].sort((a, b) => getLaunchTime(a) - getLaunchTime(b))
+    const next = sorted[0]
+    if (!next) continue
+    spotlights.push({ ...next, providerName: provider })
+  }
+
+  spotlights.sort((a, b) => String(a.providerName || '').localeCompare(String(b.providerName || '')))
+  return { data: spotlights, sources: result.sources, warnings: result.warnings }
 }
 
 export async function getPriorityLaunches(): Promise<ServiceResult<Launch[]>> {
@@ -251,16 +297,10 @@ function buildProviderAlerts(launches: Launch[]): Alert[] {
   return alerts
 }
 
-function buildWindowAlerts(launches: Launch[]): Alert[] {
+function buildWindowAlerts(launches: Launch[], windows = [24]): Alert[] {
   const now = Date.now()
-  const windows = [
-    { hours: 24, label: 'Next 24 Hours', priority: 4 },
-    { hours: 72, label: 'Next 72 Hours', priority: 3 },
-    { hours: 168, label: 'Next 7 Days', priority: 2 },
-  ]
-
-  return windows.flatMap((window) => {
-    const cutoff = now + window.hours * 60 * 60 * 1000
+  return windows.flatMap((hours) => {
+    const cutoff = now + hours * 60 * 60 * 1000
     const upcoming = launches.filter((launch) => {
       const time = getLaunchTime(launch)
       return time !== Number.POSITIVE_INFINITY && time <= cutoff
@@ -268,13 +308,13 @@ function buildWindowAlerts(launches: Launch[]): Alert[] {
     if (!upcoming.length) return []
     return [
       {
-        id: `launch:window:${window.hours}h`,
+        id: `launch:window:${hours}h`,
         type: 'launch',
         category: 'launch',
-        title: `Launches • ${window.label}`,
+        title: `Launches • Next ${hours} Hours`,
         description: `${upcoming.length} launches scheduled`,
-        severity: window.hours <= 24 ? 'high' : 'medium',
-        priority: window.priority,
+        severity: 'high',
+        priority: 4,
         startTime: upcoming[0]?.net || upcoming[0]?.window_start || null,
         missionAvailable: false,
         payload: { launches: upcoming },

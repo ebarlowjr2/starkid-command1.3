@@ -8,7 +8,7 @@ import Globe from '../components/Globe.jsx'
 import AdminPanel from '../components/AdminPanel.jsx'
 import MissionCard from '../components/MissionCard.jsx'
 
-import { getUpcomingLaunches, getLatestLaunch, getAlertsForUser, generateMissionFromAlert, getRepos, getSolarActivity, formatSourceStatus, listTracks, listLevels } from '@starkid/core'
+import { getUpcomingLaunches, getLatestLaunch, getAlertsForUser, generateMissionFromAlert, getRepos, getSolarActivity, formatSourceStatus, listTracks, listLevels, getUpcomingLaunchesWindow, getProviderSpotlights } from '@starkid/core'
 import {
   getAPOD,
   getNEOsToday,
@@ -40,6 +40,8 @@ export default function CommandCenterPage() {
   const [crew, setCrew] = useState([])
   const [missionAlerts, setMissionAlerts] = useState([])
   const [alertSources, setAlertSources] = useState([])
+  const [providerSpotlights, setProviderSpotlights] = useState([])
+  const [upcomingWindow, setUpcomingWindow] = useState([])
   const [stemTrack, setStemTrack] = useState('math')
   const [stemLevel, setStemLevel] = useState('cadet')
   const tracks = useMemo(() => listTracks(), [])
@@ -79,7 +81,7 @@ export default function CommandCenterPage() {
 
     async function loadNASASpaceXData() {
       try {
-        const [a, n, d, l, u, r, c] = await Promise.all([
+        const [a, n, d, l, u, r, c, windowed, providerList] = await Promise.all([
           getAPOD(),
           getNEOsToday(),
           getDonkiAlerts(),
@@ -87,6 +89,8 @@ export default function CommandCenterPage() {
           getUpcomingLaunches({ limit: 1 }),
           getRockets(),
           getCrew(6),
+          getUpcomingLaunchesWindow({ days: 7, limit: 10 }),
+          getProviderSpotlights(),
         ])
         setApod(a)
         setNeos(n)
@@ -95,6 +99,8 @@ export default function CommandCenterPage() {
         setUpcoming(u.data || [])
         setRockets(r)
         setCrew(c)
+        setUpcomingWindow(windowed?.data || [])
+        setProviderSpotlights(providerList?.data || [])
       } catch (e) {
         console.error('Error loading NASA/SpaceX data:', e)
       }
@@ -244,6 +250,44 @@ export default function CommandCenterPage() {
                 <li>Report the next mission and its rocket.</li>
               </ol>
             </div>
+          }
+        />
+      </section>
+
+      <section className="grid gap-4 grid-cols-1 md:grid-cols-2 mb-6">
+        <MissionCard
+          title="Upcoming Launches (7 Days)"
+          subtitle="Mission Feed"
+          content={
+            upcomingWindow.length ? (
+              <ul className="text-xs space-y-1">
+                {upcomingWindow.slice(0, 7).map((launch, i) => (
+                  <li key={launch.id || `${launch.name}-${i}`}>
+                    • {launch.name || 'Launch'} — {launch.net ? new Date(launch.net).toLocaleDateString() : 'TBD'}
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              'No upcoming launches in the next 7 days.'
+            )
+          }
+        />
+
+        <MissionCard
+          title="Launch Provider Spotlights"
+          subtitle="Next Launch per Provider"
+          content={
+            providerSpotlights.length ? (
+              <ul className="text-xs space-y-1">
+                {providerSpotlights.map((launch, i) => (
+                  <li key={`${launch.providerName || launch.providerType || 'provider'}-${i}`}>
+                    • {launch.providerName || launch.providerType || 'Provider'} • {launch.name || 'Next Launch'} — {launch.net ? new Date(launch.net).toLocaleDateString() : 'TBD'}
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              'No provider spotlights available.'
+            )
           }
         />
       </section>

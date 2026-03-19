@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { View, Text, StyleSheet, ActivityIndicator, Pressable, SafeAreaView, ScrollView } from 'react-native'
-import { getSolarActivity, getAsteroidFlybys, getLatestLaunch, getUpcomingLaunches, ROUTE_MANIFEST } from '@starkid/core'
+import { getSolarActivity, getAsteroidFlybys, getLatestLaunch, getUpcomingLaunchesWindow, getProviderSpotlights, ROUTE_MANIFEST } from '@starkid/core'
 import { useNavigation } from '@react-navigation/native'
 import { SpaceBackground } from '../components/home/SpaceBackground'
 import { GlassCard } from '../components/home/GlassCard'
@@ -14,22 +14,25 @@ export default function CommandCenterScreen() {
   const [neos, setNeos] = useState<any[]>([])
   const [latestLaunch, setLatestLaunch] = useState<any | null>(null)
   const [upcomingLaunches, setUpcomingLaunches] = useState<any[]>([])
+  const [providerSpotlights, setProviderSpotlights] = useState<any[]>([])
 
   useEffect(() => {
     let active = true
     async function load() {
       try {
-        const [solarResult, neosResult, latestResult, upcomingResult] = await Promise.allSettled([
+        const [solarResult, neosResult, latestResult, upcomingResult, providerResult] = await Promise.allSettled([
           getSolarActivity({ days: 3 }),
           getAsteroidFlybys(),
           getLatestLaunch(),
-          getUpcomingLaunches({ limit: 3 }),
+          getUpcomingLaunchesWindow({ days: 7, limit: 7 }),
+          getProviderSpotlights(),
         ])
         if (active) {
           setSolar(solarResult.status === 'fulfilled' ? solarResult.value?.data : null)
           setNeos(neosResult.status === 'fulfilled' ? neosResult.value?.data || [] : [])
           setLatestLaunch(latestResult.status === 'fulfilled' ? latestResult.value?.data : null)
           setUpcomingLaunches(upcomingResult.status === 'fulfilled' ? upcomingResult.value?.data || [] : [])
+          setProviderSpotlights(providerResult.status === 'fulfilled' ? providerResult.value?.data || [] : [])
         }
       } finally {
         if (active) setLoading(false)
@@ -119,6 +122,16 @@ export default function CommandCenterScreen() {
               ) : (
                 <Text style={styles.sectionBody}>No upcoming launches available.</Text>
               )}
+              {providerSpotlights.length ? (
+                <>
+                  <Text style={[styles.sectionTitle, { marginTop: spacing.md }]}>Provider Spotlights</Text>
+                  {providerSpotlights.map((launch, idx) => (
+                    <Text key={`${launch.providerName || 'provider'}-${idx}`} style={styles.sectionBody}>
+                      • {launch.providerName || launch.providerType || 'Provider'} • {launch.name || 'Next Launch'} — {launch.net ? new Date(launch.net).toLocaleDateString() : 'TBD'}
+                    </Text>
+                  ))}
+                </>
+              ) : null}
             </GlassCard>
           </View>
 

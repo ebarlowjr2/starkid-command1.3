@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { View, Text, StyleSheet, ActivityIndicator, FlatList, SafeAreaView } from 'react-native'
-import { getUpcomingLaunches } from '@starkid/core'
+import { getUpcomingLaunchesWindow, getProviderSpotlights } from '@starkid/core'
 import { SpaceBackground } from '../components/home/SpaceBackground'
 import { GlassCard } from '../components/home/GlassCard'
 import { Badge } from '../components/home/Badge'
@@ -17,13 +17,20 @@ type LaunchItem = {
 export default function LaunchesScreen() {
   const [loading, setLoading] = useState(true)
   const [launches, setLaunches] = useState<LaunchItem[]>([])
+  const [spotlights, setSpotlights] = useState<LaunchItem[]>([])
 
   useEffect(() => {
     let active = true
     async function load() {
       try {
-        const { data } = await getUpcomingLaunches({ limit: 10 })
-        if (active) setLaunches(data || [])
+        const [launchesResult, spotlightsResult] = await Promise.all([
+          getUpcomingLaunchesWindow({ days: 7, limit: 12 }),
+          getProviderSpotlights(),
+        ])
+        if (active) {
+          setLaunches(launchesResult.data || [])
+          setSpotlights(spotlightsResult.data || [])
+        }
       } finally {
         if (active) setLoading(false)
       }
@@ -56,13 +63,27 @@ export default function LaunchesScreen() {
             <View style={styles.header}>
               <Text style={styles.kicker}>LAUNCHES</Text>
               <Text style={styles.title}>Upcoming Launches</Text>
-              <Text style={styles.subtitle}>Track the next mission windows and launch pads.</Text>
+              <Text style={styles.subtitle}>Next 7 days of launch windows and pads.</Text>
               <GlassCard variant="secondary" style={{ marginTop: spacing.lg }}>
                 <View style={styles.badgeRow}>
                   <Badge label="MISSION FEED" />
                   <Text style={styles.badgeHelper}>Sorted by earliest launch time</Text>
                 </View>
               </GlassCard>
+              {spotlights.length ? (
+                <GlassCard variant="secondary" style={{ marginTop: spacing.lg }}>
+                  <View style={styles.badgeRow}>
+                    <Badge label="PROVIDER SPOTLIGHTS" />
+                  </View>
+                  <View style={{ marginTop: spacing.sm }}>
+                    {spotlights.map((launch, idx) => (
+                      <Text key={`${launch.providerName || launch.name}-${idx}`} style={styles.cardMeta}>
+                        • {launch.providerName || launch.providerType || 'Provider'} • {launch.name || 'Next Launch'} — {launch.net || launch.window_start || 'Date TBD'}
+                      </Text>
+                    ))}
+                  </View>
+                </GlassCard>
+              ) : null}
             </View>
           )}
           renderItem={({ item }) => (
