@@ -18,6 +18,7 @@ export default function LaunchesScreen() {
   const [loading, setLoading] = useState(true)
   const [launches, setLaunches] = useState<LaunchItem[]>([])
   const [spotlights, setSpotlights] = useState<LaunchItem[]>([])
+  const now = Date.now()
 
   useEffect(() => {
     let active = true
@@ -90,7 +91,12 @@ export default function LaunchesScreen() {
             <GlassCard variant="secondary" style={styles.card}>
               <View style={styles.glowStrip} />
               <Text style={styles.cardTitle}>{item.name || 'Unknown Launch'}</Text>
-              <Text style={styles.cardMeta}>{item.net || item.window_start || 'Date TBD'}</Text>
+              <View style={styles.metaRow}>
+                <Text style={styles.cardMeta}>{item.net || item.window_start || 'Date TBD'}</Text>
+                {item.net && new Date(item.net).getTime() - now <= 24 * 60 * 60 * 1000 ? (
+                  <Text style={styles.alertBadge}>LAUNCH &lt;24H</Text>
+                ) : null}
+              </View>
               {item.pad?.name ? <Text style={styles.cardMeta}>{item.pad.name}</Text> : null}
             </GlassCard>
           )}
@@ -123,4 +129,14 @@ const styles = StyleSheet.create({
   },
   cardTitle: { ...typography.h2, color: colors.text },
   cardMeta: { ...typography.small, color: colors.muted, marginTop: 6 },
+  metaRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 6, flexWrap: 'wrap' },
+  alertBadge: {
+    ...typography.pixel,
+    color: colors.accent,
+    borderWidth: 1,
+    borderColor: 'rgba(61,235,255,0.6)',
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 6,
+  },
 })

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { View, Text, StyleSheet, ActivityIndicator, Pressable, SafeAreaView, ScrollView } from 'react-native'
-import { getSolarActivity, getAsteroidFlybys, getLatestLaunch, getUpcomingLaunchesWindow, getProviderSpotlights, ROUTE_MANIFEST } from '@starkid/core'
+import { getSolarActivity, getAsteroidFlybys, getLatestLaunch, getUpcomingLaunchesWindow, getProviderSpotlights, getLaunchAlerts, ROUTE_MANIFEST } from '@starkid/core'
 import { useNavigation } from '@react-navigation/native'
 import { SpaceBackground } from '../components/home/SpaceBackground'
 import { GlassCard } from '../components/home/GlassCard'
@@ -15,17 +15,19 @@ export default function CommandCenterScreen() {
   const [latestLaunch, setLatestLaunch] = useState<any | null>(null)
   const [upcomingLaunches, setUpcomingLaunches] = useState<any[]>([])
   const [providerSpotlights, setProviderSpotlights] = useState<any[]>([])
+  const [launchAlerts, setLaunchAlerts] = useState<any[]>([])
 
   useEffect(() => {
     let active = true
     async function load() {
       try {
-        const [solarResult, neosResult, latestResult, upcomingResult, providerResult] = await Promise.allSettled([
+        const [solarResult, neosResult, latestResult, upcomingResult, providerResult, launchAlertsResult] = await Promise.allSettled([
           getSolarActivity({ days: 3 }),
           getAsteroidFlybys(),
           getLatestLaunch(),
           getUpcomingLaunchesWindow({ days: 7, limit: 7 }),
           getProviderSpotlights(),
+          getLaunchAlerts(),
         ])
         if (active) {
           setSolar(solarResult.status === 'fulfilled' ? solarResult.value?.data : null)
@@ -33,6 +35,7 @@ export default function CommandCenterScreen() {
           setLatestLaunch(latestResult.status === 'fulfilled' ? latestResult.value?.data : null)
           setUpcomingLaunches(upcomingResult.status === 'fulfilled' ? upcomingResult.value?.data || [] : [])
           setProviderSpotlights(providerResult.status === 'fulfilled' ? providerResult.value?.data || [] : [])
+          setLaunchAlerts(launchAlertsResult.status === 'fulfilled' ? launchAlertsResult.value?.data || [] : [])
         }
       } finally {
         if (active) setLoading(false)
@@ -136,6 +139,24 @@ export default function CommandCenterScreen() {
           </View>
 
           <View style={styles.section}>
+            <GlassCard variant="secondary">
+              <Text style={styles.sectionTitle}>Launch Alerts (24h)</Text>
+              {launchAlerts.length ? (
+                launchAlerts.map((alert, idx) => (
+                  <View key={`${alert.id}-${idx}`} style={styles.alertRow}>
+                    <Text style={styles.alertBadge}>LAUNCH</Text>
+                    <Text style={styles.sectionBody}>
+                      {alert.title || 'Launch'} — {alert.startTime ? new Date(alert.startTime).toLocaleString() : 'NET TBD'}
+                    </Text>
+                  </View>
+                ))
+              ) : (
+                <Text style={styles.sectionBody}>No launches within 24 hours.</Text>
+              )}
+            </GlassCard>
+          </View>
+
+          <View style={styles.section}>
             <Pressable onPress={() => navigation.navigate(ROUTE_MANIFEST.MISSION_ALERTS as never)}>
               <GlassCard variant="secondary">
                 <Text style={styles.sectionTitle}>Mission Alerts</Text>
@@ -162,4 +183,14 @@ const styles = StyleSheet.create({
   sectionTitle: { ...typography.pixel, color: colors.dim, marginBottom: spacing.sm },
   sectionBody: { ...typography.body, color: colors.muted, marginBottom: 4 },
   sectionMeta: { ...typography.small, color: colors.dim },
+  alertRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 6 },
+  alertBadge: {
+    ...typography.pixel,
+    color: colors.accent,
+    borderWidth: 1,
+    borderColor: 'rgba(61,235,255,0.6)',
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 6,
+  },
 })

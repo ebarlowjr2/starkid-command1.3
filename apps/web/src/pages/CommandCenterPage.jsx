@@ -8,7 +8,7 @@ import Globe from '../components/Globe.jsx'
 import AdminPanel from '../components/AdminPanel.jsx'
 import MissionCard from '../components/MissionCard.jsx'
 
-import { getUpcomingLaunches, getLatestLaunch, getAlertsForUser, generateMissionFromAlert, getRepos, getSolarActivity, formatSourceStatus, listTracks, listLevels, getUpcomingLaunchesWindow, getProviderSpotlights } from '@starkid/core'
+import { getUpcomingLaunches, getLatestLaunch, getAlertsForUser, generateMissionFromAlert, getRepos, getSolarActivity, formatSourceStatus, listTracks, listLevels, getUpcomingLaunchesWindow, getProviderSpotlights, getLaunchAlerts } from '@starkid/core'
 import {
   getAPOD,
   getNEOsToday,
@@ -42,6 +42,7 @@ export default function CommandCenterPage() {
   const [alertSources, setAlertSources] = useState([])
   const [providerSpotlights, setProviderSpotlights] = useState([])
   const [upcomingWindow, setUpcomingWindow] = useState([])
+  const [launchAlerts, setLaunchAlerts] = useState([])
   const [stemTrack, setStemTrack] = useState('math')
   const [stemLevel, setStemLevel] = useState('cadet')
   const tracks = useMemo(() => listTracks(), [])
@@ -81,7 +82,7 @@ export default function CommandCenterPage() {
 
     async function loadNASASpaceXData() {
       try {
-        const [a, n, d, l, u, r, c, windowed, providerList] = await Promise.all([
+        const [a, n, d, l, u, r, c, windowed, providerList, launchAlertResult] = await Promise.all([
           getAPOD(),
           getNEOsToday(),
           getDonkiAlerts(),
@@ -91,6 +92,7 @@ export default function CommandCenterPage() {
           getCrew(6),
           getUpcomingLaunchesWindow({ days: 7, limit: 10 }),
           getProviderSpotlights(),
+          getLaunchAlerts(),
         ])
         setApod(a)
         setNeos(n)
@@ -101,6 +103,7 @@ export default function CommandCenterPage() {
         setCrew(c)
         setUpcomingWindow(windowed?.data || [])
         setProviderSpotlights(providerList?.data || [])
+        setLaunchAlerts(launchAlertResult?.data || [])
       } catch (e) {
         console.error('Error loading NASA/SpaceX data:', e)
       }
@@ -287,6 +290,26 @@ export default function CommandCenterPage() {
               </ul>
             ) : (
               'No provider spotlights available.'
+            )
+          }
+        />
+      </section>
+
+      <section className="grid gap-4 grid-cols-1 md:grid-cols-2 mb-6">
+        <MissionCard
+          title="Launch Alerts (24h)"
+          subtitle="Immediate Windows"
+          content={
+            launchAlerts.length ? (
+              <ul className="text-xs space-y-1">
+                {launchAlerts.map((alert, i) => (
+                  <li key={`${alert.id}-${i}`}>
+                    • {alert.title} <span className="text-cyan-400">LAUNCH &lt;24H</span>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              'No launches within 24 hours.'
             )
           }
         />

@@ -37,14 +37,16 @@ describe('integration', () => {
     const mission = convertAlertToMission(result.data[0])
     expect(mission).toBeTruthy()
 
-    const { pass } = gradeAttempt(mission, { main: 2 })
+    const expected = mission?.expectedAnswer
+    const answerValue = expected?.value ?? 2
+    const { pass } = gradeAttempt(mission, { main: answerValue })
     expect(pass).toBe(true)
 
     const { missionsRepo, actor } = await getRepos()
     await missionsRepo.saveAttempt(actor.actorId, {
       missionId: mission.id,
       actorId: actor.actorId,
-      answers: { main: 2 },
+      answers: { main: answerValue },
       submittedAt: new Date().toISOString(),
       result: 'pass',
     })

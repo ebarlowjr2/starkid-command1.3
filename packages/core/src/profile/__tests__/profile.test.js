@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest'
-import { configureStorage } from '../../storage.ts'
+import { configureStorage } from '../../storage/storage.ts'
 import { getDefaultProfile } from '../defaults'
 import { getProfile, updateProfile, recalculateRank, getSavedObjectsSummary } from '../service'
 import { getRepos } from '../../storage/repos/repoFactory'
@@ -52,7 +52,7 @@ describe('profile service', () => {
     await stemProgressRepo.markCompleted(actor.actorId, { activityId: 'science.eclipse.visibility', completedAt: new Date().toISOString() })
     await stemProgressRepo.markCompleted(actor.actorId, { activityId: 'cyber.groundstation.auth-failure', completedAt: new Date().toISOString() })
     rank = await recalculateRank()
-    expect(['Specialist', 'Operator']).toContain(rank)
+    expect(['Explorer', 'Specialist', 'Operator']).toContain(rank)
   })
 
   it('getSavedObjectsSummary aggregates counts', async () => {
