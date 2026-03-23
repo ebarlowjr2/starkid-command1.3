@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   SafeAreaView,
   ScrollView,
@@ -18,6 +18,7 @@ import {
   ARTEMIS_KNOWLEDGE,
   MISSION_STATUS_COLORS,
   ROUTE_MANIFEST,
+  getArtemisProgramSummary,
 } from "@starkid/core";
 import { SpaceBackground } from "../components/home/SpaceBackground";
 import { GlassCard } from "../components/home/GlassCard";
@@ -52,6 +53,8 @@ export default function ArtemisScreen() {
   const [viewMode, setViewMode] = useState<"ops" | "learn">("ops");
   const [expandedKnowledge, setExpandedKnowledge] = useState<string | null>(null);
   const [selectedMissionId, setSelectedMissionId] = useState(ARTEMIS_MISSIONS[0]?.id);
+  const [artemisSummary, setArtemisSummary] = useState<any | null>(null);
+  const [now, setNow] = useState(Date.now());
 
   const selectedMission = useMemo(
     () => ARTEMIS_MISSIONS.find((mission) => mission.id === selectedMissionId) || ARTEMIS_MISSIONS[0],
@@ -61,10 +64,47 @@ export default function ArtemisScreen() {
   const rocketData = selectedMission ? ARTEMIS_ROCKETS[selectedMission.rocket] : null;
   const rocketConfig = rocketData?.configurations?.[selectedMission?.rocketConfig];
 
+  useEffect(() => {
+    let active = true;
+    async function load() {
+      try {
+        const result = await getArtemisProgramSummary();
+        if (active) setArtemisSummary(result?.data || null);
+      } catch (error) {
+        // fallback to static ARTEMIS_PROGRAM
+      }
+    }
+    load();
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    const timer = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const artemisCountdown = useMemo(() => {
+    const targetIso = artemisSummary?.nextMissionDate || ARTEMIS_PROGRAM?.nextMissionDate;
+    if (!targetIso) return "TBD";
+    const target = new Date(targetIso).getTime();
+    const diff = Math.max(0, target - now);
+    const days = Math.floor(diff / (24 * 3600 * 1000));
+    const hours = Math.floor((diff % (24 * 3600 * 1000)) / (3600 * 1000));
+    const minutes = Math.floor((diff % (3600 * 1000)) / (60 * 1000));
+    const seconds = Math.floor((diff % (60 * 1000)) / 1000);
+    return `${days}d ${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
+  }, [artemisSummary, now]);
+
   return (
     <SpaceBackground>
       <SafeAreaView style={{ flex: 1 }}>
         <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
+          <GlassCard variant="secondary" style={styles.countdownCard}>
+            <CustomText variant="sectionLabel" style={styles.countdownLabel}>ARTEMIS COUNTDOWN</CustomText>
+            <CustomText variant="title" style={styles.countdownValue}>{artemisCountdown}</CustomText>
+          </GlassCard>
           <GlassCard variant="secondary" style={styles.statusBar}>
             <View style={styles.statusRow}>
               <CustomText variant="sectionLabel" style={styles.statusLabel}>PROGRAM</CustomText>
@@ -322,6 +362,20 @@ export default function ArtemisScreen() {
 
 const styles = StyleSheet.create({
   container: { padding: spacing.xl, paddingBottom: 44 },
+  countdownCard: {
+    marginBottom: spacing.lg,
+    paddingVertical: spacing.md,
+    alignItems: "center",
+  },
+  countdownLabel: {
+    color: colors.dim,
+    letterSpacing: 1.4,
+  },
+  countdownValue: {
+    color: colors.cyan,
+    marginTop: spacing.xs,
+    letterSpacing: 1.2,
+  },
   statusBar: {
     padding: 16,
     marginBottom: spacing.lg,
