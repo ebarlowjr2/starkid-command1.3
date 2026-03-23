@@ -1,5 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { FEATURED_EVENT } from "../config/featuredEvent.js";
+import { getArtemisPriorityAlert } from "@starkid/core";
+import { useEffect, useState } from "react";
 import { useCountdown } from "../hooks/useCountdown.js";
 
 function pad2(n) {
@@ -8,12 +10,42 @@ function pad2(n) {
 
 export function FeaturedEventOrb() {
   const nav = useNavigate();
-  const cd = useCountdown(FEATURED_EVENT.targetIso);
+  const [featured, setFeatured] = useState(FEATURED_EVENT);
+
+  useEffect(() => {
+    let active = true;
+    async function load() {
+      try {
+        const result = await getArtemisPriorityAlert();
+        const alert = result?.data;
+        if (!active || !alert?.startTime) return;
+        const alertTime = new Date(alert.startTime).getTime();
+        if (!Number.isFinite(alertTime) || alertTime <= Date.now()) {
+          return;
+        }
+        setFeatured((prev) => ({
+          ...prev,
+          title: alert.title?.split("•")?.[0]?.trim() || prev.title,
+          subtitle: "LAUNCH WINDOW OPENS (NET)",
+          targetIso: alert.startTime,
+          route: "/missions/artemis?mission=artemis-2",
+        }));
+      } catch (error) {
+        // Fall back to static config.
+      }
+    }
+    load();
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  const cd = useCountdown(featured.targetIso || FEATURED_EVENT.targetIso);
 
   const isWindowOpen = cd.done;
   const label = isWindowOpen ? "WINDOW OPEN" : "COUNTDOWN";
   const ctaLabel = isWindowOpen ? "GO TO LIVE →" : "OPEN BRIEF →";
-  const targetRoute = isWindowOpen ? "/updates/live" : FEATURED_EVENT.route;
+  const targetRoute = isWindowOpen ? "/updates/live" : featured.route;
   const timeStr = isWindowOpen
     ? "00:00:00"
     : `${pad2(cd.hours)}:${pad2(cd.minutes)}:${pad2(cd.seconds)}`;
@@ -79,10 +111,10 @@ export function FeaturedEventOrb() {
 
         <div style={{ display: "flex", flexWrap: "wrap", gap: 10, alignItems: "baseline" }}>
           <div style={{ fontSize: 22, fontWeight: 800 }}>
-            {FEATURED_EVENT.title}
+            {featured.title}
           </div>
           <div style={{ fontSize: 12, opacity: 0.7, fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace" }}>
-            {FEATURED_EVENT.subtitle} • {FEATURED_EVENT.tzLabel}
+            {featured.subtitle} • {FEATURED_EVENT.tzLabel}
           </div>
         </div>
 
@@ -118,9 +150,9 @@ export function FeaturedEventOrb() {
           </div>
         </div>
 
-        {FEATURED_EVENT.sourceNote && (
+        {featured.sourceNote && (
           <div style={{ fontSize: 12, opacity: 0.6 }}>
-            {FEATURED_EVENT.sourceNote}
+            {featured.sourceNote}
           </div>
         )}
       </div>
