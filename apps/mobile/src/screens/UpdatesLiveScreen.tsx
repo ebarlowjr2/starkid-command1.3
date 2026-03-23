@@ -1,11 +1,12 @@
 import React, { useEffect, useMemo, useState } from 'react'
-import { SafeAreaView, ScrollView, StyleSheet, Text, View, Pressable, Linking } from 'react-native'
+import { SafeAreaView, ScrollView, StyleSheet, View, Pressable, Linking } from 'react-native'
 import { SpaceBackground } from '../components/home/SpaceBackground'
 import { GlassCard } from '../components/home/GlassCard'
 import { PixelButton } from '../components/home/PixelButton'
 import { normalizeYouTubeLiveCards, timeAgo, getCoreConfig } from '@starkid/core'
-import { colors, spacing, typography } from '../theme/tokens'
+import { colors, spacing } from '../theme/tokens'
 import { YOUTUBE_CHANNELS } from '../data/youtubeChannels'
+import { CustomText } from '../components/ui/CustomText'
 
 export default function UpdatesLiveScreen({ navigation }: any) {
   const [channels, setChannels] = useState<any[]>([])
@@ -56,9 +57,9 @@ export default function UpdatesLiveScreen({ navigation }: any) {
     <SpaceBackground>
       <SafeAreaView style={{ flex: 1 }}>
         <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
-          <Text style={styles.kicker}>UPDATES</Text>
-          <Text style={styles.title}>Live Streams</Text>
-          <Text style={styles.subtitle}>Launch feeds and mission broadcasts.</Text>
+          <CustomText variant="sectionLabel" style={styles.kicker}>UPDATES</CustomText>
+          <CustomText variant="hero" style={styles.title}>Live Streams</CustomText>
+          <CustomText variant="body" style={styles.subtitle}>Launch feeds and mission broadcasts.</CustomText>
 
           <View style={styles.row}>
             <PixelButton
@@ -67,35 +68,35 @@ export default function UpdatesLiveScreen({ navigation }: any) {
               style={{ alignSelf: 'flex-start' }}
             />
             {lastChecked ? (
-              <Text style={styles.meta}>Last checked: {new Date(lastChecked).toLocaleTimeString()}</Text>
+              <CustomText variant="bodySmall" style={styles.meta}>Last checked: {new Date(lastChecked).toLocaleTimeString()}</CustomText>
             ) : null}
           </View>
 
           {!apiConfigured ? (
             <GlassCard variant="secondary" style={{ marginTop: spacing.lg }}>
-              <Text style={styles.notice}>YouTube API not configured. Showing monitored channels only.</Text>
+              <CustomText variant="bodySmall" style={styles.notice}>YouTube API not configured. Showing monitored channels only.</CustomText>
             </GlassCard>
           ) : null}
 
           {error ? (
             <GlassCard variant="secondary" style={{ marginTop: spacing.lg }}>
-              <Text style={styles.error}>{error}</Text>
+              <CustomText variant="bodySmall" style={styles.error}>{error}</CustomText>
             </GlassCard>
           ) : null}
 
           {liveChannels.length > 0 ? (
             <View style={{ marginTop: spacing.lg, gap: spacing.md }}>
-              <Text style={styles.sectionTitle}>LIVE NOW</Text>
+              <CustomText variant="sectionLabel" style={styles.sectionTitle}>LIVE NOW</CustomText>
               {liveChannels.map((channel) => (
                 <GlassCard key={channel.channelId} variant="secondary">
-                  <Text style={styles.cardTitle}>{channel.name}</Text>
-                  {channel.liveTitle ? <Text style={styles.body}>{channel.liveTitle}</Text> : null}
+                  <CustomText variant="cardTitle" style={styles.cardTitle}>{channel.name}</CustomText>
+                  {channel.liveTitle ? <CustomText variant="body" style={styles.body}>{channel.liveTitle}</CustomText> : null}
                   <View style={styles.cardMetaRow}>
-                    <Text style={styles.liveBadge}>LIVE</Text>
-                    <Text style={styles.meta}>{channel.startedAt ? timeAgo(channel.startedAt) : ''}</Text>
+                    <CustomText variant="sectionLabel" style={styles.liveBadge}>LIVE</CustomText>
+                    <CustomText variant="bodySmall" style={styles.meta}>{channel.startedAt ? timeAgo(channel.startedAt) : ''}</CustomText>
                   </View>
                   <Pressable onPress={() => Linking.openURL(channel.liveUrl)}>
-                    <Text style={styles.cta}>WATCH ON YOUTUBE →</Text>
+                    <CustomText variant="sectionLabel" style={styles.cta}>WATCH ON YOUTUBE →</CustomText>
                   </Pressable>
                 </GlassCard>
               ))}
@@ -103,15 +104,15 @@ export default function UpdatesLiveScreen({ navigation }: any) {
           ) : null}
 
           <View style={{ marginTop: spacing.lg, gap: spacing.md }}>
-            <Text style={styles.sectionTitle}>MONITORED CHANNELS</Text>
+            <CustomText variant="sectionLabel" style={styles.sectionTitle}>MONITORED CHANNELS</CustomText>
             {offlineChannels.map((channel) => (
               <GlassCard key={channel.channelId} variant="secondary">
-                <Text style={styles.cardTitle}>{channel.name}</Text>
-                <Text style={styles.body}>{channel.description}</Text>
+                <CustomText variant="cardTitle" style={styles.cardTitle}>{channel.name}</CustomText>
+                <CustomText variant="body" style={styles.body}>{channel.description}</CustomText>
                 <View style={styles.cardMetaRow}>
-                  <Text style={styles.offlineBadge}>OFFLINE</Text>
+                  <CustomText variant="sectionLabel" style={styles.offlineBadge}>OFFLINE</CustomText>
                   <Pressable onPress={() => Linking.openURL(channel.url)}>
-                    <Text style={styles.cta}>VIEW CHANNEL →</Text>
+                    <CustomText variant="sectionLabel" style={styles.cta}>VIEW CHANNEL →</CustomText>
                   </Pressable>
                 </View>
               </GlassCard>
@@ -125,18 +126,18 @@ export default function UpdatesLiveScreen({ navigation }: any) {
 
 const styles = StyleSheet.create({
   container: { padding: spacing.xl, paddingBottom: 44 },
-  kicker: { ...typography.pixel, color: colors.dim, marginBottom: 8 },
-  title: { ...typography.hero, color: colors.text },
-  subtitle: { ...typography.body, color: colors.muted, marginTop: 6 },
-  body: { ...typography.body, color: colors.muted },
+  kicker: { color: colors.dim, marginBottom: 8 },
+  title: { color: colors.text },
+  subtitle: { color: colors.muted, marginTop: 6 },
+  body: { color: colors.muted },
   row: { marginTop: spacing.lg, gap: spacing.sm },
-  meta: { ...typography.small, color: colors.dim },
-  notice: { ...typography.small, color: '#eab308' },
-  error: { ...typography.small, color: '#f87171' },
-  sectionTitle: { ...typography.pixel, color: colors.dim, marginBottom: spacing.sm },
-  cardTitle: { ...typography.h2, color: colors.text },
+  meta: { color: colors.dim },
+  notice: { color: '#eab308' },
+  error: { color: '#f87171' },
+  sectionTitle: { color: colors.dim, marginBottom: spacing.sm },
+  cardTitle: { color: colors.text },
   cardMetaRow: { flexDirection: 'row', alignItems: 'center', gap: 10, marginTop: spacing.sm },
-  liveBadge: { ...typography.pixel, color: '#f87171' },
-  offlineBadge: { ...typography.pixel, color: colors.dim },
-  cta: { ...typography.pixel, color: colors.accent, marginTop: spacing.sm },
+  liveBadge: { color: '#f87171' },
+  offlineBadge: { color: colors.dim },
+  cta: { color: colors.accent, marginTop: spacing.sm },
 })

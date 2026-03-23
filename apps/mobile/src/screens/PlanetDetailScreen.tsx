@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react'
-import { SafeAreaView, ScrollView, StyleSheet, Text, View, Image } from 'react-native'
+import { SafeAreaView, ScrollView, StyleSheet, View, Image } from 'react-native'
 import { SpaceBackground } from '../components/home/SpaceBackground'
 import { GlassCard } from '../components/home/GlassCard'
 import { PixelButton } from '../components/home/PixelButton'
-import { colors, spacing, typography } from '../theme/tokens'
+import { colors, spacing } from '../theme/tokens'
 import { getPhotoOfDay, extractTelemetry, MARS_FACTS } from '@starkid/core'
+import { CustomText } from '../components/ui/CustomText'
 
 export default function PlanetDetailScreen({ route, navigation }: any) {
   const planetId = route?.params?.planetId
@@ -31,9 +32,9 @@ export default function PlanetDetailScreen({ route, navigation }: any) {
       <SpaceBackground>
         <SafeAreaView style={{ flex: 1 }}>
           <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
-            <Text style={styles.kicker}>PLANETARY COMMAND</Text>
-            <Text style={styles.title}>Destination Offline</Text>
-            <Text style={styles.subtitle}>This command center is coming soon.</Text>
+            <CustomText variant="sectionLabel" style={styles.kicker}>PLANETARY COMMAND</CustomText>
+            <CustomText variant="hero" style={styles.title}>Destination Offline</CustomText>
+            <CustomText variant="body" style={styles.subtitle}>This command center is coming soon.</CustomText>
             <PixelButton label="BACK" onPress={() => navigation.goBack()} style={{ marginTop: spacing.lg }} />
           </ScrollView>
         </SafeAreaView>
@@ -45,46 +46,46 @@ export default function PlanetDetailScreen({ route, navigation }: any) {
     <SpaceBackground>
       <SafeAreaView style={{ flex: 1 }}>
         <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
-          <Text style={styles.kicker}>MARS COMMAND CENTER</Text>
-          <Text style={styles.title}>Rover Ops • Telemetry Active</Text>
-          <Text style={styles.subtitle}>Daily rover capture and surface telemetry.</Text>
+          <CustomText variant="sectionLabel" style={styles.kicker}>MARS COMMAND CENTER</CustomText>
+          <CustomText variant="hero" style={styles.title}>Rover Ops • Telemetry Active</CustomText>
+          <CustomText variant="body" style={styles.subtitle}>Daily rover capture and surface telemetry.</CustomText>
 
           <GlassCard variant="secondary" style={{ marginTop: spacing.lg }}>
-            <Text style={styles.panelTitle}>Photo of the Sol</Text>
+            <CustomText variant="sectionLabel" style={styles.panelTitle}>Photo of the Sol</CustomText>
             {photo?.img_src ? (
               <Image source={{ uri: photo.img_src }} style={styles.photo} resizeMode="cover" />
             ) : (
-              <Text style={styles.body}>Loading rover imagery…</Text>
+              <CustomText variant="body" style={styles.body}>Loading rover imagery…</CustomText>
             )}
             {telemetry ? (
               <View style={{ marginTop: spacing.sm }}>
-                <Text style={styles.meta}>Camera: {telemetry.cameraFullName}</Text>
-                <Text style={styles.meta}>Sol: {telemetry.currentSol}</Text>
-                <Text style={styles.meta}>Earth Date: {telemetry.earthDate}</Text>
+                <CustomText variant="bodySmall" style={styles.meta}>Camera: {telemetry.cameraFullName}</CustomText>
+                <CustomText variant="bodySmall" style={styles.meta}>Sol: {telemetry.currentSol}</CustomText>
+                <CustomText variant="bodySmall" style={styles.meta}>Earth Date: {telemetry.earthDate}</CustomText>
               </View>
             ) : null}
           </GlassCard>
 
           <GlassCard variant="secondary" style={{ marginTop: spacing.lg }}>
-            <Text style={styles.panelTitle}>Telemetry</Text>
+            <CustomText variant="sectionLabel" style={styles.panelTitle}>Telemetry</CustomText>
             {telemetry ? (
               <>
-                <Text style={styles.body}>Rover: {telemetry.roverName}</Text>
-                <Text style={styles.body}>Status: {telemetry.roverStatus}</Text>
-                <Text style={styles.body}>Max Sol: {telemetry.maxSol}</Text>
-                <Text style={styles.body}>Total Photos: {telemetry.totalPhotos}</Text>
+                <CustomText variant="body" style={styles.body}>Rover: {telemetry.roverName}</CustomText>
+                <CustomText variant="body" style={styles.body}>Status: {telemetry.roverStatus}</CustomText>
+                <CustomText variant="body" style={styles.body}>Max Sol: {telemetry.maxSol}</CustomText>
+                <CustomText variant="body" style={styles.body}>Total Photos: {telemetry.totalPhotos}</CustomText>
               </>
             ) : (
-              <Text style={styles.body}>Telemetry loading…</Text>
+              <CustomText variant="body" style={styles.body}>Telemetry loading…</CustomText>
             )}
           </GlassCard>
 
           <GlassCard variant="secondary" style={{ marginTop: spacing.lg }}>
-            <Text style={styles.panelTitle}>Mars Facts</Text>
+            <CustomText variant="sectionLabel" style={styles.panelTitle}>Mars Facts</CustomText>
             {MARS_FACTS.slice(0, 6).map((fact) => (
-              <Text key={fact.id} style={styles.body}>
+              <CustomText key={fact.id} variant="body" style={styles.body}>
                 {fact.label.replace('_', ' ')}: {fact.value}
-              </Text>
+              </CustomText>
             ))}
           </GlassCard>
 
@@ -97,11 +98,11 @@ export default function PlanetDetailScreen({ route, navigation }: any) {
 
 const styles = StyleSheet.create({
   container: { padding: spacing.xl, paddingBottom: 44 },
-  kicker: { ...typography.pixel, color: colors.dim, marginBottom: 8 },
-  title: { ...typography.hero, color: colors.text },
-  subtitle: { ...typography.body, color: colors.muted, marginTop: 6 },
-  panelTitle: { ...typography.pixel, color: colors.dim, marginBottom: spacing.sm },
-  body: { ...typography.body, color: colors.muted, marginTop: 4 },
-  meta: { ...typography.small, color: colors.dim, marginTop: 4 },
+  kicker: { color: colors.dim, marginBottom: 8 },
+  title: { color: colors.text },
+  subtitle: { color: colors.muted, marginTop: 6 },
+  panelTitle: { color: colors.dim, marginBottom: spacing.sm },
+  body: { color: colors.muted, marginTop: 4 },
+  meta: { color: colors.dim, marginTop: 4 },
   photo: { width: '100%', height: 180, borderRadius: 14, marginTop: spacing.sm },
 })

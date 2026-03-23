@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { View, Text, StyleSheet, ActivityIndicator, ScrollView, SafeAreaView, ImageBackground } from "react-native";
+import { View, StyleSheet, ActivityIndicator, ScrollView, SafeAreaView, ImageBackground } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { getUpcomingSkyEventsService, getUpcomingLaunches, ROUTE_MANIFEST, getCurrentActor, getArtemisProgramSummary } from "@starkid/core";
 import { SpaceBackground } from "../components/home/SpaceBackground";
@@ -7,8 +7,9 @@ import { NextMajorEventCard } from "../components/home/NextMajorEventCard";
 import { UpcomingSkyEventsCard } from "../components/home/UpcomingSkyEventsCard";
 import { LinearGradient } from "expo-linear-gradient";
 import { PixelButton } from "../components/home/PixelButton";
-import { colors, spacing, typography } from "../theme/tokens";
+import { colors, spacing } from "../theme/tokens";
 import { SyncIdentityModal } from "../components/auth/SyncIdentityModal";
+import { CustomText } from "../components/ui/CustomText";
 
 export default function HomeScreen() {
   const navigation = useNavigation();
@@ -101,7 +102,9 @@ export default function HomeScreen() {
       <SpaceBackground>
         <View style={styles.center}>
           <ActivityIndicator size="large" />
-          <Text style={styles.muted}>Loading command feed…</Text>
+          <CustomText variant="body" style={styles.muted}>
+            Loading command feed…
+          </CustomText>
         </View>
       </SpaceBackground>
     );
@@ -132,15 +135,29 @@ export default function HomeScreen() {
               ]}
               style={styles.heroGradient}
             />
-            <Text style={styles.planetAccent}>🪐</Text>
-            <Text style={styles.ufoAccent}>🛸</Text>
+            <CustomText style={styles.planetAccent}>🪐</CustomText>
+            <CustomText style={styles.ufoAccent}>🛸</CustomText>
             <View style={styles.heroOverlay}>
-              <Text style={styles.heroKicker}>WELCOME TO</Text>
-              <Text style={styles.heroTitle}>STARKID COMMAND</Text>
-              <Text style={styles.heroSubtitle}>Junior Science Officer Control Network</Text>
-              <Text style={styles.heroDescription}>
+              <CustomText variant="heroKicker" style={styles.heroKicker}>
+                WELCOME TO
+              </CustomText>
+              <CustomText
+                variant="hero"
+                style={styles.heroTitle}
+                onLongPress={() => {
+                  if (__DEV__) {
+                    navigation.navigate("TypographyPreview" as never);
+                  }
+                }}
+              >
+                STARKID COMMAND
+              </CustomText>
+              <CustomText variant="h2" style={styles.heroSubtitle}>
+                Junior Science Officer Control Network
+              </CustomText>
+              <CustomText variant="body" style={styles.heroDescription}>
                 StarKid Command is a live mission-control interface for tracking, understanding, and exploring space.
-              </Text>
+              </CustomText>
               <PixelButton
                 label="EXPLORE →"
                 onPress={() => navigation.navigate(ROUTE_MANIFEST.EXPLORE as never)}
@@ -150,12 +167,18 @@ export default function HomeScreen() {
           </View>
           <View style={styles.cardStack}>
             <View style={styles.artemisCard}>
-              <Text style={styles.artemisLabel}>ARTEMIS SPOTLIGHT</Text>
-              <Text style={styles.artemisTitle}>{artemis?.nextMission || "Artemis II"}</Text>
-              <Text style={styles.artemisCountdown}>COUNTDOWN · {artemisCountdown}</Text>
-              <Text style={styles.artemisBody}>
+              <CustomText variant="sectionLabel" style={styles.artemisLabel}>
+                ARTEMIS SPOTLIGHT
+              </CustomText>
+              <CustomText variant="cardTitle" style={styles.artemisTitle}>
+                {artemis?.nextMission || "Artemis II"}
+              </CustomText>
+              <CustomText variant="bodySmall" style={styles.artemisCountdown}>
+                COUNTDOWN · {artemisCountdown}
+              </CustomText>
+              <CustomText variant="body" style={styles.artemisBody}>
                 {artemis?.description || "NASA’s priority lunar exploration program."}
-              </Text>
+              </CustomText>
               <PixelButton
                 label="OPEN ARTEMIS →"
                 onPress={() => navigation.navigate(ROUTE_MANIFEST.ARTEMIS as never)}
@@ -217,30 +240,22 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
   },
   heroKicker: {
-    ...typography.pixel,
-    fontSize: 14,
-    letterSpacing: 2,
     color: colors.text,
   },
   heroTitle: {
-    fontSize: 34,
-    fontWeight: "800",
     color: colors.text,
     textAlign: "center",
     marginTop: 6,
   },
   heroSubtitle: {
-    fontSize: 18,
     color: "#9fe8ff",
     textAlign: "center",
     marginTop: 8,
   },
   heroDescription: {
-    fontSize: 14,
     color: "rgba(234,242,255,0.85)",
     textAlign: "center",
     marginTop: 10,
-    lineHeight: 20,
   },
   heroButton: {
     marginTop: 10,
@@ -284,23 +299,19 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   artemisLabel: {
-    ...typography.pixel,
     color: colors.dim,
     marginBottom: 6,
     letterSpacing: 2,
   },
   artemisTitle: {
-    ...typography.h2,
     color: colors.accent,
   },
   artemisCountdown: {
-    ...typography.pixel,
     marginTop: 6,
     color: "#9fe8ff",
     letterSpacing: 1,
   },
   artemisBody: {
-    ...typography.body,
     color: colors.muted,
     marginTop: 6,
   },

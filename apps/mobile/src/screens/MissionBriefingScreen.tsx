@@ -1,13 +1,14 @@
 import React, { useEffect, useState } from 'react'
-import { View, Text, StyleSheet, Pressable, TextInput, SafeAreaView, ScrollView } from 'react-native'
+import { View, StyleSheet, Pressable, TextInput, SafeAreaView, ScrollView } from 'react-native'
 import { getMission } from '../state/missionStore'
 import { useNavigation } from '@react-navigation/native'
 import { gradeStemAttempt, getRepos, syncMissionCompletionToActivity, getMissionById, getCurrentActor } from '@starkid/core'
 import { SpaceBackground } from '../components/home/SpaceBackground'
 import { GlassCard } from '../components/home/GlassCard'
 import { PixelButton } from '../components/home/PixelButton'
-import { colors, spacing, typography } from '../theme/tokens'
+import { colors, spacing } from '../theme/tokens'
 import { SyncIdentityModal } from '../components/auth/SyncIdentityModal'
+import { CustomText } from '../components/ui/CustomText'
 
 export default function MissionBriefingScreen({ route }: { route: any }) {
   const navigation = useNavigation()
@@ -51,7 +52,9 @@ export default function MissionBriefingScreen({ route }: { route: any }) {
     return (
       <SpaceBackground>
         <View style={styles.center}>
-          <Text style={styles.title}>No Mission Selected</Text>
+          <CustomText variant="title" style={styles.title}>
+            No Mission Selected
+          </CustomText>
           <PixelButton label="BACK" onPress={() => navigation.goBack()} />
         </View>
       </SpaceBackground>
@@ -62,17 +65,17 @@ export default function MissionBriefingScreen({ route }: { route: any }) {
     <SpaceBackground>
       <SafeAreaView style={{ flex: 1 }}>
         <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
-          <Text style={styles.kicker}>MISSION BRIEFING</Text>
-          <Text style={styles.title}>{mission.title}</Text>
-          <Text style={styles.subtitle}>{mission.type} • {mission.difficulty}</Text>
+          <CustomText variant="sectionLabel" style={styles.kicker}>MISSION BRIEFING</CustomText>
+          <CustomText variant="hero" style={styles.title}>{mission.title}</CustomText>
+          <CustomText variant="bodySmall" style={styles.subtitle}>{mission.type} • {mission.difficulty}</CustomText>
 
           <GlassCard variant="secondary" style={{ marginTop: spacing.lg }}>
-            <Text style={styles.briefing}>{mission.briefing}</Text>
+            <CustomText variant="body" style={styles.briefing}>{mission.briefing}</CustomText>
           </GlassCard>
           <GlassCard variant="secondary" style={{ marginTop: spacing.lg }}>
             <View style={styles.progressHeader}>
-              <Text style={styles.progressLabel}>Mission Progress</Text>
-              <Text style={styles.progressMeta}>{answeredSteps}/{totalSteps} • {progressPct}%</Text>
+              <CustomText variant="sectionLabel" style={styles.progressLabel}>Mission Progress</CustomText>
+              <CustomText variant="bodySmall" style={styles.progressMeta}>{answeredSteps}/{totalSteps} • {progressPct}%</CustomText>
             </View>
             <View style={styles.progressBar}>
               <View style={[styles.progressFill, { width: `${progressPct}%` }]} />
@@ -88,15 +91,15 @@ export default function MissionBriefingScreen({ route }: { route: any }) {
           ) : null}
 
           {completed && !started ? (
-            <Text style={[styles.status, { color: colors.green }]}>✅ Completed</Text>
+            <CustomText variant="bodySmall" style={[styles.status, { color: colors.green }]}>✅ Completed</CustomText>
           ) : null}
 
           {started ? (
             <GlassCard variant="secondary" style={{ marginTop: spacing.lg }}>
-              <Text style={styles.panelTitle}>Steps</Text>
+              <CustomText variant="sectionLabel" style={styles.panelTitle}>Steps</CustomText>
               {(mission.steps || []).map((step) => (
                 <View key={step.id} style={{ marginBottom: spacing.md }}>
-                  <Text style={styles.panelItem}>• {step.prompt}</Text>
+                  <CustomText variant="body" style={styles.panelItem}>• {step.prompt}</CustomText>
                   {step.inputType === 'choice' ? (
                     <View style={styles.choiceRow}>
                       {(step.choices || []).map((choice) => (
@@ -105,7 +108,7 @@ export default function MissionBriefingScreen({ route }: { route: any }) {
                           style={[styles.choiceButton, answers[step.id] === choice && styles.choiceButtonActive]}
                           onPress={() => setAnswers((prev) => ({ ...prev, [step.id]: choice }))}
                         >
-                          <Text style={styles.choiceText}>{choice}</Text>
+                          <CustomText variant="bodySmall" style={styles.choiceText}>{choice}</CustomText>
                         </Pressable>
                       ))}
                     </View>
@@ -146,17 +149,17 @@ export default function MissionBriefingScreen({ route }: { route: any }) {
               />
               {result ? (
                 <View style={[styles.feedbackCard, result.pass ? styles.feedbackPass : styles.feedbackFail]}>
-                  <Text style={[styles.panelItem, { color: result.pass ? colors.green : '#fca5a5' }]}>
+                  <CustomText variant="body" style={[styles.panelItem, { color: result.pass ? colors.green : '#fca5a5' }]}>
                     {result.feedback}
-                  </Text>
+                  </CustomText>
                 </View>
               ) : null}
               {completed ? (
-                <Text style={[styles.panelItem, { color: colors.green, marginTop: spacing.md }]}>✅ Completed</Text>
+                <CustomText variant="body" style={[styles.panelItem, { color: colors.green, marginTop: spacing.md }]}>✅ Completed</CustomText>
               ) : null}
               {completed && isGuest ? (
                 <View style={{ marginTop: spacing.md }}>
-                  <Text style={styles.guestNote}>Sync Command Profile to save your rank and mission progress across devices.</Text>
+                  <CustomText variant="bodySmall" style={styles.guestNote}>Sync Command Profile to save your rank and mission progress across devices.</CustomText>
                   <PixelButton label="SYNC COMMAND PROFILE" onPress={() => setShowSync(true)} style={{ marginTop: spacing.sm }} />
                 </View>
               ) : null}
@@ -165,9 +168,9 @@ export default function MissionBriefingScreen({ route }: { route: any }) {
 
           {mission.requiredData ? (
             <GlassCard variant="secondary" style={{ marginTop: spacing.lg }}>
-              <Text style={styles.panelTitle}>Required Data</Text>
+              <CustomText variant="sectionLabel" style={styles.panelTitle}>Required Data</CustomText>
               {Object.entries(mission.requiredData).map(([key, value]) => (
-                <Text key={key} style={styles.panelItem}>{key}: {value == null ? 'N/A' : String(value)}</Text>
+                <CustomText key={key} variant="body" style={styles.panelItem}>{key}: {value == null ? 'N/A' : String(value)}</CustomText>
               ))}
             </GlassCard>
           ) : null}
@@ -183,13 +186,13 @@ export default function MissionBriefingScreen({ route }: { route: any }) {
 const styles = StyleSheet.create({
   container: { padding: spacing.xl, paddingBottom: 44 },
   center: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 16 },
-  kicker: { ...typography.pixel, color: colors.dim, marginBottom: 6 },
-  title: { ...typography.hero, color: colors.text },
-  subtitle: { ...typography.small, color: colors.muted, marginTop: 6 },
-  briefing: { ...typography.body, color: colors.muted, lineHeight: 20 },
-  panelTitle: { ...typography.pixel, color: colors.dim, marginBottom: spacing.sm },
-  panelItem: { ...typography.body, color: colors.muted },
-  status: { ...typography.small, marginTop: spacing.md },
+  kicker: { color: colors.dim, marginBottom: 6 },
+  title: { color: colors.text },
+  subtitle: { color: colors.muted, marginTop: 6 },
+  briefing: { color: colors.muted, lineHeight: 20 },
+  panelTitle: { color: colors.dim, marginBottom: spacing.sm },
+  panelItem: { color: colors.muted },
+  status: { marginTop: spacing.md },
   input: {
     borderWidth: 1,
     borderColor: 'rgba(61,235,255,0.3)',
@@ -199,8 +202,8 @@ const styles = StyleSheet.create({
     marginTop: 6,
   },
   progressHeader: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: spacing.sm },
-  progressLabel: { ...typography.pixel, color: colors.dim },
-  progressMeta: { ...typography.small, color: colors.muted },
+  progressLabel: { color: colors.dim },
+  progressMeta: { color: colors.muted },
   progressBar: { height: 8, borderRadius: 10, backgroundColor: 'rgba(61,235,255,0.15)' },
   progressFill: { height: 8, borderRadius: 10, backgroundColor: colors.accent },
   feedbackCard: { marginTop: spacing.md, borderWidth: 1, borderRadius: 12, padding: 10 },
@@ -219,6 +222,6 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(255,79,216,0.6)',
     backgroundColor: 'rgba(26, 12, 32, 0.6)',
   },
-  choiceText: { ...typography.small, color: colors.text },
-  guestNote: { ...typography.small, color: colors.dim },
+  choiceText: { color: colors.text },
+  guestNote: { color: colors.dim },
 })

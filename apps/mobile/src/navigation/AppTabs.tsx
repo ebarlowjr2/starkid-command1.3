@@ -16,11 +16,11 @@ export default function AppTabs() {
   return (
     <Tab.Navigator screenOptions={{ headerShown: false }} tabBar={(props) => <CustomTabBar {...props} />}>
       <Tab.Screen name={ROUTE_MANIFEST.HOME} component={HomeScreen} options={{ title: "Home" }} />
-      <Tab.Screen name={ROUTE_MANIFEST.EXPLORE} component={ExploreHubV2} options={{ title: "Explore" }} />
-      <Tab.Screen name={ROUTE_MANIFEST.COMMAND_CENTER} component={CommandCenterScreen} options={{ title: "Command" }} />
+      <Tab.Screen name={ROUTE_MANIFEST.EXPLORE} component={ExploreHubV2} options={{ title: "Exp", tabBarLabel: "Exp" }} />
+      <Tab.Screen name={ROUTE_MANIFEST.COMMAND_CENTER} component={CommandCenterScreen} options={{ title: "Comm", tabBarLabel: "Comm" }} />
       <Tab.Screen name={ROUTE_MANIFEST.COMET} component={CometScreen} options={{ title: "C.O.M.E.T." }} />
-      <Tab.Screen name={ROUTE_MANIFEST.LUNAR_EVENTS} component={SkyEventsScreen} options={{ title: "Lunar Events" }} />
-      <Tab.Screen name={ROUTE_MANIFEST.LEARNING} component={LearningHubScreen} options={{ title: "Learning" }} />
+      <Tab.Screen name={ROUTE_MANIFEST.LUNAR_EVENTS} component={SkyEventsScreen} options={{ title: "Lunar", tabBarLabel: "Lunar" }} />
+      <Tab.Screen name={ROUTE_MANIFEST.LEARNING} component={LearningHubScreen} options={{ title: "Learn", tabBarLabel: "Learn" }} />
       <Tab.Screen name={ROUTE_MANIFEST.PROFILE} component={ProfileScreen} options={{ title: "Profile" }} />
     </Tab.Navigator>
   );

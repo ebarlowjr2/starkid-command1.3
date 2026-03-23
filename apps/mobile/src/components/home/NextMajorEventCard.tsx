@@ -1,8 +1,9 @@
 import React, { memo } from "react";
-import { Text, StyleSheet, View } from "react-native";
+import { StyleSheet, View } from "react-native";
 import { GlassCard } from "./GlassCard";
 import { PixelButton } from "./PixelButton";
-import { colors, spacing, typography } from "../../theme/tokens";
+import { colors, spacing } from "../../theme/tokens";
+import { CustomText } from "../ui/CustomText";
 
 export const NextMajorEventCard = memo(function NextMajorEventCard({
   title,
@@ -19,17 +20,23 @@ export const NextMajorEventCard = memo(function NextMajorEventCard({
 }) {
   return (
     <GlassCard style={{ marginBottom: spacing.lg }} variant="primary">
-      <Text style={styles.kicker}>NEXT MAJOR EVENT</Text>
-      <Text style={styles.title} numberOfLines={2}>{title}</Text>
-      {netLine ? <Text style={styles.net}>{netLine}</Text> : null}
+      <CustomText variant="sectionLabel" style={styles.kicker}>NEXT MAJOR EVENT</CustomText>
+      <CustomText variant="cardTitle" style={styles.title} numberOfLines={2}>
+        {title}
+      </CustomText>
+      {netLine ? <CustomText variant="bodySmall" style={styles.net}>{netLine}</CustomText> : null}
 
-      <Text style={styles.countdownLabel}>COUNTDOWN</Text>
-      <Text style={styles.countdown}>{countdown ?? "--:--:--"}</Text>
+      <CustomText variant="sectionLabel" style={styles.countdownLabel}>COUNTDOWN</CustomText>
+      <CustomText variant="title" style={styles.countdown}>
+        {countdown ?? "--:--:--"}
+      </CustomText>
 
       <PixelButton label="OPEN BRIEF →" onPress={onOpenBrief} style={{ marginTop: spacing.md, alignSelf: "center" }} />
 
       {description ? (
-        <Text style={styles.desc} numberOfLines={2}>{description}</Text>
+        <CustomText variant="body" style={styles.desc} numberOfLines={2}>
+          {description}
+        </CustomText>
       ) : null}
 
       <View pointerEvents="none" style={styles.orb} />
@@ -39,12 +46,12 @@ export const NextMajorEventCard = memo(function NextMajorEventCard({
 });
 
 const styles = StyleSheet.create({
-  kicker: { ...typography.pixel, color: colors.dim, marginBottom: 8 },
-  title: { ...typography.h2, color: colors.text, marginLeft: 92 },
-  net: { ...typography.small, color: colors.muted, marginTop: 8, marginLeft: 92 },
-  countdownLabel: { ...typography.pixel, color: colors.dim, marginTop: spacing.md, marginLeft: 92 },
-  countdown: { fontSize: 30, lineHeight: 34, fontWeight: "900", color: colors.cyan, letterSpacing: 1.2, marginTop: 4, marginLeft: 92 },
-  desc: { ...typography.body, color: colors.muted, marginTop: spacing.md },
+  kicker: { color: colors.dim, marginBottom: 8 },
+  title: { color: colors.text, marginLeft: 92 },
+  net: { color: colors.muted, marginTop: 8, marginLeft: 92 },
+  countdownLabel: { color: colors.dim, marginTop: spacing.md, marginLeft: 92 },
+  countdown: { color: colors.cyan, letterSpacing: 1.2, marginTop: 4, marginLeft: 92 },
+  desc: { color: colors.muted, marginTop: spacing.md },
   orb: {
     position: "absolute",
     left: 18,

@@ -1,10 +1,11 @@
 import React, { useMemo, useState } from 'react'
-import { SafeAreaView, ScrollView, StyleSheet, Text, Pressable, View, Linking } from 'react-native'
+import { SafeAreaView, ScrollView, StyleSheet, Pressable, View, Linking } from 'react-native'
 import { SpaceBackground } from '../components/home/SpaceBackground'
 import { GlassCard } from '../components/home/GlassCard'
-import { colors, spacing, typography } from '../theme/tokens'
+import { colors, spacing } from '../theme/tokens'
 import { X_ACCOUNTS, X_CATEGORIES } from '../data/xAccounts'
 import { normalizeXCards } from '@starkid/core'
+import { CustomText } from '../components/ui/CustomText'
 
 export default function UpdatesXScreen() {
   const [selectedCategory, setSelectedCategory] = useState('all')
@@ -17,9 +18,9 @@ export default function UpdatesXScreen() {
     <SpaceBackground>
       <SafeAreaView style={{ flex: 1 }}>
         <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
-          <Text style={styles.kicker}>UPDATES</Text>
-          <Text style={styles.title}>X Accounts</Text>
-          <Text style={styles.subtitle}>Space agencies • companies • journalists • trackers.</Text>
+          <CustomText variant="sectionLabel" style={styles.kicker}>UPDATES</CustomText>
+          <CustomText variant="hero" style={styles.title}>X Accounts</CustomText>
+          <CustomText variant="body" style={styles.subtitle}>Space agencies • companies • journalists • trackers.</CustomText>
 
           <View style={styles.chipRow}>
             {X_CATEGORIES.map((cat) => (
@@ -28,15 +29,15 @@ export default function UpdatesXScreen() {
                 style={[styles.chip, selectedCategory === cat.id && styles.chipActive]}
                 onPress={() => setSelectedCategory(cat.id)}
               >
-                <Text style={[styles.chipText, selectedCategory === cat.id && styles.chipTextActive]}>
+                <CustomText variant="sectionLabel" style={[styles.chipText, selectedCategory === cat.id && styles.chipTextActive]}>
                   {cat.label.toUpperCase()}
-                </Text>
+                </CustomText>
               </Pressable>
             ))}
           </View>
 
           <GlassCard variant="secondary" style={{ marginTop: spacing.lg }}>
-            <Text style={styles.body}>Curated X/Twitter accounts for space news. Tap to open in X.</Text>
+            <CustomText variant="body" style={styles.body}>Curated X/Twitter accounts for space news. Tap to open in X.</CustomText>
           </GlassCard>
 
           <View style={{ marginTop: spacing.lg, gap: spacing.md }}>
@@ -45,15 +46,15 @@ export default function UpdatesXScreen() {
                 <GlassCard variant="secondary">
                   <View style={styles.cardRow}>
                     <View style={styles.avatar}>
-                      <Text style={styles.avatarText}>{card.title.charAt(0)}</Text>
+                      <CustomText variant="sectionLabel" style={styles.avatarText}>{card.title.charAt(0)}</CustomText>
                     </View>
                     <View style={{ flex: 1 }}>
-                      <Text style={styles.cardTitle}>{card.title}</Text>
-                      <Text style={styles.cardSubtitle}>{card.subtitle}</Text>
-                      <Text style={styles.cardDesc}>{card.description}</Text>
+                      <CustomText variant="cardTitle" style={styles.cardTitle}>{card.title}</CustomText>
+                      <CustomText variant="bodySmall" style={styles.cardSubtitle}>{card.subtitle}</CustomText>
+                      <CustomText variant="bodySmall" style={styles.cardDesc}>{card.description}</CustomText>
                       <View style={styles.cardMetaRow}>
-                        {card.badge ? <Text style={styles.badge}>{card.badge}</Text> : null}
-                        <Text style={styles.openText}>OPEN IN X →</Text>
+                        {card.badge ? <CustomText variant="sectionLabel" style={styles.badge}>{card.badge}</CustomText> : null}
+                        <CustomText variant="sectionLabel" style={styles.openText}>OPEN IN X →</CustomText>
                       </View>
                     </View>
                   </View>
@@ -62,7 +63,7 @@ export default function UpdatesXScreen() {
             ))}
             {filtered.length === 0 ? (
               <GlassCard variant="secondary">
-                <Text style={styles.body}>No accounts found for this category.</Text>
+                <CustomText variant="body" style={styles.body}>No accounts found for this category.</CustomText>
               </GlassCard>
             ) : null}
           </View>
@@ -74,10 +75,10 @@ export default function UpdatesXScreen() {
 
 const styles = StyleSheet.create({
   container: { padding: spacing.xl, paddingBottom: 44 },
-  kicker: { ...typography.pixel, color: colors.dim, marginBottom: 8 },
-  title: { ...typography.hero, color: colors.text },
-  subtitle: { ...typography.body, color: colors.muted, marginTop: 6 },
-  body: { ...typography.body, color: colors.muted },
+  kicker: { color: colors.dim, marginBottom: 8 },
+  title: { color: colors.text },
+  subtitle: { color: colors.muted, marginTop: 6 },
+  body: { color: colors.muted },
   chipRow: { marginTop: spacing.lg, flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   chip: {
     paddingHorizontal: 10,
@@ -91,7 +92,7 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(61,235,255,0.9)',
     backgroundColor: 'rgba(61,235,255,0.18)',
   },
-  chipText: { ...typography.pixel, color: colors.dim },
+  chipText: { color: colors.dim },
   chipTextActive: { color: colors.text },
   cardRow: { flexDirection: 'row', gap: 12, alignItems: 'center' },
   avatar: {
@@ -102,11 +103,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  avatarText: { ...typography.pixel, color: colors.accent },
-  cardTitle: { ...typography.h2, color: colors.text },
-  cardSubtitle: { ...typography.small, color: colors.accent },
-  cardDesc: { ...typography.small, color: colors.muted, marginTop: 6 },
+  avatarText: { color: colors.accent },
+  cardTitle: { color: colors.text },
+  cardSubtitle: { color: colors.accent },
+  cardDesc: { color: colors.muted, marginTop: 6 },
   cardMetaRow: { flexDirection: 'row', alignItems: 'center', marginTop: 8, gap: 8 },
-  badge: { ...typography.pixel, color: colors.accent },
-  openText: { ...typography.pixel, color: colors.dim, marginLeft: 'auto' },
+  badge: { color: colors.accent },
+  openText: { color: colors.dim, marginLeft: 'auto' },
 })

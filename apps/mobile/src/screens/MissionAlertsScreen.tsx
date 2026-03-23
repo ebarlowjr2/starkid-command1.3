@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { View, Text, StyleSheet, ActivityIndicator, Pressable, SafeAreaView, ScrollView } from 'react-native'
+import { View, StyleSheet, ActivityIndicator, Pressable, SafeAreaView, ScrollView } from 'react-native'
 import { getAlertsForUser, generateMissionFromAlert, getRepos, ROUTE_MANIFEST, listTracks, listLevels, formatSourceStatus } from '@starkid/core'
 import { setMission } from '../state/missionStore'
 import { useNavigation } from '@react-navigation/native'
@@ -7,7 +7,8 @@ import { SpaceBackground } from '../components/home/SpaceBackground'
 import { GlassCard } from '../components/home/GlassCard'
 import { Badge } from '../components/home/Badge'
 import { PixelButton } from '../components/home/PixelButton'
-import { colors, spacing, typography } from '../theme/tokens'
+import { colors, spacing } from '../theme/tokens'
+import { CustomText } from '../components/ui/CustomText'
 
 export default function MissionAlertsScreen() {
   const navigation = useNavigation()
@@ -58,7 +59,7 @@ export default function MissionAlertsScreen() {
       <SpaceBackground>
         <View style={styles.center}>
           <ActivityIndicator size="large" />
-          <Text style={styles.muted}>Loading mission alerts…</Text>
+          <CustomText variant="body" style={styles.muted}>Loading mission alerts…</CustomText>
         </View>
       </SpaceBackground>
     )
@@ -68,13 +69,13 @@ export default function MissionAlertsScreen() {
     <SpaceBackground>
       <SafeAreaView style={{ flex: 1 }}>
         <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
-          <Text style={styles.kicker}>MISSION ALERTS</Text>
-          <Text style={styles.title}>Mission Opportunities</Text>
-          <Text style={styles.subtitle}>Select a track and level, then accept a mission.</Text>
+          <CustomText variant="sectionLabel" style={styles.kicker}>MISSION ALERTS</CustomText>
+          <CustomText variant="hero" style={styles.title}>Mission Opportunities</CustomText>
+          <CustomText variant="body" style={styles.subtitle}>Select a track and level, then accept a mission.</CustomText>
 
           <GlassCard variant="secondary" style={{ marginTop: spacing.lg }}>
             <View style={styles.pickerRow}>
-              <Text style={styles.pickerLabel}>TRACK</Text>
+              <CustomText variant="sectionLabel" style={styles.pickerLabel}>TRACK</CustomText>
               <View style={styles.chipRow}>
                 {tracks.map((track) => (
                   <Pressable
@@ -82,15 +83,15 @@ export default function MissionAlertsScreen() {
                     style={[styles.chip, stemTrack === track && styles.chipActive]}
                     onPress={() => setStemTrack(track)}
                   >
-                    <Text style={[styles.chipText, stemTrack === track && styles.chipTextActive]}>
+                    <CustomText variant="sectionLabel" style={[styles.chipText, stemTrack === track && styles.chipTextActive]}>
                       {track.toUpperCase()}
-                    </Text>
+                    </CustomText>
                   </Pressable>
                 ))}
               </View>
             </View>
             <View style={[styles.pickerRow, { marginTop: spacing.sm }]}>
-              <Text style={styles.pickerLabel}>LEVEL</Text>
+              <CustomText variant="sectionLabel" style={styles.pickerLabel}>LEVEL</CustomText>
               <View style={styles.chipRow}>
                 {levels.map((level) => (
                   <Pressable
@@ -98,9 +99,9 @@ export default function MissionAlertsScreen() {
                     style={[styles.chip, stemLevel === level && styles.chipActive]}
                     onPress={() => setStemLevel(level)}
                   >
-                    <Text style={[styles.chipText, stemLevel === level && styles.chipTextActive]}>
+                    <CustomText variant="sectionLabel" style={[styles.chipText, stemLevel === level && styles.chipTextActive]}>
                       {level.toUpperCase()}
-                    </Text>
+                    </CustomText>
                   </Pressable>
                 ))}
               </View>
@@ -110,13 +111,13 @@ export default function MissionAlertsScreen() {
           <GlassCard variant="secondary" style={{ marginTop: spacing.lg }}>
             <View style={styles.badgeRow}>
               <Badge label="ALERTS" />
-              <Text style={styles.badgeHelper}>Sorted by time + priority</Text>
+              <CustomText variant="sectionLabel" style={styles.badgeHelper}>Sorted by time + priority</CustomText>
             </View>
           </GlassCard>
 
           {__DEV__ && alertSources.length ? (
             <GlassCard variant="secondary" style={{ marginTop: spacing.lg }}>
-              <Text style={styles.debugText}>{formatSourceStatus(alertSources)}</Text>
+              <CustomText variant="bodySmall" style={styles.debugText}>{formatSourceStatus(alertSources)}</CustomText>
             </GlassCard>
           ) : null}
 
@@ -126,16 +127,16 @@ export default function MissionAlertsScreen() {
                 <GlassCard key={item.id} variant="secondary" style={styles.card}>
                   <View style={styles.glowStrip} />
                   <View style={{ flex: 1 }}>
-                    <Text style={styles.alertTitle}>{item.missionTitle || item.title}</Text>
-                    <Text style={styles.alertMeta}>{item.type} • {item.severity}</Text>
+                    <CustomText variant="cardTitle" style={styles.alertTitle}>{item.missionTitle || item.title}</CustomText>
+                    <CustomText variant="bodySmall" style={styles.alertMeta}>{item.type} • {item.severity}</CustomText>
                     <View style={styles.badgeRow}>
-                      <Text style={styles.missionBadge}>MISSION</Text>
-                      <Text style={styles.trackBadge}>{String(item.missionTrack || stemTrack).toUpperCase()}</Text>
-                      <Text style={styles.levelBadge}>{String(item.missionLevel || stemLevel).toUpperCase()}</Text>
+                      <CustomText variant="sectionLabel" style={styles.missionBadge}>MISSION</CustomText>
+                      <CustomText variant="sectionLabel" style={styles.trackBadge}>{String(item.missionTrack || stemTrack).toUpperCase()}</CustomText>
+                      <CustomText variant="sectionLabel" style={styles.levelBadge}>{String(item.missionLevel || stemLevel).toUpperCase()}</CustomText>
                     </View>
                   </View>
                   {item.completed ? (
-                    <Text style={styles.completedBadge}>COMPLETED</Text>
+                    <CustomText variant="sectionLabel" style={styles.completedBadge}>COMPLETED</CustomText>
                   ) : item.missionAvailable ? (
                     <PixelButton
                       label="ACCEPT →"
@@ -152,7 +153,7 @@ export default function MissionAlertsScreen() {
               ))
             ) : (
               <GlassCard variant="secondary">
-                <Text style={styles.emptyText}>No alerts available.</Text>
+                <CustomText variant="body" style={styles.emptyText}>No alerts available.</CustomText>
               </GlassCard>
             )}
           </View>
@@ -165,13 +166,13 @@ export default function MissionAlertsScreen() {
 const styles = StyleSheet.create({
   container: { padding: spacing.xl, paddingBottom: 44 },
   center: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 16 },
-  kicker: { ...typography.pixel, color: colors.dim, marginBottom: 6 },
-  title: { ...typography.hero, color: colors.text },
-  subtitle: { ...typography.body, color: colors.muted, marginTop: 6 },
+  kicker: { color: colors.dim, marginBottom: 6 },
+  title: { color: colors.text },
+  subtitle: { color: colors.muted, marginTop: 6 },
   badgeRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
-  badgeHelper: { ...typography.pixel, color: colors.dim, flex: 1 },
+  badgeHelper: { color: colors.dim, flex: 1 },
   pickerRow: { marginBottom: spacing.xs },
-  pickerLabel: { ...typography.pixel, color: colors.dim, marginBottom: 6 },
+  pickerLabel: { color: colors.dim, marginBottom: 6 },
   chipRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   chip: {
     paddingHorizontal: 10,
@@ -185,7 +186,7 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(61,235,255,0.9)',
     backgroundColor: 'rgba(61,235,255,0.18)',
   },
-  chipText: { ...typography.pixel, color: colors.dim },
+  chipText: { color: colors.dim },
   chipTextActive: { color: colors.text },
   muted: { marginTop: 8, color: colors.muted },
   section: { marginTop: spacing.lg },
@@ -198,8 +199,8 @@ const styles = StyleSheet.create({
     width: 6,
     backgroundColor: 'rgba(61,235,255,0.35)',
   },
-  alertTitle: { ...typography.h2, color: colors.text },
-  alertMeta: { ...typography.small, color: colors.muted, marginTop: 6 },
+  alertTitle: { color: colors.text },
+  alertMeta: { color: colors.muted, marginTop: 6 },
   alertButton: {
     marginLeft: 10,
     paddingVertical: 6,
@@ -209,10 +210,10 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(61,235,255,0.6)',
     backgroundColor: 'rgba(6, 10, 22, 0.6)',
   },
-  completedBadge: { ...typography.pixel, color: colors.green },
-  emptyText: { ...typography.body, color: colors.muted },
-  missionBadge: { ...typography.pixel, color: colors.accent },
-  trackBadge: { ...typography.pixel, color: colors.text },
-  levelBadge: { ...typography.pixel, color: colors.dim },
-  debugText: { ...typography.small, color: colors.dim },
+  completedBadge: { color: colors.green },
+  emptyText: { color: colors.muted },
+  missionBadge: { color: colors.accent },
+  trackBadge: { color: colors.text },
+  levelBadge: { color: colors.dim },
+  debugText: { color: colors.dim },
 })

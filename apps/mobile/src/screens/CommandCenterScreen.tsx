@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react'
-import { View, Text, StyleSheet, ActivityIndicator, Pressable, SafeAreaView, ScrollView } from 'react-native'
+import { View, StyleSheet, ActivityIndicator, Pressable, SafeAreaView, ScrollView } from 'react-native'
 import { getSolarActivity, getAsteroidFlybys, getLatestLaunch, getUpcomingLaunchesWindow, getProviderSpotlights, getLaunchAlerts, ROUTE_MANIFEST } from '@starkid/core'
 import { useNavigation } from '@react-navigation/native'
 import { SpaceBackground } from '../components/home/SpaceBackground'
 import { GlassCard } from '../components/home/GlassCard'
 import { Badge } from '../components/home/Badge'
-import { colors, spacing, typography } from '../theme/tokens'
+import { colors, spacing } from '../theme/tokens'
+import { CustomText } from '../components/ui/CustomText'
 
 export default function CommandCenterScreen() {
   const navigation = useNavigation()
@@ -52,7 +53,9 @@ export default function CommandCenterScreen() {
       <SpaceBackground>
         <View style={styles.center}>
           <ActivityIndicator size="large" />
-          <Text style={styles.muted}>Loading mission alerts…</Text>
+          <CustomText variant="body" style={styles.muted}>
+            Loading mission alerts…
+          </CustomText>
         </View>
       </SpaceBackground>
     )
@@ -63,75 +66,83 @@ export default function CommandCenterScreen() {
       <SafeAreaView style={{ flex: 1 }}>
         <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
           <View style={styles.header}>
-            <Text style={styles.kicker}>COMMAND CENTER</Text>
-            <Text style={styles.title}>Mission Control</Text>
-            <Text style={styles.subtitle}>Live status across mission systems.</Text>
+            <CustomText variant="sectionLabel" style={styles.kicker}>
+              COMMAND CENTER
+            </CustomText>
+            <CustomText variant="hero" style={styles.title}>
+              Mission Control
+            </CustomText>
+            <CustomText variant="body" style={styles.subtitle}>
+              Live status across mission systems.
+            </CustomText>
           </View>
 
           <View style={styles.section}>
             <GlassCard variant="secondary">
-              <Text style={styles.sectionTitle}>Mission Control</Text>
+              <CustomText variant="sectionLabel" style={styles.sectionTitle}>Mission Control</CustomText>
               {latestLaunch ? (
                 <>
-                  <Text style={styles.sectionBody}>{latestLaunch.name || 'Latest Launch'}</Text>
-                  <Text style={styles.sectionMeta}>
+                  <CustomText variant="body" style={styles.sectionBody}>{latestLaunch.name || 'Latest Launch'}</CustomText>
+                  <CustomText variant="bodySmall" style={styles.sectionMeta}>
                     {latestLaunch.net ? new Date(latestLaunch.net).toLocaleString() : 'NET TBD'}
-                  </Text>
+                  </CustomText>
                 </>
               ) : (
-                <Text style={styles.sectionBody}>Latest launch data unavailable.</Text>
+                <CustomText variant="body" style={styles.sectionBody}>Latest launch data unavailable.</CustomText>
               )}
             </GlassCard>
           </View>
 
           <View style={styles.section}>
             <GlassCard variant="secondary">
-              <Text style={styles.sectionTitle}>Space Weather</Text>
+              <CustomText variant="sectionLabel" style={styles.sectionTitle}>Space Weather</CustomText>
               {solar ? (
                 <>
-                  <Text style={styles.sectionBody}>Class: {solar.strongestClass || 'N/A'}</Text>
-                  <Text style={styles.sectionMeta}>Severity: {solar.severityPct ?? 'N/A'}%</Text>
+                  <CustomText variant="body" style={styles.sectionBody}>Class: {solar.strongestClass || 'N/A'}</CustomText>
+                  <CustomText variant="bodySmall" style={styles.sectionMeta}>Severity: {solar.severityPct ?? 'N/A'}%</CustomText>
                 </>
               ) : (
-                <Text style={styles.sectionBody}>No recent solar alerts.</Text>
+                <CustomText variant="body" style={styles.sectionBody}>No recent solar alerts.</CustomText>
               )}
             </GlassCard>
           </View>
 
           <View style={styles.section}>
             <GlassCard variant="secondary">
-              <Text style={styles.sectionTitle}>Asteroid Flybys</Text>
+              <CustomText variant="sectionLabel" style={styles.sectionTitle}>Asteroid Flybys</CustomText>
               {neos.length ? (
                 neos.slice(0, 3).map((neo, idx) => (
-                  <Text key={`${neo.name}-${idx}`} style={styles.sectionBody}>
+                  <CustomText key={`${neo.name}-${idx}`} variant="body" style={styles.sectionBody}>
                     • {neo.name} — {neo.close_approach_date_full || neo.close_approach_date || 'TBD'}
-                  </Text>
+                  </CustomText>
                 ))
               ) : (
-                <Text style={styles.sectionBody}>No flyby data available.</Text>
+                <CustomText variant="body" style={styles.sectionBody}>No flyby data available.</CustomText>
               )}
             </GlassCard>
           </View>
 
           <View style={styles.section}>
             <GlassCard variant="secondary">
-              <Text style={styles.sectionTitle}>Upcoming Launches</Text>
+              <CustomText variant="sectionLabel" style={styles.sectionTitle}>Upcoming Launches</CustomText>
               {upcomingLaunches.length ? (
                 upcomingLaunches.map((launch, idx) => (
-                  <Text key={`${launch.id || launch.name}-${idx}`} style={styles.sectionBody}>
+                  <CustomText key={`${launch.id || launch.name}-${idx}`} variant="body" style={styles.sectionBody}>
                     • {launch.name || 'Launch'} — {launch.net ? new Date(launch.net).toLocaleDateString() : 'TBD'}
-                  </Text>
+                  </CustomText>
                 ))
               ) : (
-                <Text style={styles.sectionBody}>No upcoming launches available.</Text>
+                <CustomText variant="body" style={styles.sectionBody}>No upcoming launches available.</CustomText>
               )}
               {providerSpotlights.length ? (
                 <>
-                  <Text style={[styles.sectionTitle, { marginTop: spacing.md }]}>Provider Spotlights</Text>
+                  <CustomText variant="sectionLabel" style={[styles.sectionTitle, { marginTop: spacing.md }]}>
+                    Provider Spotlights
+                  </CustomText>
                   {providerSpotlights.map((launch, idx) => (
-                    <Text key={`${launch.providerName || 'provider'}-${idx}`} style={styles.sectionBody}>
+                    <CustomText key={`${launch.providerName || 'provider'}-${idx}`} variant="body" style={styles.sectionBody}>
                       • {launch.providerName || launch.providerType || 'Provider'} • {launch.name || 'Next Launch'} — {launch.net ? new Date(launch.net).toLocaleDateString() : 'TBD'}
-                    </Text>
+                    </CustomText>
                   ))}
                 </>
               ) : null}
@@ -140,18 +151,18 @@ export default function CommandCenterScreen() {
 
           <View style={styles.section}>
             <GlassCard variant="secondary">
-              <Text style={styles.sectionTitle}>Launch Alerts (24h)</Text>
+              <CustomText variant="sectionLabel" style={styles.sectionTitle}>Launch Alerts (24h)</CustomText>
               {launchAlerts.length ? (
                 launchAlerts.map((alert, idx) => (
                   <View key={`${alert.id}-${idx}`} style={styles.alertRow}>
-                    <Text style={styles.alertBadge}>LAUNCH</Text>
-                    <Text style={styles.sectionBody}>
+                    <CustomText variant="sectionLabel" style={styles.alertBadge}>LAUNCH</CustomText>
+                    <CustomText variant="body" style={styles.sectionBody}>
                       {alert.title || 'Launch'} — {alert.startTime ? new Date(alert.startTime).toLocaleString() : 'NET TBD'}
-                    </Text>
+                    </CustomText>
                   </View>
                 ))
               ) : (
-                <Text style={styles.sectionBody}>No launches within 24 hours.</Text>
+                <CustomText variant="body" style={styles.sectionBody}>No launches within 24 hours.</CustomText>
               )}
             </GlassCard>
           </View>
@@ -159,9 +170,9 @@ export default function CommandCenterScreen() {
           <View style={styles.section}>
             <Pressable onPress={() => navigation.navigate(ROUTE_MANIFEST.MISSION_ALERTS as never)}>
               <GlassCard variant="secondary">
-                <Text style={styles.sectionTitle}>Mission Alerts</Text>
-                <Text style={styles.sectionBody}>Review mission opportunities and accept challenges.</Text>
-                <Text style={styles.sectionMeta}>Open Mission Alerts →</Text>
+                <CustomText variant="sectionLabel" style={styles.sectionTitle}>Mission Alerts</CustomText>
+                <CustomText variant="body" style={styles.sectionBody}>Review mission opportunities and accept challenges.</CustomText>
+                <CustomText variant="bodySmall" style={styles.sectionMeta}>Open Mission Alerts →</CustomText>
               </GlassCard>
             </Pressable>
           </View>
@@ -176,16 +187,15 @@ const styles = StyleSheet.create({
   center: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 16 },
   header: { marginBottom: spacing.lg },
   section: { marginTop: spacing.lg },
-  kicker: { ...typography.pixel, color: colors.dim, marginBottom: 6 },
-  title: { ...typography.hero, color: colors.text },
-  subtitle: { ...typography.body, color: colors.muted, marginTop: 6 },
+  kicker: { color: colors.dim, marginBottom: 6 },
+  title: { color: colors.text },
+  subtitle: { color: colors.muted, marginTop: 6 },
   muted: { marginTop: 8, color: colors.muted },
-  sectionTitle: { ...typography.pixel, color: colors.dim, marginBottom: spacing.sm },
-  sectionBody: { ...typography.body, color: colors.muted, marginBottom: 4 },
-  sectionMeta: { ...typography.small, color: colors.dim },
+  sectionTitle: { color: colors.dim, marginBottom: spacing.sm },
+  sectionBody: { color: colors.muted, marginBottom: 4 },
+  sectionMeta: { color: colors.dim },
   alertRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 6 },
   alertBadge: {
-    ...typography.pixel,
     color: colors.accent,
     borderWidth: 1,
     borderColor: 'rgba(61,235,255,0.6)',

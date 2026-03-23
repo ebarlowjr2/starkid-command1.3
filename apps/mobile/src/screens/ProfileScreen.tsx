@@ -1,12 +1,13 @@
 import React, { useEffect, useState, useCallback } from "react";
-import { SafeAreaView, StyleSheet, Text, View, ScrollView, TextInput, Pressable, Switch } from "react-native";
+import { SafeAreaView, StyleSheet, View, ScrollView, TextInput, Pressable, Switch } from "react-native";
 import { SpaceBackground } from "../components/home/SpaceBackground";
 import { GlassCard } from "../components/home/GlassCard";
 import { PixelButton } from "../components/home/PixelButton";
-import { colors, spacing, typography } from "../theme/tokens";
+import { colors, spacing } from "../theme/tokens";
 import { getProfile, updateProfile, getCurrentActor, signOut, getSession } from "@starkid/core";
 import { SyncIdentityModal } from "../components/auth/SyncIdentityModal";
 import { useFocusEffect } from "@react-navigation/native";
+import { CustomText } from "../components/ui/CustomText";
 
 export default function ProfileScreen() {
   const [profile, setProfile] = useState<any | null>(null);
@@ -42,7 +43,9 @@ export default function ProfileScreen() {
     return (
       <SpaceBackground>
         <View style={styles.center}>
-          <Text style={styles.body}>Loading profile…</Text>
+          <CustomText variant="body" style={styles.body}>
+            Loading profile…
+          </CustomText>
         </View>
       </SpaceBackground>
     );
@@ -67,14 +70,16 @@ export default function ProfileScreen() {
     <SpaceBackground>
       <SafeAreaView style={{ flex: 1 }}>
         <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
-          <Text style={styles.kicker}>COMMANDER PROFILE</Text>
-          <Text style={styles.title}>{isGuest ? `Guest ${profile.rank}` : profile.displayName}</Text>
-          <Text style={styles.subtitle}>
+          <CustomText variant="sectionLabel" style={styles.kicker}>COMMANDER PROFILE</CustomText>
+          <CustomText variant="hero" style={styles.title}>{isGuest ? `Guest ${profile.rank}` : profile.displayName}</CustomText>
+          <CustomText variant="bodySmall" style={styles.subtitle}>
             {isGuest ? "Local Profile" : profile.rank} • Joined {new Date(profile.joinedAt).toLocaleDateString()}
-          </Text>
+          </CustomText>
 
           <GlassCard variant="secondary" style={{ marginTop: spacing.lg }}>
-            <Text style={styles.body}>{profile.bio || "Guest profile — sync later to access on other devices."}</Text>
+            <CustomText variant="body" style={styles.body}>
+              {profile.bio || "Guest profile — sync later to access on other devices."}
+            </CustomText>
             {isGuest ? (
               <PixelButton
                 label="SYNC COMMAND PROFILE"
@@ -89,7 +94,7 @@ export default function ProfileScreen() {
                 }}
                 style={{ marginTop: spacing.md, alignSelf: "flex-start" }}
               >
-                <Text style={styles.signOut}>Sign Out</Text>
+                <CustomText variant="button" style={styles.signOut}>Sign Out</CustomText>
               </Pressable>
             )}
           </GlassCard>
@@ -102,14 +107,14 @@ export default function ProfileScreen() {
               { label: "STEM Level", value: stats.currentStemLevel || "Cadet" },
             ].map((item) => (
               <GlassCard key={item.label} variant="secondary" style={styles.statCard}>
-                <Text style={styles.statLabel}>{item.label}</Text>
-                <Text style={styles.statValue}>{item.value}</Text>
+                <CustomText variant="bodySmall" style={styles.statLabel}>{item.label}</CustomText>
+                <CustomText variant="cardTitle" style={styles.statValue}>{item.value}</CustomText>
               </GlassCard>
             ))}
           </View>
 
           <GlassCard variant="secondary" style={{ marginTop: spacing.lg }}>
-            <Text style={styles.sectionTitle}>Alert Preferences</Text>
+            <CustomText variant="sectionLabel" style={styles.sectionTitle}>Alert Preferences</CustomText>
             {[
               ["missionAlerts", "Mission Alerts"],
               ["launches", "Launches"],
@@ -122,7 +127,7 @@ export default function ProfileScreen() {
                 key={key}
                 style={[styles.prefRow, prefs[key] ? styles.prefOn : styles.prefOff]}
               >
-                <Text style={styles.prefLabel}>{label}</Text>
+                <CustomText variant="body" style={styles.prefLabel}>{label}</CustomText>
                 <Switch
                   value={!!prefs[key]}
                   onValueChange={() => toggle(key)}
@@ -132,23 +137,25 @@ export default function ProfileScreen() {
               </View>
             ))}
             {isGuest ? (
-              <Text style={styles.note}>Preferences stored locally. Sync Command Profile to preserve them.</Text>
+              <CustomText variant="bodySmall" style={styles.note}>
+                Preferences stored locally. Sync Command Profile to preserve them.
+              </CustomText>
             ) : null}
           </GlassCard>
 
           <GlassCard variant="secondary" style={{ marginTop: spacing.lg }}>
-            <Text style={styles.sectionTitle}>Saved Objects</Text>
+            <CustomText variant="sectionLabel" style={styles.sectionTitle}>Saved Objects</CustomText>
             <View style={styles.savedRow}>
-              <Text style={styles.savedItem}>NEO: {saved.nearEarthObjects}</Text>
-              <Text style={styles.savedItem}>Comets: {saved.comets}</Text>
-              <Text style={styles.savedItem}>Sky Events: {saved.skyEvents}</Text>
-              <Text style={styles.savedItem}>Missions: {saved.missions}</Text>
-              <Text style={styles.savedItem}>Activities: {saved.activities}</Text>
+              <CustomText variant="bodySmall" style={styles.savedItem}>NEO: {saved.nearEarthObjects}</CustomText>
+              <CustomText variant="bodySmall" style={styles.savedItem}>Comets: {saved.comets}</CustomText>
+              <CustomText variant="bodySmall" style={styles.savedItem}>Sky Events: {saved.skyEvents}</CustomText>
+              <CustomText variant="bodySmall" style={styles.savedItem}>Missions: {saved.missions}</CustomText>
+              <CustomText variant="bodySmall" style={styles.savedItem}>Activities: {saved.activities}</CustomText>
             </View>
           </GlassCard>
 
           <GlassCard variant="secondary" style={{ marginTop: spacing.lg }}>
-            <Text style={styles.sectionTitle}>Edit Profile</Text>
+            <CustomText variant="sectionLabel" style={styles.sectionTitle}>Edit Profile</CustomText>
             <TextInput
               style={styles.input}
               value={form.displayName}
@@ -166,7 +173,7 @@ export default function ProfileScreen() {
             />
             <PixelButton label="SAVE PROFILE" onPress={saveProfile} style={{ marginTop: spacing.md, alignSelf: "flex-start" }} />
             {isGuest ? (
-              <Text style={styles.note}>Initialize Identity to sync this profile.</Text>
+              <CustomText variant="bodySmall" style={styles.note}>Initialize Identity to sync this profile.</CustomText>
             ) : null}
           </GlassCard>
           <SyncIdentityModal
@@ -186,15 +193,15 @@ export default function ProfileScreen() {
 const styles = StyleSheet.create({
   container: { padding: spacing.xl, paddingBottom: 44 },
   center: { flex: 1, alignItems: "center", justifyContent: "center" },
-  kicker: { ...typography.pixel, color: colors.dim, marginBottom: 8 },
-  title: { ...typography.hero, color: colors.text },
-  subtitle: { ...typography.small, color: colors.muted, marginTop: 6 },
-  body: { ...typography.body, color: colors.muted },
+  kicker: { color: colors.dim, marginBottom: 8 },
+  title: { color: colors.text },
+  subtitle: { color: colors.muted, marginTop: 6 },
+  body: { color: colors.muted },
   statsGrid: { marginTop: spacing.lg, flexDirection: "row", flexWrap: "wrap", gap: spacing.md },
   statCard: { width: "47%" },
-  statLabel: { ...typography.small, color: colors.dim },
-  statValue: { ...typography.h2, color: colors.text, marginTop: 6 },
-  sectionTitle: { ...typography.pixel, color: colors.dim, marginBottom: spacing.sm },
+  statLabel: { color: colors.dim },
+  statValue: { color: colors.text, marginTop: 6 },
+  sectionTitle: { color: colors.dim, marginBottom: spacing.sm },
   prefRow: {
     flexDirection: "row",
     alignItems: "center",
@@ -203,13 +210,12 @@ const styles = StyleSheet.create({
   },
   prefOn: { borderBottomWidth: 1, borderBottomColor: "rgba(61,235,255,0.2)" },
   prefOff: { borderBottomWidth: 1, borderBottomColor: "rgba(61,235,255,0.08)" },
-  prefLabel: { ...typography.body, color: colors.text },
-  prefValue: { ...typography.pixel, color: colors.accent },
+  prefLabel: { color: colors.text },
+  prefValue: { color: colors.accent },
   savedRow: { flexDirection: "row", flexWrap: "wrap", gap: 8 },
-  savedItem: { ...typography.small, color: colors.muted },
-  note: { ...typography.small, color: colors.dim, marginTop: spacing.sm },
+  savedItem: { color: colors.muted },
+  note: { color: colors.dim, marginTop: spacing.sm },
   signOut: {
-    ...typography.pixel,
     color: colors.text,
     paddingVertical: 6,
     paddingHorizontal: 10,

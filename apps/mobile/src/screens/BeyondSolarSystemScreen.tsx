@@ -1,9 +1,10 @@
 import React, { useEffect, useMemo, useState } from 'react'
-import { SafeAreaView, StyleSheet, Text, View, ScrollView, Pressable } from 'react-native'
+import { SafeAreaView, StyleSheet, View, ScrollView, Pressable } from 'react-native'
 import { SpaceBackground } from '../components/home/SpaceBackground'
 import { GlassCard } from '../components/home/GlassCard'
-import { colors, spacing, typography } from '../theme/tokens'
+import { colors, spacing } from '../theme/tokens'
 import { getExoplanets, getDiscoveryStats, getHabitableCandidates, getDiscoveryMethods, getStarTypes } from '@starkid/core'
+import { CustomText } from '../components/ui/CustomText'
 
 export default function BeyondSolarSystemScreen() {
   const [planets, setPlanets] = useState<any[]>([])
@@ -39,50 +40,50 @@ export default function BeyondSolarSystemScreen() {
     <SpaceBackground>
       <SafeAreaView style={{ flex: 1 }}>
         <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
-          <Text style={styles.kicker}>BEYOND OUR SOLAR SYSTEM</Text>
-          <Text style={styles.title}>Exoplanet Discovery Console</Text>
-          <Text style={styles.subtitle}>Confirmed planets orbiting distant stars.</Text>
+          <CustomText variant="sectionLabel" style={styles.kicker}>BEYOND OUR SOLAR SYSTEM</CustomText>
+          <CustomText variant="hero" style={styles.title}>Exoplanet Discovery Console</CustomText>
+          <CustomText variant="body" style={styles.subtitle}>Confirmed planets orbiting distant stars.</CustomText>
 
           <View style={{ marginTop: spacing.lg, gap: spacing.md }}>
             <GlassCard variant="secondary">
-              <Text style={styles.sectionTitle}>Discovery Stats</Text>
+              <CustomText variant="sectionLabel" style={styles.sectionTitle}>Discovery Stats</CustomText>
               <View style={styles.statsRow}>
                 <View>
-                  <Text style={styles.statValue}>{stats.totalConfirmed}</Text>
-                  <Text style={styles.statLabel}>Confirmed</Text>
+                  <CustomText variant="cardTitle" style={styles.statValue}>{stats.totalConfirmed}</CustomText>
+                  <CustomText variant="bodySmall" style={styles.statLabel}>Confirmed</CustomText>
                 </View>
                 <View>
-                  <Text style={styles.statValue}>{stats.earthSizedCount}</Text>
-                  <Text style={styles.statLabel}>Earth-sized</Text>
+                  <CustomText variant="cardTitle" style={styles.statValue}>{stats.earthSizedCount}</CustomText>
+                  <CustomText variant="bodySmall" style={styles.statLabel}>Earth-sized</CustomText>
                 </View>
                 <View>
-                  <Text style={styles.statValue}>{stats.closestWorld?.name || '—'}</Text>
-                  <Text style={styles.statLabel}>Closest</Text>
+                  <CustomText variant="cardTitle" style={styles.statValue}>{stats.closestWorld?.name || '—'}</CustomText>
+                  <CustomText variant="bodySmall" style={styles.statLabel}>Closest</CustomText>
                 </View>
               </View>
             </GlassCard>
 
             <GlassCard variant="secondary">
-              <Text style={styles.sectionTitle}>Habitable Candidates</Text>
+              <CustomText variant="sectionLabel" style={styles.sectionTitle}>Habitable Candidates</CustomText>
               {habitable.length ? (
                 habitable.slice(0, 4).map((planet) => (
-                  <Text key={planet.name} style={styles.listItem}>• {planet.name} • {planet.distanceLightYears} ly</Text>
+                  <CustomText key={planet.name} variant="body" style={styles.listItem}>• {planet.name} • {planet.distanceLightYears} ly</CustomText>
                 ))
               ) : (
-                <Text style={styles.muted}>No candidates in range yet.</Text>
+                <CustomText variant="body" style={styles.muted}>No candidates in range yet.</CustomText>
               )}
             </GlassCard>
 
             <GlassCard variant="secondary">
-              <Text style={styles.sectionTitle}>Filters</Text>
+              <CustomText variant="sectionLabel" style={styles.sectionTitle}>Filters</CustomText>
               <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginTop: spacing.sm }}>
                 <View style={styles.filterRow}>
                   <Pressable style={styles.filterChip} onPress={() => setMethod('')}>
-                    <Text style={styles.filterText}>All Methods</Text>
+                    <CustomText variant="sectionLabel" style={styles.filterText}>All Methods</CustomText>
                   </Pressable>
                   {methods.map((m) => (
                     <Pressable key={m} style={styles.filterChip} onPress={() => setMethod(m)}>
-                      <Text style={styles.filterText}>{m}</Text>
+                      <CustomText variant="sectionLabel" style={styles.filterText}>{m}</CustomText>
                     </Pressable>
                   ))}
                 </View>
@@ -90,11 +91,11 @@ export default function BeyondSolarSystemScreen() {
               <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginTop: spacing.sm }}>
                 <View style={styles.filterRow}>
                   <Pressable style={styles.filterChip} onPress={() => setStarType('')}>
-                    <Text style={styles.filterText}>All Star Types</Text>
+                    <CustomText variant="sectionLabel" style={styles.filterText}>All Star Types</CustomText>
                   </Pressable>
                   {starTypes.map((t) => (
                     <Pressable key={t} style={styles.filterChip} onPress={() => setStarType(t)}>
-                      <Text style={styles.filterText}>{t}</Text>
+                      <CustomText variant="sectionLabel" style={styles.filterText}>{t}</CustomText>
                     </Pressable>
                   ))}
                 </View>
@@ -102,13 +103,13 @@ export default function BeyondSolarSystemScreen() {
             </GlassCard>
 
             <GlassCard variant="secondary">
-              <Text style={styles.sectionTitle}>Confirmed Worlds</Text>
+              <CustomText variant="sectionLabel" style={styles.sectionTitle}>Confirmed Worlds</CustomText>
               {filtered.slice(0, 8).map((planet) => (
                 <View key={planet.name} style={styles.planetRow}>
-                  <Text style={styles.planetName}>{planet.name}</Text>
-                  <Text style={styles.planetMeta}>
+                  <CustomText variant="cardTitle" style={styles.planetName}>{planet.name}</CustomText>
+                  <CustomText variant="bodySmall" style={styles.planetMeta}>
                     {planet.discoveryMethod} • {planet.distanceLightYears} ly
-                  </Text>
+                  </CustomText>
                 </View>
               ))}
             </GlassCard>
@@ -121,15 +122,15 @@ export default function BeyondSolarSystemScreen() {
 
 const styles = StyleSheet.create({
   container: { padding: spacing.xl, paddingBottom: 44 },
-  kicker: { ...typography.pixel, color: colors.dim, marginBottom: 8 },
-  title: { ...typography.hero, color: colors.text },
-  subtitle: { ...typography.body, color: colors.muted, marginTop: 6 },
-  sectionTitle: { ...typography.pixel, color: colors.dim, marginBottom: spacing.sm },
+  kicker: { color: colors.dim, marginBottom: 8 },
+  title: { color: colors.text },
+  subtitle: { color: colors.muted, marginTop: 6 },
+  sectionTitle: { color: colors.dim, marginBottom: spacing.sm },
   statsRow: { flexDirection: 'row', justifyContent: 'space-between' },
-  statValue: { ...typography.h2, color: colors.text },
-  statLabel: { ...typography.small, color: colors.muted },
-  listItem: { ...typography.body, color: colors.muted, marginTop: 6 },
-  muted: { ...typography.body, color: colors.muted },
+  statValue: { color: colors.text },
+  statLabel: { color: colors.muted },
+  listItem: { color: colors.muted, marginTop: 6 },
+  muted: { color: colors.muted },
   filterRow: { flexDirection: 'row', gap: 8 },
   filterChip: {
     paddingHorizontal: 10,
@@ -139,8 +140,8 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(61,235,255,0.4)',
     backgroundColor: 'rgba(6, 10, 22, 0.6)',
   },
-  filterText: { ...typography.pixel, color: colors.text },
+  filterText: { color: colors.text },
   planetRow: { marginTop: spacing.sm },
-  planetName: { ...typography.h2, color: colors.text },
-  planetMeta: { ...typography.small, color: colors.muted },
+  planetName: { color: colors.text },
+  planetMeta: { color: colors.muted },
 })

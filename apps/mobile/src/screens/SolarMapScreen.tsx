@@ -1,24 +1,25 @@
 import React from 'react'
-import { SafeAreaView, StyleSheet, Text, View } from 'react-native'
+import { SafeAreaView, StyleSheet, View } from 'react-native'
 import { SpaceBackground } from '../components/home/SpaceBackground'
 import { GlassCard } from '../components/home/GlassCard'
-import { colors, spacing, typography } from '../theme/tokens'
+import { colors, spacing } from '../theme/tokens'
+import { CustomText } from '../components/ui/CustomText'
 
 export default function SolarMapScreen() {
   return (
     <SpaceBackground>
       <SafeAreaView style={{ flex: 1 }}>
         <View style={styles.container}>
-          <Text style={styles.kicker}>SOLAR MAP</Text>
-          <Text style={styles.title}>Solar Activity</Text>
-          <Text style={styles.subtitle}>
+          <CustomText variant="sectionLabel" style={styles.kicker}>SOLAR MAP</CustomText>
+          <CustomText variant="hero" style={styles.title}>Solar Activity</CustomText>
+          <CustomText variant="body" style={styles.subtitle}>
             Advanced solar visualizations are available on web for now.
-          </Text>
+          </CustomText>
 
           <GlassCard variant="secondary" style={{ marginTop: spacing.lg }}>
-            <Text style={styles.cardText}>
+            <CustomText variant="body" style={styles.cardText}>
               We’re optimizing the solar map experience for mobile devices.
-            </Text>
+            </CustomText>
           </GlassCard>
         </View>
       </SafeAreaView>
@@ -28,8 +29,8 @@ export default function SolarMapScreen() {
 
 const styles = StyleSheet.create({
   container: { padding: spacing.xl },
-  kicker: { ...typography.pixel, color: colors.dim, marginBottom: 8 },
-  title: { ...typography.hero, color: colors.text },
-  subtitle: { ...typography.body, color: colors.muted, marginTop: 6 },
-  cardText: { ...typography.body, color: colors.muted },
+  kicker: { color: colors.dim, marginBottom: 8 },
+  title: { color: colors.text },
+  subtitle: { color: colors.muted, marginTop: 6 },
+  cardText: { color: colors.muted },
 })

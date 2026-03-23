@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react'
-import { SafeAreaView, ScrollView, StyleSheet, Text, View, Pressable, Linking } from 'react-native'
+import { SafeAreaView, ScrollView, StyleSheet, View, Pressable, Linking } from 'react-native'
 import { SpaceBackground } from '../components/home/SpaceBackground'
 import { GlassCard } from '../components/home/GlassCard'
-import { colors, spacing, typography } from '../theme/tokens'
+import { colors, spacing } from '../theme/tokens'
 import { getCoreConfig } from '@starkid/core'
+import { CustomText } from '../components/ui/CustomText'
 
 export default function UpdatesOfficialScreen() {
   const [events, setEvents] = useState<any[]>([])
@@ -78,9 +79,9 @@ export default function UpdatesOfficialScreen() {
     <SpaceBackground>
       <SafeAreaView style={{ flex: 1 }}>
         <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
-          <Text style={styles.kicker}>UPDATES</Text>
-          <Text style={styles.title}>Official Updates</Text>
-          <Text style={styles.subtitle}>Agency announcements and mission updates.</Text>
+          <CustomText variant="sectionLabel" style={styles.kicker}>UPDATES</CustomText>
+          <CustomText variant="hero" style={styles.title}>Official Updates</CustomText>
+          <CustomText variant="body" style={styles.subtitle}>Agency announcements and mission updates.</CustomText>
 
           <View style={styles.chipRow}>
             {['all', 'artemis', 'official', 'launch'].map((cat) => (
@@ -89,26 +90,26 @@ export default function UpdatesOfficialScreen() {
                 style={[styles.chip, filter === cat && styles.chipActive]}
                 onPress={() => setFilter(cat)}
               >
-                <Text style={[styles.chipText, filter === cat && styles.chipTextActive]}>
+                <CustomText variant="sectionLabel" style={[styles.chipText, filter === cat && styles.chipTextActive]}>
                   {cat === 'all' ? 'ALL EVENTS' : cat.toUpperCase()}
-                </Text>
+                </CustomText>
               </Pressable>
             ))}
           </View>
 
           {meta ? (
             <GlassCard variant="secondary" style={{ marginTop: spacing.lg }}>
-              <Text style={styles.meta}>EVENTS: {meta.total} • ARTEMIS: {meta.artemisCount} • STATUS: {meta.usingCache ? 'CACHED' : 'LIVE'}</Text>
+              <CustomText variant="bodySmall" style={styles.meta}>EVENTS: {meta.total} • ARTEMIS: {meta.artemisCount} • STATUS: {meta.usingCache ? 'CACHED' : 'LIVE'}</CustomText>
             </GlassCard>
           ) : null}
 
           {loading ? (
             <GlassCard variant="secondary" style={{ marginTop: spacing.lg }}>
-              <Text style={styles.body}>Loading event feed…</Text>
+              <CustomText variant="body" style={styles.body}>Loading event feed…</CustomText>
             </GlassCard>
           ) : error ? (
             <GlassCard variant="secondary" style={{ marginTop: spacing.lg }}>
-              <Text style={styles.error}>{error}</Text>
+              <CustomText variant="bodySmall" style={styles.error}>{error}</CustomText>
             </GlassCard>
           ) : (
             <View style={{ marginTop: spacing.lg, gap: spacing.md }}>
@@ -118,14 +119,14 @@ export default function UpdatesOfficialScreen() {
                   <Pressable key={event.id || idx} onPress={() => Linking.openURL(event.url)}>
                     <GlassCard variant="secondary">
                       <View style={styles.cardRow}>
-                        <Text style={styles.icon}>{getTypeIcon(event.type)}</Text>
+                        <CustomText style={styles.icon}>{getTypeIcon(event.type)}</CustomText>
                         <View style={{ flex: 1 }}>
-                          <Text style={styles.cardTitle}>{event.title}</Text>
-                          <Text style={styles.body}>{event.summary}</Text>
+                          <CustomText variant="cardTitle" style={styles.cardTitle}>{event.title}</CustomText>
+                          <CustomText variant="body" style={styles.body}>{event.summary}</CustomText>
                           <View style={styles.metaRow}>
-                            <Text style={[styles.badge, { backgroundColor: catColor.bg, borderColor: catColor.border, color: catColor.text }]}>{event.category}</Text>
-                            <Text style={styles.meta}>{event.source}</Text>
-                            <Text style={styles.meta}>{formatTimeAgo(event.publishedAt)}</Text>
+                            <CustomText variant="sectionLabel" style={[styles.badge, { backgroundColor: catColor.bg, borderColor: catColor.border, color: catColor.text }]}>{event.category}</CustomText>
+                            <CustomText variant="bodySmall" style={styles.meta}>{event.source}</CustomText>
+                            <CustomText variant="bodySmall" style={styles.meta}>{formatTimeAgo(event.publishedAt)}</CustomText>
                           </View>
                         </View>
                       </View>
@@ -135,7 +136,7 @@ export default function UpdatesOfficialScreen() {
               })}
               {events.length === 0 ? (
                 <GlassCard variant="secondary">
-                  <Text style={styles.body}>No events found.</Text>
+                  <CustomText variant="body" style={styles.body}>No events found.</CustomText>
                 </GlassCard>
               ) : null}
             </View>
@@ -148,10 +149,10 @@ export default function UpdatesOfficialScreen() {
 
 const styles = StyleSheet.create({
   container: { padding: spacing.xl, paddingBottom: 44 },
-  kicker: { ...typography.pixel, color: colors.dim, marginBottom: 8 },
-  title: { ...typography.hero, color: colors.text },
-  subtitle: { ...typography.body, color: colors.muted, marginTop: 6 },
-  body: { ...typography.body, color: colors.muted },
+  kicker: { color: colors.dim, marginBottom: 8 },
+  title: { color: colors.text },
+  subtitle: { color: colors.muted, marginTop: 6 },
+  body: { color: colors.muted },
   chipRow: { marginTop: spacing.lg, flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   chip: {
     paddingHorizontal: 10,
@@ -165,16 +166,15 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(61,235,255,0.9)',
     backgroundColor: 'rgba(61,235,255,0.18)',
   },
-  chipText: { ...typography.pixel, color: colors.dim },
+  chipText: { color: colors.dim },
   chipTextActive: { color: colors.text },
-  meta: { ...typography.small, color: colors.dim },
-  error: { ...typography.small, color: '#f87171' },
+  meta: { color: colors.dim },
+  error: { color: '#f87171' },
   cardRow: { flexDirection: 'row', gap: 12 },
   icon: { fontSize: 18 },
-  cardTitle: { ...typography.h2, color: colors.text },
+  cardTitle: { color: colors.text },
   metaRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: spacing.sm, flexWrap: 'wrap' },
   badge: {
-    ...typography.pixel,
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 8,

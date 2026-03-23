@@ -1,12 +1,13 @@
 import React from "react";
-import { SafeAreaView, ScrollView, StyleSheet, Text, View, ImageBackground } from "react-native";
+import { SafeAreaView, ScrollView, StyleSheet, View, ImageBackground } from "react-native";
 import { GlassCard } from "../components/home/GlassCard";
 import { Badge } from "../components/home/Badge";
 import { ExploreTile } from "../components/explore/ExploreTile";
 import { ExploreHero } from "../components/explore/ExploreHero";
 import { ROUTE_MANIFEST } from "@starkid/core";
-import { colors, spacing, typography } from "../theme/tokens";
+import { colors, spacing } from "../theme/tokens";
 import { LinearGradient } from "expo-linear-gradient";
+import { CustomText } from "../components/ui/CustomText";
 
 export default function ExploreHubV2({ navigation }: any) {
   return (
@@ -31,7 +32,9 @@ export default function ExploreHubV2({ navigation }: any) {
           <GlassCard variant="secondary" style={{ marginTop: spacing.lg }}>
             <View style={styles.badgeRow}>
               <Badge label="CONSOLES" />
-              <Text style={styles.badgeHelper}>Pick a station to jump into</Text>
+              <CustomText variant="sectionLabel" style={styles.badgeHelper}>
+                Pick a station to jump into
+              </CustomText>
             </View>
           </GlassCard>
 
@@ -108,7 +111,7 @@ const styles = StyleSheet.create({
   screenBackground: { flex: 1 },
   screenGradient: { ...StyleSheet.absoluteFillObject },
   badgeRow: { flexDirection: "row", alignItems: "center", gap: 10 },
-  badgeHelper: { ...typography.pixel, color: colors.dim, flex: 1 },
+  badgeHelper: { color: colors.dim, flex: 1 },
   scanlines: {
     position: "absolute",
     left: 0,

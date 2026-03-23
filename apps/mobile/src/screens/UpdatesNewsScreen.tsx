@@ -1,10 +1,11 @@
 import React, { useEffect, useMemo, useState } from 'react'
-import { SafeAreaView, ScrollView, StyleSheet, Text, View, Pressable, Image, Linking } from 'react-native'
+import { SafeAreaView, ScrollView, StyleSheet, View, Pressable, Image, Linking } from 'react-native'
 import { SpaceBackground } from '../components/home/SpaceBackground'
 import { GlassCard } from '../components/home/GlassCard'
-import { colors, spacing, typography } from '../theme/tokens'
+import { colors, spacing } from '../theme/tokens'
 import { NEWS_FEEDS, NEWS_CATEGORIES } from '../data/newsFeeds'
 import { normalizeNewsCards, timeAgo, getCoreConfig } from '@starkid/core'
+import { CustomText } from '../components/ui/CustomText'
 
 export default function UpdatesNewsScreen() {
   const [news, setNews] = useState<any[]>([])
@@ -54,9 +55,9 @@ export default function UpdatesNewsScreen() {
     <SpaceBackground>
       <SafeAreaView style={{ flex: 1 }}>
         <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
-          <Text style={styles.kicker}>UPDATES</Text>
-          <Text style={styles.title}>Space News</Text>
-          <Text style={styles.subtitle}>Headlines from trusted space sources.</Text>
+          <CustomText variant="sectionLabel" style={styles.kicker}>UPDATES</CustomText>
+          <CustomText variant="hero" style={styles.title}>Space News</CustomText>
+          <CustomText variant="body" style={styles.subtitle}>Headlines from trusted space sources.</CustomText>
 
           <View style={styles.chipRow}>
             {NEWS_CATEGORIES.map((cat) => (
@@ -65,29 +66,29 @@ export default function UpdatesNewsScreen() {
                 style={[styles.chip, selectedCategory === cat.id && styles.chipActive]}
                 onPress={() => setSelectedCategory(cat.id)}
               >
-                <Text style={[styles.chipText, selectedCategory === cat.id && styles.chipTextActive]}>
+                <CustomText variant="sectionLabel" style={[styles.chipText, selectedCategory === cat.id && styles.chipTextActive]}>
                   {cat.label.toUpperCase()}
-                </Text>
+                </CustomText>
               </Pressable>
             ))}
             <Pressable style={styles.refresh} onPress={fetchNews} disabled={loading}>
-              <Text style={styles.refreshText}>{loading ? 'SYNCING…' : 'REFRESH'}</Text>
+              <CustomText variant="sectionLabel" style={styles.refreshText}>{loading ? 'SYNCING…' : 'REFRESH'}</CustomText>
             </Pressable>
           </View>
 
           {isFallback ? (
             <GlassCard variant="secondary" style={{ marginTop: spacing.lg }}>
-              <Text style={styles.notice}>Using cached sample data. Live RSS feeds unavailable.</Text>
+              <CustomText variant="bodySmall" style={styles.notice}>Using cached sample data. Live RSS feeds unavailable.</CustomText>
             </GlassCard>
           ) : null}
 
           {loading ? (
             <GlassCard variant="secondary" style={{ marginTop: spacing.lg }}>
-              <Text style={styles.body}>Syncing news feeds…</Text>
+              <CustomText variant="body" style={styles.body}>Syncing news feeds…</CustomText>
             </GlassCard>
           ) : error ? (
             <GlassCard variant="secondary" style={{ marginTop: spacing.lg }}>
-              <Text style={styles.error}>{error}</Text>
+              <CustomText variant="bodySmall" style={styles.error}>{error}</CustomText>
             </GlassCard>
           ) : (
             <View style={{ marginTop: spacing.lg, gap: spacing.md }}>
@@ -99,14 +100,14 @@ export default function UpdatesNewsScreen() {
                         <Image source={{ uri: item.imageUrl }} style={styles.thumb} />
                       ) : null}
                       <View style={{ flex: 1 }}>
-                        <Text style={styles.cardTitle}>{item.title}</Text>
+                        <CustomText variant="cardTitle" style={styles.cardTitle}>{item.title}</CustomText>
                         {item.description ? (
-                          <Text style={styles.cardDesc} numberOfLines={2}>{item.description}</Text>
+                          <CustomText variant="bodySmall" style={styles.cardDesc} numberOfLines={2}>{item.description}</CustomText>
                         ) : null}
                         <View style={styles.metaRow}>
-                          <Text style={styles.badge}>{item.metaLeft || item.subtitle}</Text>
-                          <Text style={styles.meta}>{item.metaRight || formatDate(item.publishedAt)}</Text>
-                          <Text style={styles.read}>READ →</Text>
+                          <CustomText variant="sectionLabel" style={styles.badge}>{item.metaLeft || item.subtitle}</CustomText>
+                          <CustomText variant="bodySmall" style={styles.meta}>{item.metaRight || formatDate(item.publishedAt)}</CustomText>
+                          <CustomText variant="sectionLabel" style={styles.read}>READ →</CustomText>
                         </View>
                       </View>
                     </View>
@@ -115,7 +116,7 @@ export default function UpdatesNewsScreen() {
               ))}
               {filteredNews.length === 0 ? (
                 <GlassCard variant="secondary">
-                  <Text style={styles.body}>No news found for this category.</Text>
+                  <CustomText variant="body" style={styles.body}>No news found for this category.</CustomText>
                 </GlassCard>
               ) : null}
             </View>
@@ -128,10 +129,10 @@ export default function UpdatesNewsScreen() {
 
 const styles = StyleSheet.create({
   container: { padding: spacing.xl, paddingBottom: 44 },
-  kicker: { ...typography.pixel, color: colors.dim, marginBottom: 8 },
-  title: { ...typography.hero, color: colors.text },
-  subtitle: { ...typography.body, color: colors.muted, marginTop: 6 },
-  body: { ...typography.body, color: colors.muted },
+  kicker: { color: colors.dim, marginBottom: 8 },
+  title: { color: colors.text },
+  subtitle: { color: colors.muted, marginTop: 6 },
+  body: { color: colors.muted },
   chipRow: { marginTop: spacing.lg, flexDirection: 'row', flexWrap: 'wrap', gap: 8, alignItems: 'center' },
   chip: {
     paddingHorizontal: 10,
@@ -145,18 +146,18 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(61,235,255,0.9)',
     backgroundColor: 'rgba(61,235,255,0.18)',
   },
-  chipText: { ...typography.pixel, color: colors.dim },
+  chipText: { color: colors.dim },
   chipTextActive: { color: colors.text },
   refresh: { marginLeft: 'auto' },
-  refreshText: { ...typography.pixel, color: colors.accent },
-  notice: { ...typography.small, color: '#eab308' },
-  error: { ...typography.small, color: '#f87171' },
+  refreshText: { color: colors.accent },
+  notice: { color: '#eab308' },
+  error: { color: '#f87171' },
   cardRow: { flexDirection: 'row', gap: 12 },
   thumb: { width: 70, height: 70, borderRadius: 10, backgroundColor: 'rgba(61,235,255,0.1)' },
-  cardTitle: { ...typography.h2, color: colors.text },
-  cardDesc: { ...typography.small, color: colors.muted, marginTop: 6 },
+  cardTitle: { color: colors.text },
+  cardDesc: { color: colors.muted, marginTop: 6 },
   metaRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: spacing.sm },
-  badge: { ...typography.pixel, color: colors.accent },
-  meta: { ...typography.small, color: colors.dim },
-  read: { ...typography.pixel, color: colors.dim, marginLeft: 'auto' },
+  badge: { color: colors.accent },
+  meta: { color: colors.dim },
+  read: { color: colors.dim, marginLeft: 'auto' },
 })

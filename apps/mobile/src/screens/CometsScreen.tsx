@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react'
-import { View, Text, StyleSheet, ActivityIndicator, FlatList, Pressable, SafeAreaView } from 'react-native'
+import { View, StyleSheet, ActivityIndicator, FlatList, Pressable, SafeAreaView } from 'react-native'
 import { getComets, getRepos } from '@starkid/core'
 import { SpaceBackground } from '../components/home/SpaceBackground'
 import { GlassCard } from '../components/home/GlassCard'
 import { Badge } from '../components/home/Badge'
-import { colors, spacing, typography } from '../theme/tokens'
+import { colors, spacing } from '../theme/tokens'
+import { CustomText } from '../components/ui/CustomText'
 
 type Comet = {
   designation?: string
@@ -43,7 +44,7 @@ export default function CometsScreen() {
       <SpaceBackground>
         <View style={styles.center}>
           <ActivityIndicator size="large" />
-          <Text style={styles.muted}>Loading comets…</Text>
+          <CustomText variant="body" style={styles.muted}>Loading comets…</CustomText>
         </View>
       </SpaceBackground>
     )
@@ -58,13 +59,13 @@ export default function CometsScreen() {
           contentContainerStyle={styles.container}
           ListHeaderComponent={() => (
             <View style={styles.header}>
-              <Text style={styles.kicker}>COMETS</Text>
-              <Text style={styles.title}>Comet Tracker</Text>
-              <Text style={styles.subtitle}>Save comets to track observation windows.</Text>
+              <CustomText variant="sectionLabel" style={styles.kicker}>COMETS</CustomText>
+              <CustomText variant="hero" style={styles.title}>Comet Tracker</CustomText>
+              <CustomText variant="body" style={styles.subtitle}>Save comets to track observation windows.</CustomText>
               <GlassCard variant="secondary" style={{ marginTop: spacing.lg }}>
                 <View style={styles.badgeRow}>
                   <Badge label="SAVED" />
-                  <Text style={styles.badgeHelper}>Currently tracking: {savedCount}</Text>
+                  <CustomText variant="sectionLabel" style={styles.badgeHelper}>Currently tracking: {savedCount}</CustomText>
                 </View>
               </GlassCard>
             </View>
@@ -75,8 +76,8 @@ export default function CometsScreen() {
             return (
               <GlassCard variant="secondary" style={styles.card}>
                 <View style={styles.glowStrip} />
-                <Text style={styles.cardTitle}>{item.name || item.designation || 'Unknown Comet'}</Text>
-                <Text style={styles.cardMeta}>{item.designation}</Text>
+                <CustomText variant="cardTitle" style={styles.cardTitle}>{item.name || item.designation || 'Unknown Comet'}</CustomText>
+                <CustomText variant="bodySmall" style={styles.cardMeta}>{item.designation}</CustomText>
                 <Pressable
                   style={[styles.saveButton, saved && styles.saveButtonActive]}
                   onPress={async () => {
@@ -92,7 +93,7 @@ export default function CometsScreen() {
                     setSavedIds(savedList.map((entry: any) => entry.id))
                   }}
                 >
-                  <Text style={styles.saveText}>{saved ? 'Saved' : 'Save'}</Text>
+                  <CustomText variant="bodySmall" style={styles.saveText}>{saved ? 'Saved' : 'Save'}</CustomText>
                 </Pressable>
               </GlassCard>
             )
@@ -107,11 +108,11 @@ const styles = StyleSheet.create({
   container: { padding: spacing.xl, paddingBottom: 44 },
   center: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 16 },
   header: { marginBottom: spacing.lg },
-  kicker: { ...typography.pixel, color: colors.dim, marginBottom: 6 },
-  title: { ...typography.hero, color: colors.text },
-  subtitle: { ...typography.body, color: colors.muted, marginTop: 6 },
+  kicker: { color: colors.dim, marginBottom: 6 },
+  title: { color: colors.text },
+  subtitle: { color: colors.muted, marginTop: 6 },
   badgeRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
-  badgeHelper: { ...typography.pixel, color: colors.dim, flex: 1 },
+  badgeHelper: { color: colors.dim, flex: 1 },
   muted: { marginTop: 8, color: colors.muted },
   card: { marginBottom: 12 },
   glowStrip: {
@@ -122,8 +123,8 @@ const styles = StyleSheet.create({
     width: 6,
     backgroundColor: 'rgba(255,79,216,0.35)',
   },
-  cardTitle: { ...typography.h2, color: colors.text },
-  cardMeta: { ...typography.small, color: colors.muted, marginTop: 6 },
+  cardTitle: { color: colors.text },
+  cardMeta: { color: colors.muted, marginTop: 6 },
   saveButton: {
     marginTop: spacing.md,
     alignSelf: 'flex-start',
@@ -138,5 +139,5 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(255,79,216,0.6)',
     backgroundColor: 'rgba(26, 12, 32, 0.6)',
   },
-  saveText: { ...typography.small, color: colors.text },
+  saveText: { color: colors.text },
 })

@@ -31,6 +31,7 @@ import UpdatesLiveScreen from './src/screens/UpdatesLiveScreen'
 import UpdatesXScreen from './src/screens/UpdatesXScreen'
 import ArtemisScreen from './src/screens/ArtemisScreen'
 import AppTabs from './src/navigation/AppTabs'
+import TypographyPreviewScreen from './src/screens/TypographyPreviewScreen'
 
 const Stack = createNativeStackNavigator()
 
@@ -44,7 +45,7 @@ configureCore({
 configureStorage(storageAdapter)
 
 export default function App() {
-  const [fontsReady, setFontsReady] = useState(true)
+  const [fontsReady, setFontsReady] = useState(false)
 
   useEffect(() => {
     let active = true
@@ -53,7 +54,6 @@ export default function App() {
         const fontModule = require('expo-font')
         const pressStart = require('@expo-google-fonts/press-start-2p')
         if (fontModule?.loadAsync && pressStart?.PressStart2P_400Regular) {
-          setFontsReady(false)
           await fontModule.loadAsync({
             PressStart2P_400Regular: pressStart.PressStart2P_400Regular,
           })
@@ -123,6 +123,9 @@ export default function App() {
         <Stack.Screen name={ROUTE_MANIFEST.UPDATES_X} component={UpdatesXScreen} />
         <Stack.Screen name={ROUTE_MANIFEST.ARTEMIS} component={ArtemisScreen} />
         <Stack.Screen name={ROUTE_MANIFEST.MISSIONS_BRIEFING} component={MissionBriefingScreen} />
+        {__DEV__ ? (
+          <Stack.Screen name="TypographyPreview" component={TypographyPreviewScreen} />
+        ) : null}
       </Stack.Navigator>
     </NavigationContainer>
   )

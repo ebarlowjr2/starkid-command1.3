@@ -1,10 +1,11 @@
 import React from 'react'
-import { SafeAreaView, ScrollView, StyleSheet, Text, View, Pressable } from 'react-native'
+import { SafeAreaView, ScrollView, StyleSheet, View, Pressable } from 'react-native'
 import { SpaceBackground } from '../components/home/SpaceBackground'
 import { GlassCard } from '../components/home/GlassCard'
 import { Badge } from '../components/home/Badge'
 import { ROUTE_MANIFEST } from '@starkid/core'
-import { colors, spacing, typography } from '../theme/tokens'
+import { colors, spacing } from '../theme/tokens'
+import { CustomText } from '../components/ui/CustomText'
 
 const SECTIONS = [
   { id: 'official', title: 'Official Updates', subtitle: 'NASA mission updates and official feeds.', route: ROUTE_MANIFEST.UPDATES_OFFICIAL, icon: '🛰️' },
@@ -19,14 +20,14 @@ export default function UpdatesHubScreen({ navigation }: any) {
     <SpaceBackground>
       <SafeAreaView style={{ flex: 1 }}>
         <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
-          <Text style={styles.kicker}>UPDATES</Text>
-          <Text style={styles.title}>News • Blog • Live</Text>
-          <Text style={styles.subtitle}>Mission updates and curated feeds.</Text>
+          <CustomText variant="sectionLabel" style={styles.kicker}>UPDATES</CustomText>
+          <CustomText variant="hero" style={styles.title}>News • Blog • Live</CustomText>
+          <CustomText variant="body" style={styles.subtitle}>Mission updates and curated feeds.</CustomText>
 
           <GlassCard variant="secondary" style={{ marginTop: spacing.lg }}>
             <View style={styles.badgeRow}>
               <Badge label="LIVE" />
-              <Text style={styles.badgeHelper}>Pick a channel to open</Text>
+              <CustomText variant="sectionLabel" style={styles.badgeHelper}>Pick a channel to open</CustomText>
             </View>
           </GlassCard>
 
@@ -35,12 +36,12 @@ export default function UpdatesHubScreen({ navigation }: any) {
               <Pressable key={section.id} onPress={() => navigation?.navigate?.(section.route)}>
                 <GlassCard variant="secondary">
                   <View style={styles.row}>
-                    <Text style={styles.icon}>{section.icon}</Text>
+                    <CustomText style={styles.icon}>{section.icon}</CustomText>
                     <View style={{ flex: 1 }}>
-                      <Text style={styles.cardTitle}>{section.title}</Text>
-                      <Text style={styles.cardSubtitle}>{section.subtitle}</Text>
+                      <CustomText variant="cardTitle" style={styles.cardTitle}>{section.title}</CustomText>
+                      <CustomText variant="bodySmall" style={styles.cardSubtitle}>{section.subtitle}</CustomText>
                     </View>
-                    <Text style={styles.chevron}>→</Text>
+                    <CustomText variant="sectionLabel" style={styles.chevron}>→</CustomText>
                   </View>
                 </GlassCard>
               </Pressable>
@@ -54,14 +55,14 @@ export default function UpdatesHubScreen({ navigation }: any) {
 
 const styles = StyleSheet.create({
   container: { padding: spacing.xl, paddingBottom: 44 },
-  kicker: { ...typography.pixel, color: colors.dim, marginBottom: 8 },
-  title: { ...typography.hero, color: colors.text },
-  subtitle: { ...typography.body, color: colors.muted, marginTop: 6 },
+  kicker: { color: colors.dim, marginBottom: 8 },
+  title: { color: colors.text },
+  subtitle: { color: colors.muted, marginTop: 6 },
   badgeRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
-  badgeHelper: { ...typography.pixel, color: colors.dim, flex: 1 },
+  badgeHelper: { color: colors.dim, flex: 1 },
   row: { flexDirection: 'row', alignItems: 'center', gap: 12 },
   icon: { fontSize: 22 },
-  cardTitle: { ...typography.h2, color: colors.text },
-  cardSubtitle: { ...typography.small, color: colors.muted, marginTop: 4 },
-  chevron: { ...typography.pixel, color: colors.dim },
+  cardTitle: { color: colors.text },
+  cardSubtitle: { color: colors.muted, marginTop: 4 },
+  chevron: { color: colors.dim },
 })

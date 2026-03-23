@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react'
-import { SafeAreaView, StyleSheet, Text, View, ScrollView } from 'react-native'
+import { SafeAreaView, StyleSheet, View, ScrollView } from 'react-native'
 import { SpaceBackground } from '../../components/home/SpaceBackground'
 import { GlassCard } from '../../components/home/GlassCard'
 import { PixelButton } from '../../components/home/PixelButton'
-import { colors, spacing, typography } from '../../theme/tokens'
+import { colors, spacing } from '../../theme/tokens'
 import { getStemProgressOverview, ROUTE_MANIFEST, getCurrentActor } from '@starkid/core'
 import { SyncIdentityModal } from '../../components/auth/SyncIdentityModal'
+import { CustomText } from '../../components/ui/CustomText'
 
 const TRACK_LABELS: Record<string, string> = {
   math: 'Math',
@@ -40,7 +41,7 @@ export default function StemProgressScreen({ navigation }: { navigation: any }) 
     return (
       <SpaceBackground>
         <View style={styles.center}>
-          <Text style={styles.muted}>Loading progress…</Text>
+          <CustomText variant="body" style={styles.muted}>Loading progress…</CustomText>
         </View>
       </SpaceBackground>
     )
@@ -50,13 +51,13 @@ export default function StemProgressScreen({ navigation }: { navigation: any }) 
     <SpaceBackground>
       <SafeAreaView style={{ flex: 1 }}>
         <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
-          <Text style={styles.kicker}>STEM PROGRESS</Text>
-          <Text style={styles.title}>Your Learning Map</Text>
-          <Text style={styles.subtitle}>Track completion by STEM track and level.</Text>
+          <CustomText variant="sectionLabel" style={styles.kicker}>STEM PROGRESS</CustomText>
+          <CustomText variant="hero" style={styles.title}>Your Learning Map</CustomText>
+          <CustomText variant="body" style={styles.subtitle}>Track completion by STEM track and level.</CustomText>
           {isGuest ? (
-            <Text style={styles.guestNote}>
+            <CustomText variant="bodySmall" style={styles.guestNote}>
               Your progress is stored locally. Sync Command Profile to access it on other devices.
-            </Text>
+            </CustomText>
           ) : null}
           {isGuest ? (
             <PixelButton
@@ -70,12 +71,12 @@ export default function StemProgressScreen({ navigation }: { navigation: any }) 
             {overview.tracks.map((track: any) => (
               <GlassCard key={track.track} variant="secondary">
                 <View style={styles.trackHeader}>
-                  <Text style={styles.trackTitle}>{TRACK_LABELS[track.track] || track.track}</Text>
-                  <Text style={styles.levelBadge}>{track.currentLevel || 'cadet'}</Text>
+                  <CustomText variant="cardTitle" style={styles.trackTitle}>{TRACK_LABELS[track.track] || track.track}</CustomText>
+                  <CustomText variant="sectionLabel" style={styles.levelBadge}>{track.currentLevel || 'cadet'}</CustomText>
                 </View>
                 <View style={styles.trackMetaRow}>
-                  <Text style={styles.trackMeta}>{track.completed} / {track.total} complete</Text>
-                  <Text style={styles.trackMeta}>{track.percent}%</Text>
+                  <CustomText variant="bodySmall" style={styles.trackMeta}>{track.completed} / {track.total} complete</CustomText>
+                  <CustomText variant="bodySmall" style={styles.trackMeta}>{track.percent}%</CustomText>
                 </View>
                 <View style={styles.progressBar}>
                   <View style={[styles.progressFill, { width: `${track.percent}%` }]} />
@@ -85,13 +86,13 @@ export default function StemProgressScreen({ navigation }: { navigation: any }) 
           </View>
 
           <GlassCard variant="secondary" style={{ marginTop: spacing.lg }}>
-            <Text style={styles.sectionTitle}>Recommended Next</Text>
+            <CustomText variant="sectionLabel" style={styles.sectionTitle}>Recommended Next</CustomText>
             {overview.recommendedNextActivity ? (
               <>
-                <Text style={styles.recommendTitle}>{overview.recommendedNextActivity.title}</Text>
-                <Text style={styles.recommendMeta}>
+                <CustomText variant="cardTitle" style={styles.recommendTitle}>{overview.recommendedNextActivity.title}</CustomText>
+                <CustomText variant="bodySmall" style={styles.recommendMeta}>
                   {overview.recommendedNextActivity.track} • {overview.recommendedNextActivity.level}
-                </Text>
+                </CustomText>
                 <PixelButton
                   label="CONTINUE →"
                   onPress={() =>
@@ -103,26 +104,26 @@ export default function StemProgressScreen({ navigation }: { navigation: any }) 
                 />
               </>
             ) : (
-              <Text style={styles.muted}>All activities complete.</Text>
+              <CustomText variant="body" style={styles.muted}>All activities complete.</CustomText>
             )}
           </GlassCard>
 
           <GlassCard variant="secondary" style={{ marginTop: spacing.lg }}>
-            <Text style={styles.sectionTitle}>Recent Completions</Text>
+            <CustomText variant="sectionLabel" style={styles.sectionTitle}>Recent Completions</CustomText>
             {overview.recentCompletions?.length ? (
               overview.recentCompletions.slice(0, 3).map((item: any) => (
                 <View key={item.activityId} style={styles.recentRow}>
                   <View>
-                    <Text style={styles.recentTitle}>{item.title}</Text>
-                    <Text style={styles.recentMeta}>{item.track} • {item.level}</Text>
+                    <CustomText variant="body" style={styles.recentTitle}>{item.title}</CustomText>
+                    <CustomText variant="bodySmall" style={styles.recentMeta}>{item.track} • {item.level}</CustomText>
                   </View>
-                  <Text style={styles.recentDate}>
+                  <CustomText variant="bodySmall" style={styles.recentDate}>
                     {new Date(item.completedAt).toLocaleDateString()}
-                  </Text>
+                  </CustomText>
                 </View>
               ))
             ) : (
-              <Text style={styles.muted}>No completions yet.</Text>
+              <CustomText variant="body" style={styles.muted}>No completions yet.</CustomText>
             )}
           </GlassCard>
         </ScrollView>
@@ -135,14 +136,13 @@ export default function StemProgressScreen({ navigation }: { navigation: any }) 
 const styles = StyleSheet.create({
   container: { padding: spacing.xl, paddingBottom: 44 },
   center: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 16 },
-  kicker: { ...typography.pixel, color: colors.dim, marginBottom: 8 },
-  title: { ...typography.hero, color: colors.text },
-  subtitle: { ...typography.body, color: colors.muted, marginTop: 6 },
-  guestNote: { ...typography.small, color: colors.dim, marginTop: spacing.sm },
+  kicker: { color: colors.dim, marginBottom: 8 },
+  title: { color: colors.text },
+  subtitle: { color: colors.muted, marginTop: 6 },
+  guestNote: { color: colors.dim, marginTop: spacing.sm },
   trackHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  trackTitle: { ...typography.h2, color: colors.text },
+  trackTitle: { color: colors.text },
   levelBadge: {
-    ...typography.pixel,
     color: colors.text,
     backgroundColor: 'rgba(61,235,255,0.15)',
     paddingHorizontal: 8,
@@ -150,12 +150,12 @@ const styles = StyleSheet.create({
     borderRadius: 10,
   },
   trackMetaRow: { flexDirection: 'row', justifyContent: 'space-between', marginTop: 6 },
-  trackMeta: { ...typography.small, color: colors.muted },
+  trackMeta: { color: colors.muted },
   progressBar: { height: 8, borderRadius: 10, backgroundColor: 'rgba(61,235,255,0.15)', marginTop: 8 },
   progressFill: { height: 8, borderRadius: 10, backgroundColor: colors.accent },
-  sectionTitle: { ...typography.pixel, color: colors.dim, marginBottom: spacing.sm },
-  recommendTitle: { ...typography.h2, color: colors.text },
-  recommendMeta: { ...typography.small, color: colors.muted, marginTop: 6 },
+  sectionTitle: { color: colors.dim, marginBottom: spacing.sm },
+  recommendTitle: { color: colors.text },
+  recommendMeta: { color: colors.muted, marginTop: 6 },
   continueButton: {
     alignSelf: 'flex-start',
     marginTop: spacing.md,
@@ -167,8 +167,8 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(6, 10, 22, 0.8)',
   },
   recentRow: { flexDirection: 'row', justifyContent: 'space-between', marginTop: 6, alignItems: 'center' },
-  recentTitle: { ...typography.body, color: colors.muted },
-  recentMeta: { ...typography.pixel, color: colors.dim },
-  recentDate: { ...typography.pixel, color: colors.dim },
-  muted: { ...typography.body, color: colors.muted },
+  recentTitle: { color: colors.muted },
+  recentMeta: { color: colors.dim },
+  recentDate: { color: colors.dim },
+  muted: { color: colors.muted },
 })

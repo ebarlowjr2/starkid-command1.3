@@ -1,10 +1,11 @@
 import React, { useMemo, useState, useEffect } from 'react'
-import { SafeAreaView, StyleSheet, Text, View, FlatList, Pressable } from 'react-native'
+import { SafeAreaView, StyleSheet, View, FlatList, Pressable } from 'react-native'
 import { SpaceBackground } from '../../components/home/SpaceBackground'
 import { GlassCard } from '../../components/home/GlassCard'
 import { PixelButton } from '../../components/home/PixelButton'
-import { colors, spacing, typography } from '../../theme/tokens'
+import { colors, spacing } from '../../theme/tokens'
 import { listStemActivities, listTracks, listLevels, ROUTE_MANIFEST, listCompletedStemActivities } from '@starkid/core'
+import { CustomText } from '../../components/ui/CustomText'
 
 export default function StemActivitiesScreen({ navigation }: { navigation: any }) {
   const [track, setTrack] = useState('')
@@ -43,11 +44,11 @@ export default function StemActivitiesScreen({ navigation }: { navigation: any }
           contentContainerStyle={styles.container}
           ListHeaderComponent={() => (
             <View>
-              <Text style={styles.kicker}>STEM ACTIVITIES</Text>
-              <Text style={styles.title}>Learning Modules</Text>
-              <Text style={styles.subtitle}>
+              <CustomText variant="sectionLabel" style={styles.kicker}>STEM ACTIVITIES</CustomText>
+              <CustomText variant="hero" style={styles.title}>Learning Modules</CustomText>
+              <CustomText variant="body" style={styles.subtitle}>
                 Filter by track or level and explore structured STEM activities.
-              </Text>
+              </CustomText>
               <PixelButton
                 label="VIEW PROGRESS →"
                 onPress={() => navigation?.navigate?.(ROUTE_MANIFEST.STEM_PROGRESS)}
@@ -56,21 +57,21 @@ export default function StemActivitiesScreen({ navigation }: { navigation: any }
 
               <View style={styles.filterRow}>
                 <Pressable style={styles.filterButton} onPress={() => setTrack('')}>
-                  <Text style={styles.filterText}>All Tracks</Text>
+                  <CustomText variant="sectionLabel" style={styles.filterText}>All Tracks</CustomText>
                 </Pressable>
                 {listTracks().map((t) => (
                   <Pressable key={t} style={styles.filterButton} onPress={() => setTrack(t)}>
-                    <Text style={styles.filterText}>{t}</Text>
+                    <CustomText variant="sectionLabel" style={styles.filterText}>{t}</CustomText>
                   </Pressable>
                 ))}
               </View>
               <View style={styles.filterRow}>
                 <Pressable style={styles.filterButton} onPress={() => setLevel('')}>
-                  <Text style={styles.filterText}>All Levels</Text>
+                  <CustomText variant="sectionLabel" style={styles.filterText}>All Levels</CustomText>
                 </Pressable>
                 {listLevels().map((l) => (
                   <Pressable key={l} style={styles.filterButton} onPress={() => setLevel(l)}>
-                    <Text style={styles.filterText}>{l}</Text>
+                    <CustomText variant="sectionLabel" style={styles.filterText}>{l}</CustomText>
                   </Pressable>
                 ))}
               </View>
@@ -82,21 +83,21 @@ export default function StemActivitiesScreen({ navigation }: { navigation: any }
             >
               <GlassCard variant="secondary" style={{ marginTop: spacing.md }}>
                 <View style={styles.activityHeader}>
-                  <Text style={styles.activityTitle}>{item.title}</Text>
+                  <CustomText variant="cardTitle" style={styles.activityTitle}>{item.title}</CustomText>
                   {completedIds.includes(item.id) ? (
-                    <Text style={styles.completedBadge}>COMPLETED</Text>
+                    <CustomText variant="sectionLabel" style={styles.completedBadge}>COMPLETED</CustomText>
                   ) : null}
                 </View>
-                <Text style={styles.activityMeta}>{item.track} • {item.level}</Text>
-                <Text style={styles.activityBody}>{item.description}</Text>
+                <CustomText variant="bodySmall" style={styles.activityMeta}>{item.track} • {item.level}</CustomText>
+                <CustomText variant="body" style={styles.activityBody}>{item.description}</CustomText>
               </GlassCard>
             </Pressable>
           )}
           ListFooterComponent={() => (
             <GlassCard variant="secondary" style={{ marginTop: spacing.lg }}>
-              <Text style={styles.cardText}>
+              <CustomText variant="body" style={styles.cardText}>
                 We’re building lesson-ready activities for classrooms and self-guided missions.
-              </Text>
+              </CustomText>
             </GlassCard>
           )}
         />
@@ -107,10 +108,10 @@ export default function StemActivitiesScreen({ navigation }: { navigation: any }
 
 const styles = StyleSheet.create({
   container: { padding: spacing.xl, paddingBottom: 44 },
-  kicker: { ...typography.pixel, color: colors.dim, marginBottom: 8 },
-  title: { ...typography.hero, color: colors.text },
-  subtitle: { ...typography.body, color: colors.muted, marginTop: 6 },
-  cardText: { ...typography.body, color: colors.muted },
+  kicker: { color: colors.dim, marginBottom: 8 },
+  title: { color: colors.text },
+  subtitle: { color: colors.muted, marginTop: 6 },
+  cardText: { color: colors.muted },
   filterRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: spacing.md },
   filterButton: {
     paddingVertical: 4,
@@ -120,12 +121,12 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(61,235,255,0.4)',
     backgroundColor: 'rgba(6, 10, 22, 0.6)',
   },
-  filterText: { ...typography.pixel, color: colors.text },
+  filterText: { color: colors.text },
   activityHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-  activityTitle: { ...typography.h2, color: colors.text },
-  activityMeta: { ...typography.small, color: colors.muted, marginTop: 6 },
-  activityBody: { ...typography.body, color: colors.muted, marginTop: 6 },
-  completedBadge: { ...typography.pixel, color: colors.green },
+  activityTitle: { color: colors.text },
+  activityMeta: { color: colors.muted, marginTop: 6 },
+  activityBody: { color: colors.muted, marginTop: 6 },
+  completedBadge: { color: colors.green },
   progressButton: {
     alignSelf: 'flex-start',
     marginTop: spacing.md,

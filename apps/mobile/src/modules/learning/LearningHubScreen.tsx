@@ -1,11 +1,12 @@
 import React from "react";
-import { SafeAreaView, ScrollView, StyleSheet, Text, View, Pressable } from "react-native";
+import { SafeAreaView, ScrollView, StyleSheet, View, Pressable } from "react-native";
 import { SpaceBackground } from "../../components/home/SpaceBackground";
 import { GlassCard } from "../../components/home/GlassCard";
-import { colors, spacing, typography } from "../../theme/tokens";
+import { colors, spacing } from "../../theme/tokens";
 import { ROUTE_MANIFEST } from "@starkid/core";
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { useNavigation } from "@react-navigation/native";
+import { CustomText } from "../../components/ui/CustomText";
 
 // Learning Hub is intentionally modular.
 // Future development of STEM tracks, Cyber Lab,
@@ -53,9 +54,9 @@ export default function LearningHubScreen() {
     <SpaceBackground>
       <SafeAreaView style={{ flex: 1 }}>
         <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
-          <Text style={styles.kicker}>LEARNING HUB</Text>
-          <Text style={styles.title}>Training Command Console</Text>
-          <Text style={styles.subtitle}>STEM, Cyber, and future training systems live here.</Text>
+          <CustomText variant="sectionLabel" style={styles.kicker}>LEARNING HUB</CustomText>
+          <CustomText variant="h2" style={styles.title}>Training Command Console</CustomText>
+          <CustomText variant="body" style={styles.subtitle}>STEM, Cyber, and future training systems live here.</CustomText>
 
           <View style={styles.grid}>
             {cards.map((card) => (
@@ -70,9 +71,9 @@ export default function LearningHubScreen() {
                 ]}
               >
                 <GlassCard variant="secondary" style={{ padding: spacing.md }}>
-                  <Text style={styles.cardTitle}>{card.title}</Text>
-                  <Text style={styles.cardBody}>{card.description}</Text>
-                  <Text style={styles.cardCta}>{card.disabled ? "COMING SOON" : "OPEN →"}</Text>
+                  <CustomText variant="cardTitle" style={styles.cardTitle}>{card.title}</CustomText>
+                  <CustomText variant="body" style={styles.cardBody}>{card.description}</CustomText>
+                  <CustomText variant="sectionLabel" style={styles.cardCta}>{card.disabled ? "COMING SOON" : "OPEN →"}</CustomText>
                 </GlassCard>
               </Pressable>
             ))}
@@ -85,13 +86,13 @@ export default function LearningHubScreen() {
 
 const styles = StyleSheet.create({
   container: { padding: spacing.xl, paddingBottom: 44 },
-  kicker: { ...typography.pixel, color: colors.dim, marginBottom: 8 },
-  title: { ...typography.h2, color: colors.text },
-  subtitle: { ...typography.body, color: colors.muted, marginTop: 6 },
+  kicker: { color: colors.dim, marginBottom: 8 },
+  title: { color: colors.text },
+  subtitle: { color: colors.muted, marginTop: 6 },
   grid: { marginTop: spacing.lg, gap: spacing.md },
   card: {},
   cardDisabled: { opacity: 0.6 },
-  cardTitle: { ...typography.h3, color: colors.accent, marginBottom: 6 },
-  cardBody: { ...typography.body, color: colors.muted },
-  cardCta: { ...typography.pixel, color: colors.accent, marginTop: spacing.sm },
+  cardTitle: { color: colors.accent, marginBottom: 6 },
+  cardBody: { color: colors.muted },
+  cardCta: { color: colors.accent, marginTop: spacing.sm },
 });

@@ -1,19 +1,32 @@
 import React from "react";
-import { Pressable, StyleSheet, Text, View } from "react-native";
-import { colors, typography } from "../theme/tokens";
+import { Pressable, StyleSheet, View } from "react-native";
+import { colors } from "../theme/tokens";
+import { CustomText } from "../components/ui/CustomText";
 
 export function CometTabButton({ onPress, focused }: { onPress?: () => void; focused?: boolean }) {
   return (
     <View style={styles.wrap}>
       <View style={styles.arcLabel}>
-        <Text style={[styles.arcLetter, styles.arcC, focused && styles.arcActive]}>C</Text>
-        <Text style={[styles.arcLetter, styles.arcO, focused && styles.arcActive]}>O</Text>
-        <Text style={[styles.arcLetter, styles.arcM, focused && styles.arcActive]}>M</Text>
-        <Text style={[styles.arcLetter, styles.arcE, focused && styles.arcActive]}>E</Text>
-        <Text style={[styles.arcLetter, styles.arcT, focused && styles.arcActive]}>T</Text>
+        <CustomText variant="navLabel" style={[styles.arcLetter, styles.arcC, focused && styles.arcActive]}>
+          C
+        </CustomText>
+        <CustomText variant="navLabel" style={[styles.arcLetter, styles.arcO, focused && styles.arcActive]}>
+          O
+        </CustomText>
+        <CustomText variant="navLabel" style={[styles.arcLetter, styles.arcM, focused && styles.arcActive]}>
+          M
+        </CustomText>
+        <CustomText variant="navLabel" style={[styles.arcLetter, styles.arcE, focused && styles.arcActive]}>
+          E
+        </CustomText>
+        <CustomText variant="navLabel" style={[styles.arcLetter, styles.arcT, focused && styles.arcActive]}>
+          T
+        </CustomText>
       </View>
       <Pressable onPress={onPress} style={({ pressed }) => [styles.btn, pressed && { transform: [{ scale: 0.96 }] }]}>
-        <Text style={styles.icon}>✨</Text>
+        <CustomText style={styles.icon} allowFontScaling={false}>
+          ✨
+        </CustomText>
       </Pressable>
     </View>
   );
@@ -47,8 +60,6 @@ const styles = StyleSheet.create({
   },
   arcLetter: {
     position: "absolute",
-    ...typography.pixel,
-    fontSize: 9,
     color: colors.dim,
   },
   arcActive: { color: colors.text },

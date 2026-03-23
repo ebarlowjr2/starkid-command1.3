@@ -1,8 +1,9 @@
 import React from "react";
-import { View, Text, Pressable, StyleSheet } from "react-native";
+import { View, Pressable, StyleSheet } from "react-native";
 import { BottomTabBarProps } from "@react-navigation/bottom-tabs";
-import { colors, typography } from "../theme/tokens";
+import { colors } from "../theme/tokens";
 import { CometTabButton } from "./CometTabButton";
+import { CustomText } from "../components/ui/CustomText";
 
 const ICONS: Record<string, string> = {
   Home: "🏠",
@@ -42,8 +43,17 @@ export function CustomTabBar({ state, descriptors, navigation }: BottomTabBarPro
 
         return (
           <Pressable key={route.key} onPress={onPress} style={styles.tab}>
-            <Text style={[styles.icon, focused && styles.iconActive]}>{icon}</Text>
-            <Text style={[styles.label, focused && styles.labelActive]}>{String(label)}</Text>
+            <CustomText style={[styles.icon, focused && styles.iconActive]} allowFontScaling={false}>
+              {icon}
+            </CustomText>
+            <CustomText
+              variant="navLabel"
+              style={[styles.label, focused && styles.labelActive]}
+              numberOfLines={1}
+              ellipsizeMode="tail"
+            >
+              {String(label)}
+            </CustomText>
           </Pressable>
         );
       })}
@@ -72,7 +82,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     gap: 4,
   },
-  label: { ...typography.pixel, color: colors.dim, fontSize: 9 },
+  label: { color: colors.dim },
   labelActive: { color: colors.cyan },
   icon: { fontSize: 18, color: colors.dim },
   iconActive: { color: colors.cyan },

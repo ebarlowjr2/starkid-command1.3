@@ -1,6 +1,7 @@
 import React from "react";
-import { StyleSheet, Text, View } from "react-native";
-import { colors, spacing, typography } from "../../theme/tokens";
+import { StyleSheet, View } from "react-native";
+import { colors, spacing } from "../../theme/tokens";
+import { CustomText } from "../ui/CustomText";
 
 type ExploreHeroProps = {
   title?: string;
@@ -13,8 +14,12 @@ export function ExploreHero({
 }: ExploreHeroProps) {
   return (
     <View style={styles.hero}>
-      <Text style={styles.kicker}>{title}</Text>
-      <Text style={styles.subtitle}>{subtitle}</Text>
+      <CustomText variant="sectionLabel" style={styles.kicker}>
+        {title}
+      </CustomText>
+      <CustomText variant="body" style={styles.subtitle}>
+        {subtitle}
+      </CustomText>
     </View>
   );
 }
@@ -29,12 +34,10 @@ const styles = StyleSheet.create({
     borderColor: "rgba(43,228,255,0.2)",
   },
   kicker: {
-    ...typography.pixel,
     color: colors.text,
     marginBottom: 8,
   },
   subtitle: {
-    ...typography.body,
     color: colors.muted,
   },
 });

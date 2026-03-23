@@ -1,6 +1,7 @@
 import React, { memo } from "react";
-import { Pressable, Text, StyleSheet, ViewStyle, View } from "react-native";
-import { colors, typography } from "../../theme/tokens";
+import { Pressable, StyleSheet, ViewStyle, View } from "react-native";
+import { colors } from "../../theme/tokens";
+import { CustomText } from "../ui/CustomText";
 
 export const PixelButton = memo(function PixelButton({
   label,
@@ -29,7 +30,9 @@ export const PixelButton = memo(function PixelButton({
         <View style={[styles.corner, styles.cornerTr, { backgroundColor: glow }]} />
         <View style={[styles.corner, styles.cornerBl, { backgroundColor: glow }]} />
         <View style={[styles.corner, styles.cornerBr, { backgroundColor: glow }]} />
-        <Text style={styles.text}>{label}</Text>
+        <CustomText variant="button" style={styles.text}>
+          {label}
+        </CustomText>
       </View>
     </Pressable>
   );
@@ -68,7 +71,6 @@ const styles = StyleSheet.create({
   cornerBr: { right: -2, bottom: -2 },
   text: {
     color: colors.text,
-    ...typography.small,
     letterSpacing: 1.2,
     textTransform: "uppercase",
   },

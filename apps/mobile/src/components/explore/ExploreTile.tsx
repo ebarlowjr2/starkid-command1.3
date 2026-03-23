@@ -1,7 +1,8 @@
 import React, { memo } from "react";
-import { Pressable, Text, StyleSheet, View } from "react-native";
+import { Pressable, StyleSheet, View } from "react-native";
 import { GlassCard } from "../home/GlassCard";
-import { colors, spacing, typography } from "../../theme/tokens";
+import { colors, spacing } from "../../theme/tokens";
+import { CustomText } from "../ui/CustomText";
 
 export const ExploreTile = memo(function ExploreTile({
   icon,
@@ -26,13 +27,19 @@ export const ExploreTile = memo(function ExploreTile({
         <View style={styles.glowStrip} />
         <View style={styles.row}>
           <View style={styles.iconRing}>
-            <Text style={styles.icon}>{icon}</Text>
+            <CustomText style={styles.icon}>{icon}</CustomText>
           </View>
           <View style={{ flex: 1 }}>
-            <Text style={styles.title}>{title}</Text>
-            <Text style={styles.subtitle}>{subtitle}</Text>
+            <CustomText variant="cardTitle" style={styles.title}>
+              {title}
+            </CustomText>
+            <CustomText variant="body" style={styles.subtitle}>
+              {subtitle}
+            </CustomText>
           </View>
-          <Text style={styles.chevron}>→</Text>
+          <CustomText variant="sectionLabel" style={styles.chevron}>
+            →
+          </CustomText>
         </View>
       </GlassCard>
     </Pressable>
@@ -62,7 +69,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   icon: { fontSize: 18 },
-  title: { ...typography.h2, color: colors.text },
-  subtitle: { ...typography.body, color: colors.muted, marginTop: 4 },
-  chevron: { ...typography.pixel, color: colors.cyan },
+  title: { color: colors.text },
+  subtitle: { color: colors.muted, marginTop: 4 },
+  chevron: { color: colors.cyan },
 });

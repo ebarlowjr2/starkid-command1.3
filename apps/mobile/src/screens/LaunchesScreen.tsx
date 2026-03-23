@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react'
-import { View, Text, StyleSheet, ActivityIndicator, FlatList, SafeAreaView } from 'react-native'
+import { View, StyleSheet, ActivityIndicator, FlatList, SafeAreaView } from 'react-native'
 import { getUpcomingLaunchesWindow, getProviderSpotlights } from '@starkid/core'
 import { SpaceBackground } from '../components/home/SpaceBackground'
 import { GlassCard } from '../components/home/GlassCard'
 import { Badge } from '../components/home/Badge'
-import { colors, spacing, typography } from '../theme/tokens'
+import { colors, spacing } from '../theme/tokens'
+import { CustomText } from '../components/ui/CustomText'
 
 type LaunchItem = {
   id?: string | number
@@ -47,7 +48,7 @@ export default function LaunchesScreen() {
       <SpaceBackground>
         <View style={styles.center}>
           <ActivityIndicator size="large" />
-          <Text style={styles.muted}>Loading upcoming launches…</Text>
+          <CustomText variant="body" style={styles.muted}>Loading upcoming launches…</CustomText>
         </View>
       </SpaceBackground>
     )
@@ -62,13 +63,13 @@ export default function LaunchesScreen() {
           contentContainerStyle={styles.container}
           ListHeaderComponent={() => (
             <View style={styles.header}>
-              <Text style={styles.kicker}>LAUNCHES</Text>
-              <Text style={styles.title}>Upcoming Launches</Text>
-              <Text style={styles.subtitle}>Next 7 days of launch windows and pads.</Text>
+              <CustomText variant="sectionLabel" style={styles.kicker}>LAUNCHES</CustomText>
+              <CustomText variant="hero" style={styles.title}>Upcoming Launches</CustomText>
+              <CustomText variant="body" style={styles.subtitle}>Next 7 days of launch windows and pads.</CustomText>
               <GlassCard variant="secondary" style={{ marginTop: spacing.lg }}>
                 <View style={styles.badgeRow}>
                   <Badge label="MISSION FEED" />
-                  <Text style={styles.badgeHelper}>Sorted by earliest launch time</Text>
+                  <CustomText variant="sectionLabel" style={styles.badgeHelper}>Sorted by earliest launch time</CustomText>
                 </View>
               </GlassCard>
               {spotlights.length ? (
@@ -78,9 +79,9 @@ export default function LaunchesScreen() {
                   </View>
                   <View style={{ marginTop: spacing.sm }}>
                     {spotlights.map((launch, idx) => (
-                      <Text key={`${launch.providerName || launch.name}-${idx}`} style={styles.cardMeta}>
+                      <CustomText key={`${launch.providerName || launch.name}-${idx}`} variant="bodySmall" style={styles.cardMeta}>
                         • {launch.providerName || launch.providerType || 'Provider'} • {launch.name || 'Next Launch'} — {launch.net || launch.window_start || 'Date TBD'}
-                      </Text>
+                      </CustomText>
                     ))}
                   </View>
                 </GlassCard>
@@ -90,14 +91,14 @@ export default function LaunchesScreen() {
           renderItem={({ item }) => (
             <GlassCard variant="secondary" style={styles.card}>
               <View style={styles.glowStrip} />
-              <Text style={styles.cardTitle}>{item.name || 'Unknown Launch'}</Text>
+              <CustomText variant="cardTitle" style={styles.cardTitle}>{item.name || 'Unknown Launch'}</CustomText>
               <View style={styles.metaRow}>
-                <Text style={styles.cardMeta}>{item.net || item.window_start || 'Date TBD'}</Text>
+                <CustomText variant="bodySmall" style={styles.cardMeta}>{item.net || item.window_start || 'Date TBD'}</CustomText>
                 {item.net && new Date(item.net).getTime() - now <= 24 * 60 * 60 * 1000 ? (
-                  <Text style={styles.alertBadge}>LAUNCH &lt;24H</Text>
+                  <CustomText variant="sectionLabel" style={styles.alertBadge}>LAUNCH &lt;24H</CustomText>
                 ) : null}
               </View>
-              {item.pad?.name ? <Text style={styles.cardMeta}>{item.pad.name}</Text> : null}
+              {item.pad?.name ? <CustomText variant="bodySmall" style={styles.cardMeta}>{item.pad.name}</CustomText> : null}
             </GlassCard>
           )}
         />
@@ -110,11 +111,11 @@ const styles = StyleSheet.create({
   container: { padding: spacing.xl, paddingBottom: 44 },
   center: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 16 },
   header: { marginBottom: spacing.lg },
-  kicker: { ...typography.pixel, color: colors.dim, marginBottom: 6 },
-  title: { ...typography.hero, color: colors.text },
-  subtitle: { ...typography.body, color: colors.muted, marginTop: 6 },
+  kicker: { color: colors.dim, marginBottom: 6 },
+  title: { color: colors.text },
+  subtitle: { color: colors.muted, marginTop: 6 },
   badgeRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
-  badgeHelper: { ...typography.pixel, color: colors.dim, flex: 1 },
+  badgeHelper: { color: colors.dim, flex: 1 },
   muted: { marginTop: 8, color: colors.muted },
   card: {
     marginBottom: 12,
@@ -127,11 +128,10 @@ const styles = StyleSheet.create({
     width: 6,
     backgroundColor: 'rgba(61,235,255,0.35)',
   },
-  cardTitle: { ...typography.h2, color: colors.text },
-  cardMeta: { ...typography.small, color: colors.muted, marginTop: 6 },
+  cardTitle: { color: colors.text },
+  cardMeta: { color: colors.muted, marginTop: 6 },
   metaRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 6, flexWrap: 'wrap' },
   alertBadge: {
-    ...typography.pixel,
     color: colors.accent,
     borderWidth: 1,
     borderColor: 'rgba(61,235,255,0.6)',
