@@ -9,6 +9,7 @@ export default function LandingPage() {
   const nav = useNavigate()
   const [artemis, setArtemis] = useState(null)
   const [now, setNow] = useState(Date.now())
+  const fallbackArtemisDate = "2026-04-01T00:00:00Z"
 
   useEffect(() => {
     let active = true
@@ -49,8 +50,8 @@ export default function LandingPage() {
   }, [])
 
   const artemisCountdown = (() => {
-    if (!artemis?.nextMissionDate) return "TBD"
-    const target = new Date(artemis.nextMissionDate).getTime()
+    const targetIso = artemis?.nextMissionDate || fallbackArtemisDate
+    const target = new Date(targetIso).getTime()
     if (!Number.isFinite(target)) return "TBD"
     const diff = Math.max(0, target - now)
     const days = Math.floor(diff / (24 * 3600 * 1000))
