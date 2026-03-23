@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom"
 import { useEffect, useState } from "react"
-import { getArtemisProgramSummary } from "@starkid/core"
+import { getArtemisProgramSummary, getArtemisPriorityAlert } from "@starkid/core"
 import { TelemetryStrip } from "../components/TelemetryStrip.jsx"
 import { FeaturedEventOrb } from "../components/FeaturedEventOrb.jsx"
 import UpcomingEventsBanner from "../components/UpcomingEventsBanner.jsx"
@@ -13,8 +13,29 @@ export default function LandingPage() {
   useEffect(() => {
     let active = true
     async function load() {
-      const result = await getArtemisProgramSummary()
-      if (active) setArtemis(result.data || null)
+      const [summaryResult, alertResult] = await Promise.allSettled([
+        getArtemisProgramSummary(),
+        getArtemisPriorityAlert(),
+      ])
+      if (!active) return
+      const summary = summaryResult.status === "fulfilled" ? summaryResult.value?.data : null
+      const alert = alertResult.status === "fulfilled" ? alertResult.value?.data : null
+      const nextMissionDate = summary?.nextMissionDate || alert?.startTime || null
+      setArtemis(
+        summary
+          ? { ...summary, nextMissionDate }
+          : alert
+            ? {
+                programName: "Artemis",
+                description: alert.description,
+                nextMission: alert.title,
+                nextMissionDate,
+                sourceUrl: alert.sourceUrl,
+                missionUrl: alert.sourceUrl,
+                programTag: "Artemis",
+              }
+            : null
+      )
     }
     load()
     return () => {
@@ -30,6 +51,7 @@ export default function LandingPage() {
   const artemisCountdown = (() => {
     if (!artemis?.nextMissionDate) return "TBD"
     const target = new Date(artemis.nextMissionDate).getTime()
+    if (!Number.isFinite(target)) return "TBD"
     const diff = Math.max(0, target - now)
     const days = Math.floor(diff / (24 * 3600 * 1000))
     const hours = Math.floor((diff % (24 * 3600 * 1000)) / (3600 * 1000))
