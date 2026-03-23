@@ -3,7 +3,7 @@ import { SafeAreaView, StyleSheet, View, ScrollView, Pressable } from 'react-nat
 import { SpaceBackground } from '../components/home/SpaceBackground'
 import { GlassCard } from '../components/home/GlassCard'
 import { colors, spacing } from '../theme/tokens'
-import { getExoplanets, getDiscoveryStats, getHabitableCandidates, getDiscoveryMethods, getStarTypes } from '@starkid/core'
+import { getExoplanets, getDiscoveryStats, getHabitableCandidates, getDiscoveryMethods, getStarTypes, DETECTION_METHODS } from '@starkid/core'
 import { CustomText } from '../components/ui/CustomText'
 
 export default function BeyondSolarSystemScreen() {
@@ -75,6 +75,27 @@ export default function BeyondSolarSystemScreen() {
             </GlassCard>
 
             <GlassCard variant="secondary">
+              <CustomText variant="sectionLabel" style={styles.sectionTitle}>How We Find Exoplanets</CustomText>
+              <CustomText variant="bodySmall" style={styles.methodIntro}>
+                We cannot visit exoplanets directly. Scientists detect them by observing changes in starlight from Earth and space telescopes.
+              </CustomText>
+              <View style={{ marginTop: spacing.sm, gap: 10 }}>
+                {DETECTION_METHODS.map((method) => (
+                  <View key={method.id} style={styles.methodCard}>
+                    <View style={styles.methodHeader}>
+                      <CustomText variant="sectionLabel" style={styles.methodIcon}>{method.icon}</CustomText>
+                      <CustomText variant="sectionLabel" style={styles.methodName}>{method.name.toUpperCase().replace(/ /g, '_')}</CustomText>
+                    </View>
+                    <CustomText variant="bodySmall" style={styles.methodDesc}>{method.description}</CustomText>
+                  </View>
+                ))}
+              </View>
+              <CustomText variant="bodySmall" style={styles.methodNote}>
+                DATA SOURCE: NASA EXOPLANET ARCHIVE • UPDATE CYCLE: DAILY
+              </CustomText>
+            </GlassCard>
+
+            <GlassCard variant="secondary">
               <CustomText variant="sectionLabel" style={styles.sectionTitle}>Filters</CustomText>
               <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginTop: spacing.sm }}>
                 <View style={styles.filterRow}>
@@ -131,6 +152,19 @@ const styles = StyleSheet.create({
   statLabel: { color: colors.muted },
   listItem: { color: colors.muted, marginTop: 6 },
   muted: { color: colors.muted },
+  methodIntro: { color: colors.muted },
+  methodCard: {
+    padding: 10,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: 'rgba(168,85,247,0.35)',
+    backgroundColor: 'rgba(12, 8, 22, 0.6)',
+  },
+  methodHeader: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 6 },
+  methodIcon: { color: '#a855f7' },
+  methodName: { color: '#d8b4fe', flex: 1 },
+  methodDesc: { color: colors.muted },
+  methodNote: { color: colors.dim, marginTop: spacing.sm },
   filterRow: { flexDirection: 'row', gap: 8 },
   filterChip: {
     paddingHorizontal: 10,

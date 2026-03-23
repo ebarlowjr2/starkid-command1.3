@@ -8,11 +8,41 @@ import { colors, spacing } from '../theme/tokens'
 import { CustomText } from '../components/ui/CustomText'
 
 const SECTIONS = [
-  { id: 'official', title: 'Official Updates', subtitle: 'NASA mission updates and official feeds.', route: ROUTE_MANIFEST.UPDATES_OFFICIAL, icon: '🛰️' },
-  { id: 'news', title: 'News', subtitle: 'Latest space news from trusted sources.', route: ROUTE_MANIFEST.UPDATES_NEWS, icon: '📰' },
-  { id: 'blog', title: 'Blog', subtitle: 'StarKid Command mission logs and articles.', route: ROUTE_MANIFEST.UPDATES_BLOG, icon: '📝' },
-  { id: 'live', title: 'Live', subtitle: 'Launch livestreams and mission broadcasts.', route: ROUTE_MANIFEST.UPDATES_LIVE, icon: '🔴' },
-  { id: 'x', title: 'X Accounts', subtitle: 'Curated space agency accounts.', route: ROUTE_MANIFEST.UPDATES_X, icon: '𝕏' },
+  {
+    id: 'official',
+    title: 'Official Updates',
+    subtitle: 'Mission events from NASA RSS feeds and page monitors. Hourly automated checks for Artemis and other programs.',
+    route: ROUTE_MANIFEST.UPDATES_OFFICIAL,
+    icon: '🛰️',
+  },
+  {
+    id: 'news',
+    title: 'News',
+    subtitle: 'Latest space news from NASA, ESA, SpaceX, and more. Aggregated from trusted sources.',
+    route: ROUTE_MANIFEST.UPDATES_NEWS,
+    icon: '📰',
+  },
+  {
+    id: 'blog',
+    title: 'Blog',
+    subtitle: 'Mission logs, educational articles, and updates from StarKid Command.',
+    route: ROUTE_MANIFEST.UPDATES_BLOG,
+    icon: '📝',
+  },
+  {
+    id: 'live',
+    title: 'Live',
+    subtitle: 'Watch live rocket launches and space events from Everyday Astronaut and other channels.',
+    route: ROUTE_MANIFEST.UPDATES_LIVE,
+    icon: '🔴',
+  },
+  {
+    id: 'x',
+    title: 'X Accounts',
+    subtitle: 'Curated X/Twitter accounts from space agencies, companies, journalists, and trackers.',
+    route: ROUTE_MANIFEST.UPDATES_X,
+    icon: '𝕏',
+  },
 ]
 
 export default function UpdatesHubScreen({ navigation }: any) {
@@ -21,7 +51,7 @@ export default function UpdatesHubScreen({ navigation }: any) {
       <SafeAreaView style={{ flex: 1 }}>
         <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
           <CustomText variant="sectionLabel" style={styles.kicker}>UPDATES</CustomText>
-          <CustomText variant="hero" style={styles.title}>News • Blog • Live</CustomText>
+          <CustomText variant="hero" style={styles.title}>News • Blog • Live Streams</CustomText>
           <CustomText variant="body" style={styles.subtitle}>Mission updates and curated feeds.</CustomText>
 
           <GlassCard variant="secondary" style={{ marginTop: spacing.lg }}>
