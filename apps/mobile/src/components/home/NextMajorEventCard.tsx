@@ -6,21 +6,25 @@ import { colors, spacing } from "../../theme/tokens";
 import { CustomText } from "../ui/CustomText";
 
 export const NextMajorEventCard = memo(function NextMajorEventCard({
+  kicker = "NEXT MAJOR EVENT",
   title,
   netLine,
   countdown,
   onOpenBrief,
   description,
+  buttonLabel = "OPEN BRIEF →",
 }: {
+  kicker?: string;
   title: string;
   netLine?: string;
   countdown?: string;
   onOpenBrief?: () => void;
   description?: string;
+  buttonLabel?: string;
 }) {
   return (
     <GlassCard style={{ marginBottom: spacing.lg }} variant="primary">
-      <CustomText variant="sectionLabel" style={styles.kicker}>NEXT MAJOR EVENT</CustomText>
+      <CustomText variant="sectionLabel" style={styles.kicker}>{kicker}</CustomText>
       <CustomText variant="cardTitle" style={styles.title} numberOfLines={2}>
         {title}
       </CustomText>
@@ -31,7 +35,7 @@ export const NextMajorEventCard = memo(function NextMajorEventCard({
         {countdown ?? "--:--:--"}
       </CustomText>
 
-      <PixelButton label="OPEN BRIEF →" onPress={onOpenBrief} style={{ marginTop: spacing.md, alignSelf: "center" }} />
+      <PixelButton label={buttonLabel} onPress={onOpenBrief} style={{ marginTop: spacing.md, alignSelf: "center" }} />
 
       {description ? (
         <CustomText variant="body" style={styles.desc} numberOfLines={2}>

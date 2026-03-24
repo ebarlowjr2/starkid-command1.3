@@ -23,6 +23,19 @@ export default function HomeScreen() {
 
   useEffect(() => {
     let active = true;
+    const pickNextLaunch = (list: any[]) => {
+      if (!Array.isArray(list)) return null;
+      const withDates = list
+        .map((launch) => {
+          const dateIso = launch?.net || launch?.window_start || launch?.date_utc;
+          const time = dateIso ? new Date(dateIso).getTime() : NaN;
+          return { launch, time };
+        })
+        .filter((item) => Number.isFinite(item.time))
+        .sort((a, b) => a.time - b.time);
+      return withDates[0]?.launch || null;
+    };
+
     async function load() {
       const [eventsResult, launchesResult, artemisResult] = await Promise.allSettled([
         getUpcomingSkyEventsService({ days: 30 }),
@@ -35,16 +48,19 @@ export default function HomeScreen() {
       const skyEvents = eventsResult.status === "fulfilled" ? eventsResult.value?.data : [];
       const launches = launchesResult.status === "fulfilled" ? launchesResult.value?.data : [];
       const artemisSummary = artemisResult.status === "fulfilled" ? artemisResult.value?.data : null;
-      const artemis = launches.find((launch) => launch.name?.toLowerCase?.().includes("artemis")) || launches[0];
+      const next = pickNextLaunch(launches);
 
       setEvents(Array.isArray(skyEvents) ? skyEvents.slice(0, 4) : []);
-      setNextLaunch(artemis || null);
+      setNextLaunch(next);
       setArtemis(artemisSummary || null);
       setLoading(false);
     }
+
     load();
+    const interval = setInterval(load, 6 * 60 * 60 * 1000);
     return () => {
       active = false;
+      clearInterval(interval);
     };
   }, []);
 
@@ -186,7 +202,8 @@ export default function HomeScreen() {
               />
             </View>
             <NextMajorEventCard
-              title={nextLaunch?.name || "Upcoming Launch"}
+              kicker="UPCOMING LAUNCH"
+              title={nextLaunch?.name || "Next Launch TBD"}
               netLine="Launch window opens (NET)"
               countdown={countdown}
               description={
@@ -194,6 +211,7 @@ export default function HomeScreen() {
                   ? `${nextLaunch.mission.description.slice(0, 110)}...`
                   : "Times are NET and subject to change."
               }
+              buttonLabel="VIEW MORE →"
               onOpenBrief={() => navigation.navigate(ROUTE_MANIFEST.LAUNCHES as never)}
             />
           </View>
