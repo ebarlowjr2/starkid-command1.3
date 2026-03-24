@@ -182,7 +182,7 @@ export default function HomeScreen() {
             </View>
           </View>
           <View style={styles.cardStack}>
-            <View style={styles.artemisCard}>
+            <GlassCard variant="secondary" style={styles.artemisCard}>
               <CustomText variant="sectionLabel" style={styles.artemisLabel}>
                 ARTEMIS SPOTLIGHT
               </CustomText>
@@ -200,7 +200,7 @@ export default function HomeScreen() {
                 onPress={() => navigation.navigate(ROUTE_MANIFEST.ARTEMIS as never)}
                 style={styles.artemisButton}
               />
-            </View>
+            </GlassCard>
             <NextMajorEventCard
               kicker="UPCOMING LAUNCH"
               title={nextLaunch?.name || "Next Launch TBD"}
@@ -309,11 +309,6 @@ const styles = StyleSheet.create({
     marginTop: 24,
   },
   artemisCard: {
-    borderRadius: 16,
-    padding: 16,
-    borderWidth: 1,
-    borderColor: "rgba(61,235,255,0.45)",
-    backgroundColor: "rgba(6,10,22,0.6)",
     marginBottom: 16,
   },
   artemisLabel: {

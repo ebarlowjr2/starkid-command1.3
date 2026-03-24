@@ -148,11 +148,11 @@ export default function MissionBriefingScreen({ route }: { route: any }) {
                 style={{ marginTop: spacing.md }}
               />
               {result ? (
-                <View style={[styles.feedbackCard, result.pass ? styles.feedbackPass : styles.feedbackFail]}>
+                <GlassCard variant="secondary" style={styles.feedbackCard}>
                   <CustomText variant="body" style={[styles.panelItem, { color: result.pass ? colors.green : '#fca5a5' }]}>
                     {result.feedback}
                   </CustomText>
-                </View>
+                </GlassCard>
               ) : null}
               {completed ? (
                 <CustomText variant="body" style={[styles.panelItem, { color: colors.green, marginTop: spacing.md }]}>✅ Completed</CustomText>
@@ -206,9 +206,7 @@ const styles = StyleSheet.create({
   progressMeta: { color: colors.muted },
   progressBar: { height: 8, borderRadius: 10, backgroundColor: 'rgba(61,235,255,0.15)' },
   progressFill: { height: 8, borderRadius: 10, backgroundColor: colors.accent },
-  feedbackCard: { marginTop: spacing.md, borderWidth: 1, borderRadius: 12, padding: 10 },
-  feedbackPass: { borderColor: 'rgba(34,197,94,0.4)', backgroundColor: 'rgba(34,197,94,0.12)' },
-  feedbackFail: { borderColor: 'rgba(248,113,113,0.4)', backgroundColor: 'rgba(248,113,113,0.12)' },
+  feedbackCard: { marginTop: spacing.md },
   choiceRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 6 },
   choiceButton: {
     paddingVertical: 6,

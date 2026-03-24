@@ -12,8 +12,8 @@ export const GlassCard = memo(function GlassCard({
   variant?: "primary" | "secondary";
 }) {
   return (
-    <View style={[styles.outer, variant === "secondary" && styles.outer2, style]}>
-      <View style={[styles.inner, variant === "secondary" && styles.inner2]}>{children}</View>
+    <View style={[styles.outer, style]}>
+      <View style={styles.inner}>{children}</View>
     </View>
   );
 });
@@ -31,7 +31,5 @@ const styles = StyleSheet.create({
     elevation: 10,
     overflow: "hidden",
   },
-  outer2: { borderColor: "rgba(255,79,216,0.4)" },
   inner: { borderRadius: radii.card, backgroundColor: "rgba(10, 18, 40, 0.78)", padding: 16 },
-  inner2: { backgroundColor: "rgba(10, 18, 40, 0.6)" },
 });
