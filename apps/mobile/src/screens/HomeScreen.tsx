@@ -4,6 +4,7 @@ import { useNavigation } from "@react-navigation/native";
 import { getUpcomingSkyEventsService, getUpcomingLaunchesWindow, ROUTE_MANIFEST, getCurrentActor, getArtemisProgramSummary } from "@starkid/core";
 import { SpaceBackground } from "../components/home/SpaceBackground";
 import { NextMajorEventCard } from "../components/home/NextMajorEventCard";
+import { GlassCard } from "../components/home/GlassCard";
 import { UpcomingSkyEventsCard } from "../components/home/UpcomingSkyEventsCard";
 import { LinearGradient } from "expo-linear-gradient";
 import { PixelButton } from "../components/home/PixelButton";
