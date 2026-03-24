@@ -15,6 +15,7 @@ import StemActivitiesScreen from './src/modules/learning/StemActivitiesScreen'
 import StemActivityDetailScreen from './src/modules/learning/StemActivityDetailScreen'
 import StemProgressScreen from './src/modules/learning/StemProgressScreen'
 import CyberLabScreen from './src/modules/learning/CyberLabScreen'
+import LearningPreviewScreen from './src/modules/learning/LearningPreviewScreen'
 import PlanetsScreen from './src/screens/PlanetsScreen'
 import BeyondSolarSystemScreen from './src/screens/BeyondSolarSystemScreen'
 import MissionAlertsScreen from './src/screens/MissionAlertsScreen'
@@ -124,7 +125,10 @@ export default function App() {
         <Stack.Screen name={ROUTE_MANIFEST.ARTEMIS} component={ArtemisScreen} />
         <Stack.Screen name={ROUTE_MANIFEST.MISSIONS_BRIEFING} component={MissionBriefingScreen} />
         {__DEV__ ? (
-          <Stack.Screen name="TypographyPreview" component={TypographyPreviewScreen} />
+          <>
+            <Stack.Screen name="TypographyPreview" component={TypographyPreviewScreen} />
+            <Stack.Screen name="LearningPreview" component={LearningPreviewScreen} />
+          </>
         ) : null}
       </Stack.Navigator>
     </NavigationContainer>

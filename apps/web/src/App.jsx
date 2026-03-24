@@ -37,6 +37,7 @@ import AboutPage from './pages/AboutPage.jsx'
 import ProfilePage from './pages/ProfilePage.jsx'
 import AuthCallbackPage from './pages/AuthCallbackPage.jsx'
 import SocialQueuePage from './pages/ops/SocialQueuePage.jsx'
+import LearningPreviewPage from './pages/dev/LearningPreviewPage.jsx'
 import CometWidget from './components/comet/CometWidget.jsx'
 import DesktopNav from './components/nav/DesktopNav.jsx'
 import MobileNav from './components/nav/MobileNav.jsx'
@@ -152,9 +153,12 @@ export default function App() {
                                                                           <Route path="/support" element={<SupportPage />} />
                                                                           <Route path="/profile" element={<ProfilePage />} />
                                                                           <Route path="/auth/callback" element={<AuthCallbackPage />} />
-                                                                          <Route path="/about" element={<AboutPage />} />
-                                                                          <Route path="/ops/social-queue" element={<SocialQueuePage />} />
-                                                                                                                                                </Routes>
+                    <Route path="/about" element={<AboutPage />} />
+                    <Route path="/ops/social-queue" element={<SocialQueuePage />} />
+                    {import.meta.env.DEV ? (
+                      <Route path="/dev/learning-preview" element={<LearningPreviewPage />} />
+                    ) : null}
+                                                                                </Routes>
                 </main>
 
                 <footer className="p-4 bg-gradient-to-r from-black to-zinc-900 border-t border-cyan-800 text-xs text-cyan-300">

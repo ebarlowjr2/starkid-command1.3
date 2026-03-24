@@ -23,9 +23,7 @@ export * from './domain/missions/missionEngine.js'
 export * from './domain/missions/grading.ts'
 
 export * from './services/index.ts'
-export * from './learning/stem/index.ts'
-export * from './learning/progress/service'
-export * from './learning/progress/types'
+export * from './learning/index.ts'
 export * from './profile/index.ts'
 
 export * from './storage/identity.ts'
