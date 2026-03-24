@@ -72,22 +72,24 @@ export default function LaunchesScreen() {
                   <CustomText variant="sectionLabel" style={styles.badgeHelper}>Sorted by earliest launch time</CustomText>
                 </View>
               </GlassCard>
-              {spotlights.length ? (
-                <GlassCard variant="secondary" style={{ marginTop: spacing.lg }}>
-                  <View style={styles.badgeRow}>
-                    <Badge label="PROVIDER SPOTLIGHTS" />
-                  </View>
-                  <View style={{ marginTop: spacing.sm }}>
-                    {spotlights.map((launch, idx) => (
-                      <CustomText key={`${launch.providerName || launch.name}-${idx}`} variant="bodySmall" style={styles.cardMeta}>
-                        • {launch.providerName || launch.providerType || 'Provider'} • {launch.name || 'Next Launch'} — {launch.net || launch.window_start || 'Date TBD'}
-                      </CustomText>
-                    ))}
-                  </View>
-                </GlassCard>
-              ) : null}
             </View>
           )}
+          ListFooterComponent={() =>
+            spotlights.length ? (
+              <GlassCard variant="secondary" style={styles.footerCard}>
+                <View style={styles.badgeRow}>
+                  <Badge label="PROVIDER SPOTLIGHTS" />
+                </View>
+                <View style={{ marginTop: spacing.sm }}>
+                  {spotlights.map((launch, idx) => (
+                    <CustomText key={`${launch.providerName || launch.name}-${idx}`} variant="bodySmall" style={styles.cardMeta}>
+                      • {launch.providerName || launch.providerType || 'Provider'} • {launch.name || 'Next Launch'} — {launch.net || launch.window_start || 'Date TBD'}
+                    </CustomText>
+                  ))}
+                </View>
+              </GlassCard>
+            ) : null
+          }
           renderItem={({ item }) => (
             <GlassCard variant="secondary" style={styles.card}>
               <View style={styles.glowStrip} />
@@ -119,6 +121,9 @@ const styles = StyleSheet.create({
   muted: { marginTop: 8, color: colors.muted },
   card: {
     marginBottom: 12,
+  },
+  footerCard: {
+    marginTop: spacing.lg,
   },
   glowStrip: {
     position: 'absolute',
