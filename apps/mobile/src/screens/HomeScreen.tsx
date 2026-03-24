@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { View, StyleSheet, ActivityIndicator, ScrollView, SafeAreaView, ImageBackground } from "react-native";
 import { useNavigation } from "@react-navigation/native";
-import { getUpcomingSkyEventsService, getUpcomingLaunches, ROUTE_MANIFEST, getCurrentActor, getArtemisProgramSummary } from "@starkid/core";
+import { getUpcomingSkyEventsService, getUpcomingLaunchesWindow, ROUTE_MANIFEST, getCurrentActor, getArtemisProgramSummary } from "@starkid/core";
 import { SpaceBackground } from "../components/home/SpaceBackground";
 import { NextMajorEventCard } from "../components/home/NextMajorEventCard";
 import { UpcomingSkyEventsCard } from "../components/home/UpcomingSkyEventsCard";
@@ -39,7 +39,7 @@ export default function HomeScreen() {
     async function load() {
       const [eventsResult, launchesResult, artemisResult] = await Promise.allSettled([
         getUpcomingSkyEventsService({ days: 30 }),
-        getUpcomingLaunches({ limit: 10 }),
+        getUpcomingLaunchesWindow({ days: 7, limit: 12 }),
         getArtemisProgramSummary(),
       ]);
 
