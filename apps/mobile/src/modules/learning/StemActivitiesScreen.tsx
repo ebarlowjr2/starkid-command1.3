@@ -82,19 +82,16 @@ export default function StemActivitiesScreen({ navigation }: { navigation: any }
               onPress={() => navigation?.navigate?.(ROUTE_MANIFEST.STEM_ACTIVITY_DETAIL, { activityId: item.id })}
             >
               <GlassCard variant="secondary" style={styles.activityCard}>
-                <View style={styles.glowStrip} />
                 <View style={styles.activityHeader}>
                   <CustomText variant="cardTitle" style={styles.activityTitle}>{item.title}</CustomText>
                   {completedIds.includes(item.id) ? (
                     <CustomText variant="sectionLabel" style={styles.completedBadge}>COMPLETED</CustomText>
                   ) : null}
                 </View>
-                <View style={styles.activityMetaRow}>
-                  <CustomText variant="sectionLabel" style={styles.metaChip}>{item.track}</CustomText>
-                  <CustomText variant="sectionLabel" style={styles.metaChip}>{item.level}</CustomText>
-                </View>
+                <CustomText variant="bodySmall" style={styles.activityMeta}>
+                  {item.track} • {item.level}
+                </CustomText>
                 <CustomText variant="body" style={styles.activityBody}>{item.description}</CustomText>
-                <CustomText variant="sectionLabel" style={styles.activityCta}>OPEN MODULE →</CustomText>
               </GlassCard>
             </Pressable>
           )}
@@ -129,28 +126,10 @@ const styles = StyleSheet.create({
   filterText: { color: colors.text },
   activityHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   activityTitle: { color: colors.text },
-  activityMetaRow: { flexDirection: 'row', gap: 8, marginTop: spacing.sm },
-  metaChip: {
-    color: colors.accent,
-    borderWidth: 1,
-    borderColor: 'rgba(61,235,255,0.5)',
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    borderRadius: 8,
-    textTransform: 'uppercase',
-  },
+  activityMeta: { color: colors.muted, marginTop: spacing.xs },
   activityBody: { color: colors.muted, marginTop: 6 },
   completedBadge: { color: colors.green },
   activityCard: { marginTop: spacing.md },
-  glowStrip: {
-    position: 'absolute',
-    left: 0,
-    top: 0,
-    bottom: 0,
-    width: 6,
-    backgroundColor: 'rgba(61,235,255,0.35)',
-  },
-  activityCta: { color: colors.accent, marginTop: spacing.sm },
   progressButton: {
     alignSelf: 'flex-start',
     marginTop: spacing.md,

@@ -55,9 +55,7 @@ export default function LearningHubScreen() {
       <SafeAreaView style={{ flex: 1 }}>
         <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
           <CustomText variant="sectionLabel" style={styles.kicker}>LEARNING HUB</CustomText>
-          <Pressable onLongPress={() => __DEV__ && navigation.navigate('LearningPreview')} style={styles.debugTap}>
-            <CustomText variant="h2" style={styles.title}>Training Command Console</CustomText>
-          </Pressable>
+          <CustomText variant="h2" style={styles.title}>Training Command Console</CustomText>
           <CustomText variant="body" style={styles.subtitle}>STEM, Cyber, and future training systems live here.</CustomText>
 
           <View style={styles.grid}>
@@ -91,7 +89,6 @@ const styles = StyleSheet.create({
   kicker: { color: colors.dim, marginBottom: 8 },
   title: { color: colors.text },
   subtitle: { color: colors.muted, marginTop: 6 },
-  debugTap: {},
   grid: { marginTop: spacing.lg, gap: spacing.md },
   card: {},
   cardDisabled: { opacity: 0.6 },
