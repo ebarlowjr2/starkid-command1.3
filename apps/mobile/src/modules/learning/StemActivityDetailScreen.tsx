@@ -80,24 +80,6 @@ export default function StemActivityDetailScreen({ route, navigation }: { route:
                 ))}
               </GlassCard>
 
-              <GlassCard variant="secondary" style={{ marginTop: spacing.lg }}>
-                <CustomText variant="sectionLabel" style={styles.sectionTitle}>Blocks: 10</CustomText>
-                {[
-                  'mission_brief',
-                  'concept',
-                  'instruction',
-                  'worked_example',
-                  'question_numeric',
-                  'hint',
-                  'question_short_text',
-                  'checkpoint',
-                  'submission_prompt',
-                  'completion',
-                ].map((block) => (
-                  <CustomText key={block} variant="bodySmall" style={styles.stepItem}>• {block}</CustomText>
-                ))}
-              </GlassCard>
-
               <View style={{ marginTop: spacing.lg }}>
                 <PixelButton
                   label="START MISSION"
