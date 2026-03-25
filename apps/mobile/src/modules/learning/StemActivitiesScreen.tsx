@@ -82,12 +82,7 @@ export default function StemActivitiesScreen({ navigation }: { navigation: any }
               onPress={() => navigation?.navigate?.(ROUTE_MANIFEST.STEM_ACTIVITY_DETAIL, { activityId: item.id })}
             >
               <GlassCard variant="secondary" style={styles.activityCard}>
-                <View style={styles.activityHeader}>
-                  <CustomText variant="cardTitle" style={styles.activityTitle}>{item.title}</CustomText>
-                  {completedIds.includes(item.id) ? (
-                    <CustomText variant="sectionLabel" style={styles.completedBadge}>COMPLETED</CustomText>
-                  ) : null}
-                </View>
+                <CustomText variant="cardTitle" style={styles.activityTitle}>{item.title}</CustomText>
                 <CustomText variant="bodySmall" style={styles.activityMeta}>
                   {item.track} • {item.level}
                 </CustomText>
@@ -124,11 +119,9 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(6, 10, 22, 0.6)',
   },
   filterText: { color: colors.text },
-  activityHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   activityTitle: { color: colors.text },
   activityMeta: { color: colors.muted, marginTop: spacing.xs },
   activityBody: { color: colors.muted, marginTop: 6 },
-  completedBadge: { color: colors.green },
   activityCard: { marginTop: spacing.md },
   progressButton: {
     alignSelf: 'flex-start',
