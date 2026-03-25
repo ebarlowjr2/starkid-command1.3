@@ -26,12 +26,6 @@ export default function LearningHubScreen() {
       route: ROUTE_MANIFEST.LEARNING_STEM,
     },
     {
-      title: "Launch Fuel Ratio Calculation",
-      description: "Guided lesson: calculate safe launch fuel ratios.",
-      route: "LessonPlayer",
-      params: { slug: "launch-fuel-ratio-calculation" },
-    },
-    {
       title: "Cyber Lab",
       description: "Cybersecurity training environment.",
       route: ROUTE_MANIFEST.LEARNING_CYBERLAB,
