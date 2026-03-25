@@ -26,6 +26,12 @@ export default function LearningHubScreen() {
       route: ROUTE_MANIFEST.LEARNING_STEM,
     },
     {
+      title: "Launch Fuel Ratio Calculation",
+      description: "Guided lesson: calculate safe launch fuel ratios.",
+      route: "LessonPlayer",
+      params: { slug: "launch-fuel-ratio-calculation" },
+    },
+    {
       title: "Cyber Lab",
       description: "Cybersecurity training environment.",
       route: ROUTE_MANIFEST.LEARNING_CYBERLAB,
@@ -65,7 +71,7 @@ export default function LearningHubScreen() {
               <Pressable
                 key={card.title}
                 disabled={card.disabled}
-                onPress={() => !card.disabled && navigation.navigate(card.route)}
+                onPress={() => !card.disabled && navigation.navigate(card.route, card.params)}
                 style={({ pressed }) => [
                   styles.card,
                   card.disabled && styles.cardDisabled,

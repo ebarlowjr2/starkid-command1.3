@@ -16,6 +16,7 @@ import StemActivityDetailScreen from './src/modules/learning/StemActivityDetailS
 import StemProgressScreen from './src/modules/learning/StemProgressScreen'
 import CyberLabScreen from './src/modules/learning/CyberLabScreen'
 import LearningPreviewScreen from './src/modules/learning/LearningPreviewScreen'
+import LessonPlayerScreen from './src/features/learning/screens/LessonPlayerScreen'
 import PlanetsScreen from './src/screens/PlanetsScreen'
 import BeyondSolarSystemScreen from './src/screens/BeyondSolarSystemScreen'
 import MissionAlertsScreen from './src/screens/MissionAlertsScreen'
@@ -105,6 +106,7 @@ export default function App() {
         <Stack.Screen name={ROUTE_MANIFEST.STREAMS} component={StreamsScreen} />
         <Stack.Screen name={ROUTE_MANIFEST.LEARNING} component={LearningHubScreen} />
         <Stack.Screen name={ROUTE_MANIFEST.LEARNING_STEM} component={StemActivitiesScreen} />
+        <Stack.Screen name="LessonPlayer" component={LessonPlayerScreen} />
         <Stack.Screen name={ROUTE_MANIFEST.LEARNING_CYBERLAB} component={CyberLabScreen} />
         <Stack.Screen name={ROUTE_MANIFEST.STEM_ACTIVITY_DETAIL} component={StemActivityDetailScreen} />
         <Stack.Screen name={ROUTE_MANIFEST.STEM_PROGRESS} component={StemProgressScreen} />

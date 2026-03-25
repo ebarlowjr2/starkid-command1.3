@@ -38,6 +38,7 @@ import ProfilePage from './pages/ProfilePage.jsx'
 import AuthCallbackPage from './pages/AuthCallbackPage.jsx'
 import SocialQueuePage from './pages/ops/SocialQueuePage.jsx'
 import LearningPreviewPage from './pages/dev/LearningPreviewPage.jsx'
+import LessonPlayerScreen from './features/learning/screens/LessonPlayerScreen.jsx'
 import CometWidget from './components/comet/CometWidget.jsx'
 import DesktopNav from './components/nav/DesktopNav.jsx'
 import MobileNav from './components/nav/MobileNav.jsx'
@@ -147,6 +148,7 @@ export default function App() {
                     <Route path="/learning/stem/:activityId" element={<StemActivityDetailPage />} />
                     <Route path="/learning/cyberlab" element={<CyberLabPage />} />
                     <Route path="/learning/stem/progress" element={<StemProgressPage />} />
+                    <Route path="/learning/lesson/:slug" element={<LessonPlayerScreen />} />
                     <Route path="/stem-activities" element={<StemActivitiesPage />} />
                     <Route path="/stem-activities/:activityId" element={<StemActivityDetailPage />} />
                     <Route path="/stem/progress" element={<StemProgressPage />} />
