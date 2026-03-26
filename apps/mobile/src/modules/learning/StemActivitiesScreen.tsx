@@ -16,7 +16,7 @@ export default function StemActivitiesScreen({ navigation }: { navigation: any }
     return listStemActivities({
       track: track || undefined,
       level: level || undefined,
-    })
+    }).filter((activity) => activity.id === 'math.launch.fuel-ratio')
   }, [track, level])
 
   useEffect(() => {

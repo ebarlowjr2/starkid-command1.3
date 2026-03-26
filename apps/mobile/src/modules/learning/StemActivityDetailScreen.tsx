@@ -13,6 +13,7 @@ export default function StemActivityDetailScreen({ route, navigation }: { route:
   const [completed, setCompleted] = useState(false)
   const [saving, setSaving] = useState(false)
   const isFuelRatio = activity?.id === 'math.launch.fuel-ratio'
+  const levelLabel = activity?.level ? `${activity.level.charAt(0).toUpperCase()}${activity.level.slice(1)}` : ''
 
   useEffect(() => {
     let active = true
@@ -48,34 +49,58 @@ export default function StemActivityDetailScreen({ route, navigation }: { route:
           <CustomText variant="hero" style={styles.title}>{activity.title}</CustomText>
           {isFuelRatio ? (
             <>
-              <CustomText variant="body" style={styles.tagline}>Mission math for stable liftoff performance</CustomText>
-              <CustomText variant="bodySmall" style={styles.subtitle}>Math • Cadet • 10 Blocks</CustomText>
+              <CustomText variant="body" style={styles.tagline}>
+                {activity.tagline || 'Mission math for stable liftoff performance'}
+              </CustomText>
+              <CustomText variant="bodySmall" style={styles.subtitle}>
+                {(activity.trainingType || 'Math')} • {levelLabel || 'Cadet'} • {activity.blockCount || 10} Blocks • {activity.estimatedMinutes || 5} min
+              </CustomText>
 
               <GlassCard variant="secondary" style={{ marginTop: spacing.lg }}>
                 <CustomText variant="sectionLabel" style={styles.sectionTitle}>Mission Context</CustomText>
                 <CustomText variant="body" style={styles.body}>
-                  Mission Control requires verification of the fuel mixture before launch. Incorrect oxidizer-to-fuel ratios can reduce thrust efficiency and increase the risk of unstable liftoff performance.
+                  {activity.missionContext || 'Mission Control requires verification of the fuel mixture before launch. Incorrect oxidizer-to-fuel ratios can reduce thrust efficiency and increase the risk of unstable liftoff performance.'}
                 </CustomText>
               </GlassCard>
 
               <GlassCard variant="secondary" style={{ marginTop: spacing.lg }}>
                 <CustomText variant="sectionLabel" style={styles.sectionTitle}>Objective</CustomText>
                 <CustomText variant="body" style={styles.body}>
-                  Determine the correct oxidizer-to-fuel ratio for the rocket stage and prepare your response for Command review.
+                  {activity.objective || 'Determine the correct oxidizer-to-fuel ratio for the rocket stage and prepare your response for Command review.'}
                 </CustomText>
               </GlassCard>
 
               <GlassCard variant="secondary" style={{ marginTop: spacing.lg }}>
                 <CustomText variant="sectionLabel" style={styles.sectionTitle}>In this mission, you will</CustomText>
-                {[
-                  'review the mission brief',
-                  'learn the fuel ratio concept',
-                  'follow guided instructions',
-                  'study a worked example',
-                  'calculate a numeric answer',
-                  'explain your reasoning',
-                  'submit your result to Command',
-                ].map((item) => (
+                {(activity.missionOutcomes || [
+                  'Review the mission brief',
+                  'Learn the fuel ratio concept',
+                  'Follow guided instructions',
+                  'Study a worked example',
+                  'Calculate a numeric answer',
+                  'Explain your reasoning',
+                  'Submit your result to Command',
+                ]).map((item) => (
+                  <CustomText key={item} variant="bodySmall" style={styles.stepItem}>• {item}</CustomText>
+                ))}
+              </GlassCard>
+
+              <GlassCard variant="secondary" style={{ marginTop: spacing.lg }}>
+                <CustomText variant="sectionLabel" style={styles.sectionTitle}>
+                  {(activity.blockCount || 10)} Guided Steps
+                </CustomText>
+                {(activity.blockList || [
+                  'mission_brief',
+                  'concept',
+                  'instruction',
+                  'worked_example',
+                  'question_numeric',
+                  'hint',
+                  'question_short_text',
+                  'checkpoint',
+                  'submission_prompt',
+                  'completion',
+                ]).map((item) => (
                   <CustomText key={item} variant="bodySmall" style={styles.stepItem}>• {item}</CustomText>
                 ))}
               </GlassCard>

@@ -21,8 +21,16 @@ export type StemActivity = {
   id: string
   title: string
   description: string
+  tagline?: string
+  trainingType?: string
   track: StemTrack
   level: StemLevel
+  estimatedMinutes?: number
+  blockCount?: number
+  blockList?: string[]
+  missionContext?: string
+  objective?: string
+  missionOutcomes?: string[]
   tags?: string[]
   learningObjectives?: string[]
   steps: MissionStep[]
