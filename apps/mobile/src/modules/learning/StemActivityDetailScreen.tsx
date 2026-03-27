@@ -87,7 +87,7 @@ export default function StemActivityDetailScreen({ route, navigation }: { route:
 
               <GlassCard variant="secondary" style={{ marginTop: spacing.lg }}>
                 <CustomText variant="sectionLabel" style={styles.sectionTitle}>
-                  {(activity.blockCount || 8)} Guided Steps
+                  {(activity.blockCount || 7)} Guided Steps
                 </CustomText>
                 {(activity.blockList || [
                   'mission_brief',
@@ -97,7 +97,6 @@ export default function StemActivityDetailScreen({ route, navigation }: { route:
                   'question_short_text',
                   'checkpoint',
                   'submission_prompt',
-                  'completion',
                 ]).map((item) => (
                   <CustomText key={item} variant="bodySmall" style={styles.stepItem}>• {item}</CustomText>
                 ))}

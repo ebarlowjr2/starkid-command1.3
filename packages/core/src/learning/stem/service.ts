@@ -50,7 +50,7 @@ export function listStemActivities(filters?: { track?: StemTrack; level?: StemLe
         tagline: 'Mission math for stable liftoff performance',
         trainingType: 'Math',
         estimatedMinutes: 5,
-        blockCount: 8,
+        blockCount: 7,
         blockList: [
           'mission_brief',
           'concept',
@@ -59,7 +59,6 @@ export function listStemActivities(filters?: { track?: StemTrack; level?: StemLe
           'question_short_text',
           'checkpoint',
           'submission_prompt',
-          'completion',
         ],
         missionContext:
           'Mission Control requires verification of the fuel mixture before launch. Incorrect oxidizer-to-fuel ratios can reduce thrust efficiency and increase the risk of unstable liftoff performance.',

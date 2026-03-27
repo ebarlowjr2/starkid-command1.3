@@ -104,13 +104,8 @@ export const launchFuelRatioLesson: Lesson = {
       order: 7,
       prompt: 'Submit your launch fuel calculation for review.',
       instruction: 'Double-check units and safety window before submitting.',
-    },
-    {
-      id: 'block-complete-1',
-      type: 'completion',
-      order: 8,
-      message: 'Great work. Your fuel ratio plan is ready for mission review.',
-      nextSteps: ['Review launch timeline', 'Open Mission Briefing for next steps'],
+      completionMessage: 'Great work. Your fuel ratio plan is ready for mission review.',
+      completionNextSteps: ['Review launch timeline', 'Open Mission Briefing for next steps'],
     },
   ],
   rewards: {

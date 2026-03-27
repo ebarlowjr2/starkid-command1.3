@@ -102,6 +102,19 @@ export default function BlockRenderer({ block, value, onChange, onCheckpoint }: 
         <View style={styles.block}>
           <CustomText variant="body" style={styles.body}>{block.prompt}</CustomText>
           <CustomText variant="bodySmall" style={styles.context}>{block.instruction}</CustomText>
+          {block.completionMessage ? (
+            <View style={styles.example}>
+              <CustomText variant="h2" style={styles.exampleTitle}>Mission Complete</CustomText>
+              <CustomText variant="bodySmall" style={styles.stat}>{block.completionMessage}</CustomText>
+              {block.completionNextSteps?.length ? (
+                <View style={{ marginTop: spacing.sm }}>
+                  {block.completionNextSteps.map((step: string) => (
+                    <CustomText key={step} variant="bodySmall" style={styles.stat}>• {step}</CustomText>
+                  ))}
+                </View>
+              ) : null}
+            </View>
+          ) : null}
         </View>
       )
     case 'completion':

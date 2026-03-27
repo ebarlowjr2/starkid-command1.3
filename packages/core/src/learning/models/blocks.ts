@@ -96,6 +96,8 @@ export type SubmissionPromptBlock = LessonBlockBase & {
   type: 'submission_prompt'
   prompt: string
   instruction: string
+  completionMessage?: string
+  completionNextSteps?: string[]
 }
 
 export type CompletionBlock = LessonBlockBase & {
