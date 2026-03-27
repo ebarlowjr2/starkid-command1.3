@@ -1,12 +1,28 @@
 import React, { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
-import { getStemActivityById, isStemActivityCompleted, markStemActivityCompleted } from '@starkid/core'
+import { getLearningModuleById, isStemActivityCompleted, markStemActivityCompleted } from '@starkid/core'
 
 export default function StemActivityDetailPage() {
   const { activityId } = useParams()
-  const activity = getStemActivityById(activityId)
+  const [activity, setActivity] = useState(null)
   const [completed, setCompleted] = useState(false)
   const [saving, setSaving] = useState(false)
+
+  useEffect(() => {
+    let active = true
+    async function loadActivity() {
+      try {
+        const module = await getLearningModuleById(activityId)
+        if (active) setActivity(module)
+      } catch (error) {
+        if (active) setActivity(null)
+      }
+    }
+    if (activityId) loadActivity()
+    return () => {
+      active = false
+    }
+  }, [activityId])
 
   useEffect(() => {
     let active = true

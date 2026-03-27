@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { listStemActivities, listTracks, listLevels, listCompletedStemActivities } from '@starkid/core'
+import { listLearningModules, listTracks, listLevels, listCompletedStemActivities } from '@starkid/core'
 
 export default function StemActivitiesPage() {
   const [activities, setActivities] = useState([])
@@ -10,11 +10,23 @@ export default function StemActivitiesPage() {
   const nav = useNavigate()
 
   useEffect(() => {
-    const data = listStemActivities({
-      track: track || undefined,
-      level: level || undefined,
-    })
-    setActivities(data)
+    let active = true
+    async function loadModules() {
+      try {
+        const data = await listLearningModules({
+          moduleType: 'stem',
+          track: track || undefined,
+          level: level || undefined,
+        })
+        if (active) setActivities(data)
+      } catch (error) {
+        if (active) setActivities([])
+      }
+    }
+    loadModules()
+    return () => {
+      active = false
+    }
   }, [track, level])
 
   useEffect(() => {

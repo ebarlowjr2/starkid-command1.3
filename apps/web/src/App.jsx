@@ -32,6 +32,7 @@ import StemActivitiesPage from './modules/learning/stem/StemActivitiesPage.jsx'
 import StemActivityDetailPage from './modules/learning/stem/StemActivityDetailPage.jsx'
 import StemProgressPage from './modules/learning/stem/StemProgressPage.jsx'
 import CyberLabPage from './modules/learning/cyberlab/CyberLabPage.jsx'
+import LearningModuleAdminPage from './modules/learning/admin/LearningModuleAdminPage.jsx'
 import SupportPage from './pages/SupportPage.jsx'
 import AboutPage from './pages/AboutPage.jsx'
 import ProfilePage from './pages/ProfilePage.jsx'
@@ -147,6 +148,7 @@ export default function App() {
                     <Route path="/learning/stem" element={<StemActivitiesPage />} />
                     <Route path="/learning/stem/:activityId" element={<StemActivityDetailPage />} />
                     <Route path="/learning/cyberlab" element={<CyberLabPage />} />
+                    <Route path="/learning/admin" element={<LearningModuleAdminPage />} />
                     <Route path="/learning/stem/progress" element={<StemProgressPage />} />
                     <Route path="/learning/lesson/:slug" element={<LessonPlayerScreen />} />
                     <Route path="/stem-activities" element={<StemActivitiesPage />} />

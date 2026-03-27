@@ -50,6 +50,12 @@ export default function LearningHubPage() {
             STEM, Cyber, and future training systems live here.
           </div>
         </div>
+        <button
+          className="learning-admin-btn"
+          onClick={() => nav('/learning/admin')}
+        >
+          Add Module
+        </button>
       </div>
 
       <div className="learning-grid">
@@ -82,6 +88,10 @@ export default function LearningHubPage() {
           border: 1px solid rgba(34,211,238,0.35);
           background: rgba(8,12,24,0.6);
           box-shadow: 0 18px 40px rgba(0,0,0,0.4);
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 16px;
         }
 
         .learning-kicker {
@@ -103,6 +113,17 @@ export default function LearningHubPage() {
           color: rgba(148,163,184,0.85);
           margin-top: 8px;
           font-size: 14px;
+        }
+
+        .learning-admin-btn {
+          padding: 10px 14px;
+          font-size: 11px;
+          letter-spacing: 0.2em;
+          text-transform: uppercase;
+          border-radius: 12px;
+          border: 1px solid rgba(34,211,238,0.6);
+          background: rgba(8,12,24,0.75);
+          color: rgba(34,211,238,0.9);
         }
 
         .learning-grid {

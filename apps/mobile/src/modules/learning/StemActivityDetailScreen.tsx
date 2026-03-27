@@ -4,16 +4,32 @@ import { SpaceBackground } from '../../components/home/SpaceBackground'
 import { GlassCard } from '../../components/home/GlassCard'
 import { PixelButton } from '../../components/home/PixelButton'
 import { colors, spacing } from '../../theme/tokens'
-import { getStemActivityById, isStemActivityCompleted, markStemActivityCompleted } from '@starkid/core'
+import { getLearningModuleById, isStemActivityCompleted, markStemActivityCompleted } from '@starkid/core'
 import { CustomText } from '../../components/ui/CustomText'
 
 export default function StemActivityDetailScreen({ route, navigation }: { route: any; navigation: any }) {
   const { activityId } = route?.params || {}
-  const activity = getStemActivityById(activityId)
+  const [activity, setActivity] = useState<any | null>(null)
   const [completed, setCompleted] = useState(false)
   const [saving, setSaving] = useState(false)
   const hasMissionEntry = Boolean(activity?.missionContext || activity?.objective)
   const levelLabel = activity?.level ? `${activity.level.charAt(0).toUpperCase()}${activity.level.slice(1)}` : ''
+
+  useEffect(() => {
+    let active = true
+    async function loadActivity() {
+      try {
+        const module = await getLearningModuleById(activityId)
+        if (active) setActivity(module)
+      } catch (error) {
+        if (active) setActivity(null)
+      }
+    }
+    if (activityId) loadActivity()
+    return () => {
+      active = false
+    }
+  }, [activityId])
 
   useEffect(() => {
     let active = true

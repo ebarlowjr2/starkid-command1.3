@@ -4,7 +4,7 @@ import { SpaceBackground } from '../../components/home/SpaceBackground'
 import { GlassCard } from '../../components/home/GlassCard'
 import { PixelButton } from '../../components/home/PixelButton'
 import { colors, spacing } from '../../theme/tokens'
-import { listStemActivities, listTracks, listLevels, ROUTE_MANIFEST, listCompletedStemActivities } from '@starkid/core'
+import { listLearningModules, listTracks, listLevels, ROUTE_MANIFEST, listCompletedStemActivities } from '@starkid/core'
 import { CustomText } from '../../components/ui/CustomText'
 
 export default function StemActivitiesScreen({ navigation }: { navigation: any }) {
@@ -12,11 +12,30 @@ export default function StemActivitiesScreen({ navigation }: { navigation: any }
   const [level, setLevel] = useState('')
   const [completedIds, setCompletedIds] = useState<string[]>([])
 
-  const activities = useMemo(() => {
-    return listStemActivities({
-      track: track || undefined,
-      level: level || undefined,
-    }).filter((activity) => activity.id === 'math.launch.fuel-ratio' || activity.id === 'math.launch.countdown-window')
+  const [activities, setActivities] = useState([])
+  const [loadingModules, setLoadingModules] = useState(true)
+
+  useEffect(() => {
+    let active = true
+    async function loadModules() {
+      try {
+        setLoadingModules(true)
+        const modules = await listLearningModules({
+          moduleType: 'stem',
+          track: track || undefined,
+          level: level || undefined,
+        })
+        if (active) setActivities(modules)
+      } catch (error) {
+        if (active) setActivities([])
+      } finally {
+        if (active) setLoadingModules(false)
+      }
+    }
+    loadModules()
+    return () => {
+      active = false
+    }
   }, [track, level])
 
   useEffect(() => {
@@ -98,7 +117,7 @@ export default function StemActivitiesScreen({ navigation }: { navigation: any }
           ListFooterComponent={() => (
             <GlassCard variant="secondary" style={{ marginTop: spacing.lg }}>
               <CustomText variant="body" style={styles.cardText}>
-                We’re building lesson-ready activities for classrooms and self-guided missions.
+                {loadingModules ? 'Loading modules from Command...' : 'We’re building lesson-ready activities for classrooms and self-guided missions.'}
               </CustomText>
             </GlassCard>
           )}
