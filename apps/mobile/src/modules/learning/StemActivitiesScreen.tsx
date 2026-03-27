@@ -87,6 +87,11 @@ export default function StemActivitiesScreen({ navigation }: { navigation: any }
                   {item.track} • {item.level}
                 </CustomText>
                 <CustomText variant="body" style={styles.activityBody}>{item.description}</CustomText>
+                <PixelButton
+                  label="ACCESS MODULE"
+                  onPress={() => navigation?.navigate?.(ROUTE_MANIFEST.STEM_ACTIVITY_DETAIL, { activityId: item.id })}
+                  style={styles.accessButton}
+                />
               </GlassCard>
             </Pressable>
           )}
@@ -123,6 +128,16 @@ const styles = StyleSheet.create({
   activityMeta: { color: colors.muted, marginTop: spacing.xs },
   activityBody: { color: colors.muted, marginTop: 6 },
   activityCard: { marginTop: spacing.md },
+  accessButton: {
+    alignSelf: 'flex-start',
+    marginTop: spacing.md,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: 'rgba(61,235,255,0.6)',
+    backgroundColor: 'rgba(6, 10, 22, 0.7)',
+  },
   progressButton: {
     alignSelf: 'flex-start',
     marginTop: spacing.md,
