@@ -87,15 +87,13 @@ export default function StemActivityDetailScreen({ route, navigation }: { route:
 
               <GlassCard variant="secondary" style={{ marginTop: spacing.lg }}>
                 <CustomText variant="sectionLabel" style={styles.sectionTitle}>
-                  {(activity.blockCount || 10)} Guided Steps
+                  {(activity.blockCount || 8)} Guided Steps
                 </CustomText>
                 {(activity.blockList || [
                   'mission_brief',
                   'concept',
                   'instruction',
-                  'worked_example',
                   'question_numeric',
-                  'hint',
                   'question_short_text',
                   'checkpoint',
                   'submission_prompt',

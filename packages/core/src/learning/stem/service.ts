@@ -50,12 +50,11 @@ export function listStemActivities(filters?: { track?: StemTrack; level?: StemLe
         tagline: 'Mission math for stable liftoff performance',
         trainingType: 'Math',
         estimatedMinutes: 5,
-        blockCount: 9,
+        blockCount: 8,
         blockList: [
           'mission_brief',
           'concept',
           'instruction',
-          'worked_example',
           'question_numeric',
           'question_short_text',
           'checkpoint',

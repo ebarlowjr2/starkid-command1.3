@@ -45,6 +45,20 @@ export default function BlockRenderer({ block, value, onChange, onCheckpoint }: 
           {block.steps.map((step: string) => (
             <CustomText key={step} variant="body" style={styles.body}>• {step}</CustomText>
           ))}
+          {block.workedExample ? (
+            <View style={styles.example}>
+              <CustomText variant="h2" style={styles.exampleTitle}>Worked Example</CustomText>
+              <CustomText variant="body" style={styles.body}>{block.workedExample.problem}</CustomText>
+              <CustomText variant="bodySmall" style={styles.context}>{block.workedExample.solution}</CustomText>
+              {block.workedExample.steps?.length ? (
+                <View style={{ marginTop: spacing.sm }}>
+                  {block.workedExample.steps.map((step: string) => (
+                    <CustomText key={step} variant="bodySmall" style={styles.stat}>• {step}</CustomText>
+                  ))}
+                </View>
+              ) : null}
+            </View>
+          ) : null}
         </View>
       )
     case 'worked_example':
@@ -115,6 +129,13 @@ const styles = StyleSheet.create({
   body: { color: colors.text },
   context: { color: colors.dim },
   stat: { color: colors.muted },
+  example: {
+    marginTop: spacing.md,
+    paddingTop: spacing.sm,
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(61,235,255,0.2)',
+  },
+  exampleTitle: { color: colors.text, marginBottom: spacing.sm },
   hint: {
     padding: spacing.sm,
     borderRadius: 10,

@@ -56,21 +56,18 @@ export const launchFuelRatioLesson: Lesson = {
         'Compute the required oxidizer mass for the given fuel mass.',
         'Check that your ratio stays inside the safe window.',
       ],
-    },
-    {
-      id: 'block-example-1',
-      type: 'worked_example',
-      order: 4,
-      problem:
-        'If the fuel mass is 500 kg and the target O/F ratio is 2.4, how much oxidizer is required?',
-      solution:
-        'Oxidizer = fuel × O/F = 500 × 2.4 = 1200 kg.',
-      steps: ['Multiply fuel mass by the target ratio.', 'Confirm the ratio is within the safe window.'],
+      workedExample: {
+        problem:
+          'If the fuel mass is 500 kg and the target O/F ratio is 2.4, how much oxidizer is required?',
+        solution:
+          'Oxidizer = fuel × O/F = 500 × 2.4 = 1200 kg.',
+        steps: ['Multiply fuel mass by the target ratio.', 'Confirm the ratio is within the safe window.'],
+      },
     },
     {
       id: 'block-question-1',
       type: 'question_numeric',
-      order: 5,
+      order: 4,
       prompt:
         'Fuel mass is 600 kg. The target O/F ratio is 2.6. How much oxidizer is required (in kg)?',
       unit: 'kg',
@@ -82,7 +79,7 @@ export const launchFuelRatioLesson: Lesson = {
     {
       id: 'block-question-2',
       type: 'question_short_text',
-      order: 6,
+      order: 5,
       prompt:
         'Why must the O/F ratio stay inside the safe window during launch?',
       answer: {
@@ -97,21 +94,21 @@ export const launchFuelRatioLesson: Lesson = {
     {
       id: 'block-checkpoint-1',
       type: 'checkpoint',
-      order: 7,
+      order: 6,
       prompt: 'Checkpoint: confirm your computed ratio is within 2.2–3.0.',
       criteria: ['Computed O/F ratio between 2.2 and 3.0'],
     },
     {
       id: 'block-submit-1',
       type: 'submission_prompt',
-      order: 8,
+      order: 7,
       prompt: 'Submit your launch fuel calculation for review.',
       instruction: 'Double-check units and safety window before submitting.',
     },
     {
       id: 'block-complete-1',
       type: 'completion',
-      order: 9,
+      order: 8,
       message: 'Great work. Your fuel ratio plan is ready for mission review.',
       nextSteps: ['Review launch timeline', 'Open Mission Briefing for next steps'],
     },

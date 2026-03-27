@@ -36,6 +36,11 @@ export type ConceptBlock = LessonBlockBase & {
 export type InstructionBlock = LessonBlockBase & {
   type: 'instruction'
   steps: string[]
+  workedExample?: {
+    problem: string
+    solution: string
+    steps?: string[]
+  }
 }
 
 export type WorkedExampleBlock = LessonBlockBase & {
