@@ -86,7 +86,7 @@ export default function LessonPlayerScreen({ route, navigation }: any) {
             {state.activeIndex < lesson.blocks.length - 1 ? (
               <PixelButton label="CONTINUE" onPress={handleNext} />
             ) : (
-              <PixelButton label="SUBMIT TO COMMAND" onPress={handleSubmit} />
+              <PixelButton label="SUBMIT" onPress={handleSubmit} />
             )}
           </View>
 
