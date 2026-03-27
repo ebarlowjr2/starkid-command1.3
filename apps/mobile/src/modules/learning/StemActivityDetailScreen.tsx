@@ -12,7 +12,7 @@ export default function StemActivityDetailScreen({ route, navigation }: { route:
   const activity = getStemActivityById(activityId)
   const [completed, setCompleted] = useState(false)
   const [saving, setSaving] = useState(false)
-  const isFuelRatio = activity?.id === 'math.launch.fuel-ratio'
+  const hasMissionEntry = Boolean(activity?.missionContext || activity?.objective)
   const levelLabel = activity?.level ? `${activity.level.charAt(0).toUpperCase()}${activity.level.slice(1)}` : ''
 
   useEffect(() => {
@@ -47,13 +47,13 @@ export default function StemActivityDetailScreen({ route, navigation }: { route:
         <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
           <CustomText variant="sectionLabel" style={styles.kicker}>STEM ACTIVITY</CustomText>
           <CustomText variant="hero" style={styles.title}>{activity.title}</CustomText>
-          {isFuelRatio ? (
+          {hasMissionEntry ? (
             <>
               <CustomText variant="body" style={styles.tagline}>
                 {activity.tagline || 'Mission math for stable liftoff performance'}
               </CustomText>
               <CustomText variant="bodySmall" style={styles.subtitle}>
-                {(activity.trainingType || 'Math')} • {levelLabel || 'Cadet'} • {activity.blockCount || 10} Blocks • {activity.estimatedMinutes || 5} min
+                {(activity.trainingType || 'Math')} • {levelLabel || 'Cadet'} • {activity.blockCount || 7} Blocks • {activity.estimatedMinutes || 5} min
               </CustomText>
 
               <GlassCard variant="secondary" style={{ marginTop: spacing.lg }}>
@@ -104,8 +104,12 @@ export default function StemActivityDetailScreen({ route, navigation }: { route:
 
               <View style={{ marginTop: spacing.lg }}>
                 <PixelButton
-                  label="START MISSION"
-                  onPress={() => navigation?.navigate?.('LessonPlayer', { slug: 'launch-fuel-ratio-calculation' })}
+                  label={activity.lessonSlug ? 'START MISSION' : 'COMING SOON'}
+                  onPress={
+                    activity.lessonSlug
+                      ? () => navigation?.navigate?.('LessonPlayer', { slug: activity.lessonSlug })
+                      : undefined
+                  }
                   style={styles.completeButton}
                 />
               </View>

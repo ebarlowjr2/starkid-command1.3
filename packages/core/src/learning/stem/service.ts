@@ -25,6 +25,63 @@ function mapDifficulty(level: StemLevel): 'easy' | 'medium' | 'hard' {
 }
 
 export function listStemActivities(filters?: { track?: StemTrack; level?: StemLevel }): StemActivity[] {
+  const moduleOverrides: Record<string, Partial<StemActivity>> = {
+    'math.launch.fuel-ratio': {
+      tagline: 'Mission math for stable liftoff performance',
+      trainingType: 'Math',
+      estimatedMinutes: 5,
+      blockCount: 7,
+      blockList: [
+        'mission_brief',
+        'concept',
+        'instruction',
+        'question_numeric',
+        'question_short_text',
+        'checkpoint',
+        'submission_prompt',
+      ],
+      missionContext:
+        'Mission Control requires verification of the fuel mixture before launch. Incorrect oxidizer-to-fuel ratios can reduce thrust efficiency and increase the risk of unstable liftoff performance.',
+      objective:
+        'Determine the correct oxidizer-to-fuel ratio for the rocket stage and prepare your response for Command review.',
+      missionOutcomes: [
+        'Review the mission brief',
+        'Learn the fuel ratio concept',
+        'Follow guided instructions',
+        'Study a worked example',
+        'Calculate a numeric answer',
+        'Explain your reasoning',
+        'Submit your result to Command',
+      ],
+      lessonSlug: 'launch-fuel-ratio-calculation',
+    },
+    'math.launch.countdown-window': {
+      tagline: 'Launch timing logic for critical windows',
+      trainingType: 'Math',
+      estimatedMinutes: 6,
+      blockCount: 6,
+      blockList: [
+        'mission_brief',
+        'concept',
+        'instruction',
+        'question_numeric',
+        'checkpoint',
+        'submission_prompt',
+      ],
+      missionContext:
+        'Mission Control needs a fast conversion of launch windows into actionable countdowns. Accurate time conversion prevents missed windows.',
+      objective:
+        'Convert launch window timing into minutes and confirm the countdown fits within the required window.',
+      missionOutcomes: [
+        'Review the mission brief',
+        'Convert window timing into minutes',
+        'Solve a countdown scenario',
+        'Verify the timing fits the window',
+        'Submit your calculation to Command',
+      ],
+    },
+  }
+
   return listStemTemplates().filter((template) => {
     if (filters?.track && template.track !== filters.track) return false
     if (filters?.level && template.level !== filters.level) return false
@@ -44,39 +101,10 @@ export function listStemActivities(filters?: { track?: StemTrack; level?: StemLe
       sourceType: 'structured',
     }
 
-    if (template.id === 'math.launch.fuel-ratio') {
-      return {
-        ...baseActivity,
-        tagline: 'Mission math for stable liftoff performance',
-        trainingType: 'Math',
-        estimatedMinutes: 5,
-        blockCount: 7,
-        blockList: [
-          'mission_brief',
-          'concept',
-          'instruction',
-          'question_numeric',
-          'question_short_text',
-          'checkpoint',
-          'submission_prompt',
-        ],
-        missionContext:
-          'Mission Control requires verification of the fuel mixture before launch. Incorrect oxidizer-to-fuel ratios can reduce thrust efficiency and increase the risk of unstable liftoff performance.',
-        objective:
-          'Determine the correct oxidizer-to-fuel ratio for the rocket stage and prepare your response for Command review.',
-        missionOutcomes: [
-          'Review the mission brief',
-          'Learn the fuel ratio concept',
-          'Follow guided instructions',
-          'Study a worked example',
-          'Calculate a numeric answer',
-          'Explain your reasoning',
-          'Submit your result to Command',
-        ],
-      }
+    return {
+      ...baseActivity,
+      ...(moduleOverrides[template.id] || {}),
     }
-
-    return baseActivity
   })
 }
 

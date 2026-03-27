@@ -16,7 +16,7 @@ export default function StemActivitiesScreen({ navigation }: { navigation: any }
     return listStemActivities({
       track: track || undefined,
       level: level || undefined,
-    }).filter((activity) => activity.id === 'math.launch.fuel-ratio')
+    }).filter((activity) => activity.id === 'math.launch.fuel-ratio' || activity.id === 'math.launch.countdown-window')
   }, [track, level])
 
   useEffect(() => {

@@ -23,6 +23,7 @@ export type StemActivity = {
   description: string
   tagline?: string
   trainingType?: string
+  lessonSlug?: string
   track: StemTrack
   level: StemLevel
   estimatedMinutes?: number
