@@ -25,8 +25,20 @@ function mapDifficulty(level: StemLevel): 'easy' | 'medium' | 'hard' {
 }
 
 export function listStemActivities(filters?: { track?: StemTrack; level?: StemLevel }): StemActivity[] {
+  const createModule = (id: string, overrides: Partial<StemActivity>): Partial<StemActivity> => ({
+    lessonSlug: overrides.lessonSlug,
+    trainingType: overrides.trainingType || 'Math',
+    estimatedMinutes: overrides.estimatedMinutes || 5,
+    blockCount: overrides.blockCount || overrides.blockList?.length || 0,
+    blockList: overrides.blockList,
+    tagline: overrides.tagline,
+    missionContext: overrides.missionContext,
+    objective: overrides.objective,
+    missionOutcomes: overrides.missionOutcomes,
+  })
+
   const moduleOverrides: Record<string, Partial<StemActivity>> = {
-    'math.launch.fuel-ratio': {
+    'math.launch.fuel-ratio': createModule('math.launch.fuel-ratio', {
       tagline: 'Mission math for stable liftoff performance',
       trainingType: 'Math',
       estimatedMinutes: 5,
@@ -54,8 +66,8 @@ export function listStemActivities(filters?: { track?: StemTrack; level?: StemLe
         'Submit your result to Command',
       ],
       lessonSlug: 'launch-fuel-ratio-calculation',
-    },
-    'math.launch.countdown-window': {
+    }),
+    'math.launch.countdown-window': createModule('math.launch.countdown-window', {
       tagline: 'Launch timing logic for critical windows',
       trainingType: 'Math',
       estimatedMinutes: 6,
@@ -79,7 +91,7 @@ export function listStemActivities(filters?: { track?: StemTrack; level?: StemLe
         'Verify the timing fits the window',
         'Submit your calculation to Command',
       ],
-    },
+    }),
   }
 
   return listStemTemplates().filter((template) => {
