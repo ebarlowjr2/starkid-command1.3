@@ -74,20 +74,15 @@ export const launchFuelRatioLesson: Lesson = {
       prompt:
         'Fuel mass is 600 kg. The target O/F ratio is 2.6. How much oxidizer is required (in kg)?',
       unit: 'kg',
+      hint: 'Multiply the fuel mass by the O/F ratio. Example: 600 × 2.6.',
       answer: { value: 1560, tolerance: 5 },
       inputLabel: 'Oxidizer mass',
       explanation: 'Oxidizer = 600 × 2.6 = 1560 kg.',
     },
     {
-      id: 'block-hint-1',
-      type: 'hint',
-      order: 6,
-      text: 'Multiply the fuel mass by the O/F ratio. Example: 600 × 2.6.',
-    },
-    {
       id: 'block-question-2',
       type: 'question_short_text',
-      order: 7,
+      order: 6,
       prompt:
         'Why must the O/F ratio stay inside the safe window during launch?',
       answer: {
@@ -102,21 +97,21 @@ export const launchFuelRatioLesson: Lesson = {
     {
       id: 'block-checkpoint-1',
       type: 'checkpoint',
-      order: 8,
+      order: 7,
       prompt: 'Checkpoint: confirm your computed ratio is within 2.2–3.0.',
       criteria: ['Computed O/F ratio between 2.2 and 3.0'],
     },
     {
       id: 'block-submit-1',
       type: 'submission_prompt',
-      order: 9,
+      order: 8,
       prompt: 'Submit your launch fuel calculation for review.',
       instruction: 'Double-check units and safety window before submitting.',
     },
     {
       id: 'block-complete-1',
       type: 'completion',
-      order: 10,
+      order: 9,
       message: 'Great work. Your fuel ratio plan is ready for mission review.',
       nextSteps: ['Review launch timeline', 'Open Mission Briefing for next steps'],
     },

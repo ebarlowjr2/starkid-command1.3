@@ -49,6 +49,7 @@ export type QuestionNumericBlock = LessonBlockBase & {
   type: 'question_numeric'
   prompt: string
   unit?: string
+  hint?: string
   answer: {
     value: number
     tolerance: number
