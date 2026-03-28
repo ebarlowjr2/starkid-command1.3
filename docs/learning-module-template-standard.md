@@ -49,6 +49,10 @@ The following fields are supported by the current admin form and Supabase table.
 | Tags | `tags` | Optional | array of strings | `['launch','math']` |
 | Lesson Slug | `lesson_slug` | Required for playable module | string | `launch-fuel-ratio-calculation` |
 | Answer Key | `answer_key` | Optional | string | `1560 kg` |
+| Status | `status` | Yes | enum/string | `draft` |
+| Submitted For Review At | `submitted_for_review_at` | Optional | timestamp | `2025-03-28T18:20:00Z` |
+| Published At | `published_at` | Optional | timestamp | `2025-03-28T18:20:00Z` |
+| Archived At | `archived_at` | Optional | timestamp | `2025-03-28T18:20:00Z` |
 
 **Note on naming:**
 - Admin UI uses user-facing labels (e.g., “Training Type”), while Supabase uses snake_case (e.g., `training_type`).
@@ -73,6 +77,7 @@ The following fields are supported by the current admin form and Supabase table.
 - `block_list`
 - `block_count`
 - `lesson_slug` (required if the module should launch the lesson player)
+- `status` (must be `published` to be learner-visible)
 
 ### Optional / enhancement fields
 - `tags`
@@ -128,6 +133,25 @@ Notes:
 
 ---
 
+## Module Lifecycle / Governance
+
+Modules follow a staged lifecycle to prevent unreviewed content from going live.
+
+Status values:
+- `draft` (default on creation)
+- `in_review`
+- `approved` (reserved)
+- `published`
+- `archived`
+
+Rules:
+- New modules start in `draft`
+- Learner-facing surfaces only show `published` modules
+- `in_review` is used when a draft is submitted for review
+- `archived` removes the module from active use
+
+---
+
 ## Module Authoring Guidance
 - **Title**: mission-oriented and specific
 - **Tagline**: concise and outcome‑focused
@@ -146,6 +170,8 @@ Notes:
 - `track` + `level`
 - `description`
 - CTA: Access Module
+
+Only modules with `status = published` appear in learner-facing surfaces.
 
 ### Mission Detail screen uses:
 - `title`
@@ -219,4 +245,3 @@ These are planned but not required yet:
 - stronger grading logic
 - richer block types
 - admin permission gating
-

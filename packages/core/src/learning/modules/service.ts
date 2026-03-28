@@ -7,6 +7,8 @@ type ListModulesFilters = {
   moduleType?: LearningModuleType
   track?: StemTrack
   level?: StemLevel
+  audience?: 'learner' | 'admin'
+  status?: LearningModule['status']
 }
 
 function stemActivityToModule(activity: StemActivity): LearningModule {
@@ -35,6 +37,10 @@ function mapRowToModule(row: any): LearningModule {
     tags: row.tags || [],
     lessonSlug: row.lesson_slug,
     answerKey: row.answer_key,
+    status: row.status || undefined,
+    submittedForReviewAt: row.submitted_for_review_at || undefined,
+    publishedAt: row.published_at || undefined,
+    archivedAt: row.archived_at || undefined,
     steps: row.steps || [],
     grading: row.grading || 'auto',
     expectedAnswer: row.expected_answer,
@@ -61,16 +67,24 @@ function mapModuleToRow(module: LearningModule) {
     tags: module.tags,
     lesson_slug: module.lessonSlug,
     answer_key: module.answerKey,
+    status: module.status,
+    submitted_for_review_at: module.submittedForReviewAt,
+    published_at: module.publishedAt,
+    archived_at: module.archivedAt,
   }
 }
 
 export async function listLearningModules(filters: ListModulesFilters = {}): Promise<LearningModule[]> {
+  const audience = filters.audience || 'learner'
   const baseModules =
     !filters.moduleType || filters.moduleType === 'stem'
       ? listStemActivities({
           track: filters.track,
           level: filters.level,
-        }).map(stemActivityToModule)
+        }).map((activity) => ({
+          ...stemActivityToModule(activity),
+          status: 'published',
+        }))
       : []
 
   const supabase = getSupabaseClient()
@@ -80,6 +94,11 @@ export async function listLearningModules(filters: ListModulesFilters = {}): Pro
   if (filters.moduleType) query = query.eq('module_type', filters.moduleType)
   if (filters.track) query = query.eq('track', filters.track)
   if (filters.level) query = query.eq('level', filters.level)
+  if (filters.status) {
+    query = query.eq('status', filters.status)
+  } else if (audience === 'learner') {
+    query = query.eq('status', 'published')
+  }
 
   const { data, error } = await query
   if (error || !data) return baseModules
@@ -102,8 +121,46 @@ export async function getLearningModuleById(id: string): Promise<LearningModule 
 export async function createLearningModule(module: LearningModule) {
   const supabase = getSupabaseClient()
   if (!supabase) throw new Error('Supabase not configured')
-  const payload = mapModuleToRow(module)
+  const payload = mapModuleToRow({
+    ...module,
+    status: module.status || 'draft',
+  })
   const { data, error } = await supabase.from('learning_modules').insert(payload).select().single()
   if (error) throw error
   return mapRowToModule(data)
+}
+
+async function updateModuleStatus(id: string, status: LearningModule['status']) {
+  const supabase = getSupabaseClient()
+  if (!supabase) throw new Error('Supabase not configured')
+  const updates: Record<string, any> = { status }
+  if (status === 'in_review') updates.submitted_for_review_at = new Date().toISOString()
+  if (status === 'published') updates.published_at = new Date().toISOString()
+  if (status === 'archived') updates.archived_at = new Date().toISOString()
+  if (status === 'draft') updates.archived_at = null
+
+  const { data, error } = await supabase
+    .from('learning_modules')
+    .update(updates)
+    .eq('id', id)
+    .select()
+    .single()
+  if (error) throw error
+  return mapRowToModule(data)
+}
+
+export function submitModuleForReview(id: string) {
+  return updateModuleStatus(id, 'in_review')
+}
+
+export function publishModule(id: string) {
+  return updateModuleStatus(id, 'published')
+}
+
+export function sendModuleBackToDraft(id: string) {
+  return updateModuleStatus(id, 'draft')
+}
+
+export function archiveModule(id: string) {
+  return updateModuleStatus(id, 'archived')
 }

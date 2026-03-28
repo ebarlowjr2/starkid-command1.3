@@ -24,6 +24,7 @@ export default function StemActivitiesScreen({ navigation }: { navigation: any }
           moduleType: 'stem',
           track: track || undefined,
           level: level || undefined,
+          audience: 'learner',
         })
         if (active) setActivities(modules)
       } catch (error) {

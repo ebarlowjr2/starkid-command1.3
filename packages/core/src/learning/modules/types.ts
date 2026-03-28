@@ -8,4 +8,8 @@ export type LearningModule = StemActivity & {
   level?: StemLevel
   tags?: string[]
   answerKey?: string
+  status?: 'draft' | 'in_review' | 'approved' | 'published' | 'archived'
+  submittedForReviewAt?: string
+  publishedAt?: string
+  archivedAt?: string
 }

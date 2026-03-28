@@ -17,6 +17,7 @@ export default function StemActivitiesPage() {
           moduleType: 'stem',
           track: track || undefined,
           level: level || undefined,
+          audience: 'learner',
         })
         if (active) setActivities(data)
       } catch (error) {
