@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react'
-import { createLearningModule, listLearningModules, submitModuleForReview, publishModule, sendModuleBackToDraft, archiveModule } from '@starkid/core'
+import React, { useState } from 'react'
+import { createLearningModule } from '@starkid/core'
 
 const MODULE_TYPES = [
   { value: 'stem', label: 'STEM Activities' },
@@ -11,10 +11,8 @@ const MODULE_TYPES = [
 const TRACKS = ['math', 'science', 'cyber', 'linux', 'ai']
 const LEVELS = ['cadet', 'explorer', 'specialist', 'operator']
 
-export default function LearningModuleAdminPage() {
+export default function LearningModuleAdminAddPage() {
   const [status, setStatus] = useState('')
-  const [modules, setModules] = useState([])
-  const [filter, setFilter] = useState('all')
   const [form, setForm] = useState({
     id: '',
     title: '',
@@ -34,19 +32,6 @@ export default function LearningModuleAdminPage() {
     tags: '',
     answerKey: '',
   })
-
-  const loadModules = async () => {
-    try {
-      const data = await listLearningModules({ audience: 'admin' })
-      setModules(data)
-    } catch (error) {
-      setModules([])
-    }
-  }
-
-  useEffect(() => {
-    loadModules()
-  }, [])
 
   const update = (field) => (e) => setForm((prev) => ({ ...prev, [field]: e.target.value }))
 
@@ -81,9 +66,8 @@ export default function LearningModuleAdminPage() {
       }
 
       await createLearningModule(payload)
-      setStatus('Module created and stored in Supabase.')
+      setStatus('Module created as draft in Supabase.')
       setForm((prev) => ({ ...prev, title: '', description: '', tagline: '', lessonSlug: '', missionContext: '', objective: '', missionOutcomes: '', tags: '', answerKey: '' }))
-      await loadModules()
     } catch (error) {
       setStatus(error?.message || 'Failed to create module.')
     }
@@ -91,89 +75,10 @@ export default function LearningModuleAdminPage() {
 
   return (
     <div className="p-6 max-w-3xl mx-auto text-cyan-100 font-mono">
-      <h1 className="text-2xl font-bold text-cyan-300">Learning Module Admin</h1>
+      <h1 className="text-2xl font-bold text-cyan-300">Add Learning Module</h1>
       <p className="text-sm text-cyan-200/70 mt-2">
-        Add learning modules to Supabase. These will appear in web and mobile automatically.
+        Create a new module draft. It will not appear for learners until published.
       </p>
-
-      <div className="mt-6 border border-cyan-700/40 rounded-lg p-4 bg-black/40">
-        <div className="text-xs text-cyan-300 mb-3">MODULE STATUS</div>
-        <div className="flex flex-wrap gap-2 mb-4">
-          {['all', 'draft', 'in_review', 'published', 'archived'].map((item) => (
-            <button
-              key={item}
-              className={`text-xs px-2 py-1 rounded border ${filter === item ? 'border-cyan-400 text-cyan-100' : 'border-cyan-700/50 text-cyan-300'}`}
-              onClick={() => setFilter(item)}
-            >
-              {item === 'all' ? 'All' : item.replace('_', ' ')}
-            </button>
-          ))}
-        </div>
-        <div className="space-y-3">
-          {modules
-            .filter((module) => filter === 'all' || (module.status || 'draft') === filter)
-            .map((module) => (
-            <div key={module.id} className="flex flex-wrap items-center gap-2 border border-cyan-700/30 rounded-lg p-3">
-              <div className="flex-1">
-                <div className="text-sm text-cyan-100">{module.title}</div>
-                <div className="text-xs text-cyan-300/70">{module.id}</div>
-              </div>
-              <span className="text-xs px-2 py-1 rounded border border-cyan-600/60 text-cyan-200">
-                {module.status || 'draft'}
-              </span>
-              <div className="flex flex-wrap gap-2">
-                {module.status === 'draft' ? (
-                  <button
-                    className="text-xs text-cyan-300 border border-cyan-600/60 px-2 py-1 rounded"
-                    onClick={async () => {
-                      await submitModuleForReview(module.id)
-                      loadModules()
-                    }}
-                  >
-                    Submit for Review
-                  </button>
-                ) : null}
-                {module.status === 'in_review' ? (
-                  <>
-                    <button
-                      className="text-xs text-cyan-300 border border-cyan-600/60 px-2 py-1 rounded"
-                      onClick={async () => {
-                        await publishModule(module.id)
-                        loadModules()
-                      }}
-                    >
-                      Publish
-                    </button>
-                    <button
-                      className="text-xs text-cyan-300 border border-cyan-600/60 px-2 py-1 rounded"
-                      onClick={async () => {
-                        await sendModuleBackToDraft(module.id)
-                        loadModules()
-                      }}
-                    >
-                      Send Back to Draft
-                    </button>
-                  </>
-                ) : null}
-                {module.status !== 'archived' ? (
-                  <button
-                    className="text-xs text-cyan-300 border border-cyan-600/60 px-2 py-1 rounded"
-                    onClick={async () => {
-                      await archiveModule(module.id)
-                      loadModules()
-                    }}
-                  >
-                    Archive
-                  </button>
-                ) : null}
-              </div>
-            </div>
-          ))}
-          {modules.length === 0 ? (
-            <div className="text-xs text-cyan-300/70">No modules found.</div>
-          ) : null}
-        </div>
-      </div>
 
       <form onSubmit={handleSubmit} className="mt-6 space-y-4">
         <div className="grid md:grid-cols-2 gap-4">
