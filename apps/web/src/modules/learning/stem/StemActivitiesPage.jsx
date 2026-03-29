@@ -118,9 +118,9 @@ export default function StemActivitiesPage() {
         ) : null}
       </div>
       <style>{`
-        @import url('https://fonts.cdnfonts.com/css/aerospace');
+        @import url('https://fonts.cdnfonts.com/css/audiowide');
         .aerospace-test {
-          font-family: 'Aerospace', sans-serif;
+          font-family: 'Audiowide', sans-serif;
         }
       `}</style>
     </div>
