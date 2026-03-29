@@ -1,13 +1,19 @@
 import React, { useEffect, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { getLessonBySlug } from '@starkid/core'
+import { getLessonBySlug, getSession } from '@starkid/core'
 import {
   initLessonPlayer,
+  hydrateLessonPlayer,
   setAnswer,
   validateCurrentBlock,
   goNext,
   goPrev,
   submitLesson,
+  getLearningModuleByLessonSlug,
+  startModuleProgress,
+  saveModuleProgress,
+  submitModuleForUser,
+  completeModuleProgress,
 } from '@starkid/core'
 import LessonHeader from '../components/LessonHeader.jsx'
 import BlockRenderer from '../components/BlockRenderer.jsx'
@@ -16,17 +22,49 @@ export default function LessonPlayerScreen() {
   const { slug } = useParams()
   const navigate = useNavigate()
   const [lesson, setLesson] = useState(null)
+  const [module, setModule] = useState(null)
   const [state, setState] = useState(null)
   const [error, setError] = useState(null)
+  const [progressLoaded, setProgressLoaded] = useState(false)
 
   useEffect(() => {
-    const lessonData = getLessonBySlug(slug)
-    if (!lessonData) {
-      setError('Lesson not found')
-      return
+    let active = true
+    async function load() {
+      const lessonData = getLessonBySlug(slug)
+      if (!lessonData) {
+        if (active) setError('Lesson not found')
+        return
+      }
+      const moduleData = await getLearningModuleByLessonSlug(slug)
+      const session = await getSession()
+      if (active) {
+        setLesson(lessonData)
+        setModule(moduleData)
+        setState(initLessonPlayer(lessonData))
+      }
+      if (moduleData && session?.userId) {
+        try {
+          const progress = await startModuleProgress({
+            moduleId: moduleData.id,
+            lessonSlug: lessonData.slug,
+            totalSteps: lessonData.blocks.length,
+          })
+          if (active) {
+            setState(hydrateLessonPlayer(lessonData, progress))
+          }
+        } catch (e) {
+          // ignore progress load errors
+        } finally {
+          if (active) setProgressLoaded(true)
+        }
+      } else {
+        if (active) setProgressLoaded(true)
+      }
     }
-    setLesson(lessonData)
-    setState(initLessonPlayer(lessonData))
+    load()
+    return () => {
+      active = false
+    }
   }, [slug])
 
   if (error) {
@@ -49,20 +87,61 @@ export default function LessonPlayerScreen() {
   const value = state.answers[block.id]
   const validation = state.validation[block.id]
 
+  const persistProgress = async (nextState) => {
+    if (!module) return
+    try {
+      await saveModuleProgress({
+        moduleId: module.id,
+        lessonSlug: lesson.slug,
+        currentStepIndex: nextState.activeIndex,
+        totalSteps: lesson.blocks.length,
+        answers: nextState.answers,
+      })
+    } catch (e) {
+      // ignore
+    }
+  }
+
   const handleAnswer = (val) => {
-    setState((prev) => setAnswer(prev, block.id, val))
+    setState((prev) => {
+      const next = setAnswer(prev, block.id, val)
+      if (progressLoaded) persistProgress(next)
+      return next
+    })
   }
 
   const handleNext = () => {
-    setState((prev) => validateCurrentBlock(lesson, prev))
-    setState((prev) => goNext(lesson, prev))
+    setState((prev) => {
+      const validated = validateCurrentBlock(lesson, prev)
+      const next = goNext(lesson, validated)
+      if (progressLoaded) persistProgress(next)
+      return next
+    })
   }
 
-  const handlePrev = () => setState((prev) => goPrev(prev))
+  const handlePrev = () => {
+    setState((prev) => {
+      const next = goPrev(prev)
+      if (progressLoaded) persistProgress(next)
+      return next
+    })
+  }
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     const result = submitLesson(lesson, state)
     setState(result.nextState)
+    if (result.nextState.submitState === 'success' && module) {
+      try {
+        await submitModuleForUser({
+          moduleId: module.id,
+          lessonSlug: lesson.slug,
+          answers: state.answers,
+        })
+        await completeModuleProgress(module.id)
+      } catch (e) {
+        // ignore
+      }
+    }
   }
 
   return (
@@ -108,7 +187,7 @@ export default function LessonPlayerScreen() {
             onClick={handleSubmit}
             className="px-3 py-2 rounded border border-cyan-500/30 bg-cyan-500/20 text-cyan-200 text-xs"
           >
-            Submit to Command
+            Submit
           </button>
         )}
       </div>

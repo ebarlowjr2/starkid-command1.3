@@ -13,3 +13,29 @@ export type LearningModule = StemActivity & {
   publishedAt?: string
   archivedAt?: string
 }
+
+export type LearningProgress = {
+  id: string
+  userId: string
+  moduleId: string
+  lessonSlug?: string | null
+  status: 'not_started' | 'in_progress' | 'submitted' | 'completed'
+  currentStepIndex: number
+  totalSteps: number
+  answers: Record<string, unknown>
+  startedAt?: string
+  lastActivityAt?: string
+  completedAt?: string | null
+  createdAt?: string
+  updatedAt?: string
+}
+
+export type LearningSubmission = {
+  id: string
+  userId: string
+  moduleId: string
+  lessonSlug?: string | null
+  answers: Record<string, unknown>
+  status: 'submitted'
+  submittedAt: string
+}

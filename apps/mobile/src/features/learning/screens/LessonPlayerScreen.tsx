@@ -1,7 +1,21 @@
 import React, { useEffect, useState } from 'react'
 import { SafeAreaView, ScrollView, StyleSheet, View } from 'react-native'
-import { getLessonBySlug } from '@starkid/core'
-import { initLessonPlayer, setAnswer, validateCurrentBlock, goNext, goPrev, submitLesson } from '@starkid/core'
+import {
+  getLessonBySlug,
+  initLessonPlayer,
+  hydrateLessonPlayer,
+  setAnswer,
+  validateCurrentBlock,
+  goNext,
+  goPrev,
+  submitLesson,
+  getLearningModuleByLessonSlug,
+  startModuleProgress,
+  saveModuleProgress,
+  submitModuleForUser,
+  completeModuleProgress,
+} from '@starkid/core'
+import { getSession } from '@starkid/core'
 import { SpaceBackground } from '../../../components/home/SpaceBackground'
 import { GlassCard } from '../../../components/home/GlassCard'
 import { PixelButton } from '../../../components/home/PixelButton'
@@ -13,17 +27,49 @@ import BlockRenderer from '../components/BlockRenderer'
 export default function LessonPlayerScreen({ route, navigation }: any) {
   const slug = route?.params?.slug
   const [lesson, setLesson] = useState<any | null>(null)
+  const [module, setModule] = useState<any | null>(null)
   const [state, setState] = useState<any | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const [progressLoaded, setProgressLoaded] = useState(false)
 
   useEffect(() => {
-    const lessonData = getLessonBySlug(slug)
-    if (!lessonData) {
-      setError('Lesson not found')
-      return
+    let active = true
+    async function load() {
+      const lessonData = getLessonBySlug(slug)
+      if (!lessonData) {
+        if (active) setError('Lesson not found')
+        return
+      }
+      const moduleData = await getLearningModuleByLessonSlug(slug)
+      const session = await getSession()
+      if (active) {
+        setLesson(lessonData)
+        setModule(moduleData)
+        setState(initLessonPlayer(lessonData))
+      }
+      if (moduleData && session?.userId) {
+        try {
+          const progress = await startModuleProgress({
+            moduleId: moduleData.id,
+            lessonSlug: lessonData.slug,
+            totalSteps: lessonData.blocks.length,
+          })
+          if (active) {
+            setState(hydrateLessonPlayer(lessonData, progress))
+          }
+        } catch (e) {
+          // ignore progress load errors
+        } finally {
+          if (active) setProgressLoaded(true)
+        }
+      } else {
+        if (active) setProgressLoaded(true)
+      }
     }
-    setLesson(lessonData)
-    setState(initLessonPlayer(lessonData))
+    load()
+    return () => {
+      active = false
+    }
   }, [slug])
 
   if (error) {
@@ -50,20 +96,61 @@ export default function LessonPlayerScreen({ route, navigation }: any) {
   const value = state.answers[block.id]
   const validation = state.validation[block.id]
 
+  const persistProgress = async (nextState: any) => {
+    if (!module) return
+    try {
+      await saveModuleProgress({
+        moduleId: module.id,
+        lessonSlug: lesson.slug,
+        currentStepIndex: nextState.activeIndex,
+        totalSteps: lesson.blocks.length,
+        answers: nextState.answers,
+      })
+    } catch (e) {
+      // ignore
+    }
+  }
+
   const handleAnswer = (val: any) => {
-    setState((prev: any) => setAnswer(prev, block.id, val))
+    setState((prev: any) => {
+      const next = setAnswer(prev, block.id, val)
+      if (progressLoaded) persistProgress(next)
+      return next
+    })
   }
 
   const handleNext = () => {
-    setState((prev: any) => validateCurrentBlock(lesson, prev))
-    setState((prev: any) => goNext(lesson, prev))
+    setState((prev: any) => {
+      const validated = validateCurrentBlock(lesson, prev)
+      const next = goNext(lesson, validated)
+      if (progressLoaded) persistProgress(next)
+      return next
+    })
   }
 
-  const handlePrev = () => setState((prev: any) => goPrev(prev))
+  const handlePrev = () => {
+    setState((prev: any) => {
+      const next = goPrev(prev)
+      if (progressLoaded) persistProgress(next)
+      return next
+    })
+  }
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     const result = submitLesson(lesson, state)
     setState(result.nextState)
+    if (result.nextState.submitState === 'success' && module) {
+      try {
+        await submitModuleForUser({
+          moduleId: module.id,
+          lessonSlug: lesson.slug,
+          answers: state.answers,
+        })
+        await completeModuleProgress(module.id)
+      } catch (e) {
+        // ignore
+      }
+    }
   }
 
   return (

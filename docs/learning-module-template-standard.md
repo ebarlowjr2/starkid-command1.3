@@ -152,6 +152,24 @@ Rules:
 
 ---
 
+## Progress + Ownership (Sprint 4)
+
+Learning progress is now tied to authenticated users.
+
+Key rules:
+- Guests can browse modules, but must sign in to start tracked missions.
+- Progress is persisted per user and module.
+- Returning to a module resumes the saved step and answers.
+- Completion is recorded after submit.
+
+Progress states in `learning_progress`:
+- `not_started`
+- `in_progress`
+- `submitted`
+- `completed`
+
+---
+
 ## Module Authoring Guidance
 - **Title**: mission-oriented and specific
 - **Tagline**: concise and outcome‑focused

@@ -4,8 +4,9 @@ import { SpaceBackground } from '../../components/home/SpaceBackground'
 import { GlassCard } from '../../components/home/GlassCard'
 import { PixelButton } from '../../components/home/PixelButton'
 import { colors, spacing } from '../../theme/tokens'
-import { getLearningModuleById, isStemActivityCompleted, markStemActivityCompleted } from '@starkid/core'
+import { getLearningModuleById, isStemActivityCompleted, markStemActivityCompleted, getSession, getUserProgressForModule } from '@starkid/core'
 import { CustomText } from '../../components/ui/CustomText'
+import { SyncIdentityModal } from '../../components/auth/SyncIdentityModal'
 
 export default function StemActivityDetailScreen({ route, navigation }: { route: any; navigation: any }) {
   const { activityId } = route?.params || {}
@@ -14,6 +15,8 @@ export default function StemActivityDetailScreen({ route, navigation }: { route:
   const [saving, setSaving] = useState(false)
   const hasMissionEntry = Boolean(activity?.missionContext || activity?.objective)
   const levelLabel = activity?.level ? `${activity.level.charAt(0).toUpperCase()}${activity.level.slice(1)}` : ''
+  const [showSync, setShowSync] = useState(false)
+  const [resumeStep, setResumeStep] = useState<number | null>(null)
 
   useEffect(() => {
     let active = true
@@ -26,6 +29,32 @@ export default function StemActivityDetailScreen({ route, navigation }: { route:
       }
     }
     if (activityId) loadActivity()
+    return () => {
+      active = false
+    }
+  }, [activityId])
+
+  useEffect(() => {
+    let active = true
+    async function loadProgress() {
+      try {
+        const session = await getSession()
+        if (!session?.userId) {
+          if (active) setResumeStep(null)
+          return
+        }
+        const progress = await getUserProgressForModule(activityId)
+        if (active && progress?.status === 'in_progress') {
+          setResumeStep(progress.currentStepIndex + 1)
+        }
+        if (active && progress?.status === 'completed') {
+          setCompleted(true)
+        }
+      } catch (error) {
+        if (active) setResumeStep(null)
+      }
+    }
+    if (activityId) loadProgress()
     return () => {
       active = false
     }
@@ -121,14 +150,23 @@ export default function StemActivityDetailScreen({ route, navigation }: { route:
               <View style={{ marginTop: spacing.lg }}>
                 <PixelButton
                   label={activity.lessonSlug ? 'START MISSION' : 'COMING SOON'}
-                  onPress={
-                    activity.lessonSlug
-                      ? () => navigation?.navigate?.('LessonPlayer', { slug: activity.lessonSlug })
-                      : undefined
-                  }
+                  onPress={async () => {
+                    if (!activity.lessonSlug) return
+                    const session = await getSession()
+                    if (!session?.userId) {
+                      setShowSync(true)
+                      return
+                    }
+                    navigation?.navigate?.('LessonPlayer', { slug: activity.lessonSlug })
+                  }}
                   style={styles.completeButton}
                 />
               </View>
+              {resumeStep ? (
+                <CustomText variant="bodySmall" style={styles.resume}>
+                  Resume available: Step {resumeStep}
+                </CustomText>
+              ) : null}
             </>
           ) : (
             <>
@@ -166,6 +204,7 @@ export default function StemActivityDetailScreen({ route, navigation }: { route:
               </View>
             </>
           )}
+          <SyncIdentityModal open={showSync} onClose={() => setShowSync(false)} onSync={() => setShowSync(false)} />
         </ScrollView>
       </SafeAreaView>
     </SpaceBackground>
@@ -183,6 +222,7 @@ const styles = StyleSheet.create({
   sectionTitle: { color: colors.dim, marginBottom: spacing.sm },
   stepItem: { color: colors.muted, marginTop: 6 },
   muted: { color: colors.muted },
+  resume: { color: colors.cyan, marginTop: spacing.sm },
   completeButton: {
     alignSelf: 'flex-start',
     paddingHorizontal: 14,

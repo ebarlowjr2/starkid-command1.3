@@ -8,6 +8,19 @@ export function initLessonPlayer(lesson: Lesson) {
   return createPlayerState(lesson)
 }
 
+export function hydrateLessonPlayer(
+  lesson: Lesson,
+  progress: { currentStepIndex?: number; answers?: Record<string, unknown> } | null
+) {
+  const base = createPlayerState(lesson)
+  if (!progress) return base
+  return {
+    ...base,
+    activeIndex: Math.max(0, Math.min(progress.currentStepIndex || 0, lesson.blocks.length - 1)),
+    answers: progress.answers || {},
+  }
+}
+
 export function setAnswer(state: LessonPlayerState, blockId: string, answer: unknown) {
   return {
     ...state,

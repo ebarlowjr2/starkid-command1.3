@@ -118,6 +118,11 @@ export async function getLearningModuleById(id: string): Promise<LearningModule 
   return modules.find((module) => module.id === id) || null
 }
 
+export async function getLearningModuleByLessonSlug(slug: string) {
+  const modules = await listLearningModules({ audience: 'learner' })
+  return modules.find((module) => module.lessonSlug === slug) || null
+}
+
 export async function createLearningModule(module: LearningModule) {
   const supabase = getSupabaseClient()
   if (!supabase) throw new Error('Supabase not configured')
