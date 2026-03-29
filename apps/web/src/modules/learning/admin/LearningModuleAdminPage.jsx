@@ -14,6 +14,7 @@ const LEVELS = ['cadet', 'explorer', 'specialist', 'operator']
 export default function LearningModuleAdminPage() {
   const [status, setStatus] = useState('')
   const [modules, setModules] = useState([])
+  const [filter, setFilter] = useState('all')
   const [form, setForm] = useState({
     id: '',
     title: '',
@@ -97,8 +98,21 @@ export default function LearningModuleAdminPage() {
 
       <div className="mt-6 border border-cyan-700/40 rounded-lg p-4 bg-black/40">
         <div className="text-xs text-cyan-300 mb-3">MODULE STATUS</div>
+        <div className="flex flex-wrap gap-2 mb-4">
+          {['all', 'draft', 'in_review', 'published', 'archived'].map((item) => (
+            <button
+              key={item}
+              className={`text-xs px-2 py-1 rounded border ${filter === item ? 'border-cyan-400 text-cyan-100' : 'border-cyan-700/50 text-cyan-300'}`}
+              onClick={() => setFilter(item)}
+            >
+              {item === 'all' ? 'All' : item.replace('_', ' ')}
+            </button>
+          ))}
+        </div>
         <div className="space-y-3">
-          {modules.map((module) => (
+          {modules
+            .filter((module) => filter === 'all' || (module.status || 'draft') === filter)
+            .map((module) => (
             <div key={module.id} className="flex flex-wrap items-center gap-2 border border-cyan-700/30 rounded-lg p-3">
               <div className="flex-1">
                 <div className="text-sm text-cyan-100">{module.title}</div>
