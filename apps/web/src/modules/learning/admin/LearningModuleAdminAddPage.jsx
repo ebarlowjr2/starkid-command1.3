@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import { createLearningModule } from '@starkid/core'
+import { useNavigate } from 'react-router-dom'
 
 const MODULE_TYPES = [
   { value: 'stem', label: 'STEM Activities' },
@@ -12,6 +13,7 @@ const TRACKS = ['math', 'science', 'cyber', 'linux', 'ai']
 const LEVELS = ['cadet', 'explorer', 'specialist', 'operator']
 
 export default function LearningModuleAdminAddPage() {
+  const nav = useNavigate()
   const [status, setStatus] = useState('')
   const [form, setForm] = useState({
     id: '',
@@ -75,6 +77,12 @@ export default function LearningModuleAdminAddPage() {
 
   return (
     <div className="p-6 max-w-3xl mx-auto text-cyan-100 font-mono">
+      <button
+        className="mb-4 text-xs text-cyan-300 border border-cyan-600/60 px-3 py-1 rounded"
+        onClick={() => nav('/learning/admin')}
+      >
+        Back to Admin
+      </button>
       <h1 className="text-2xl font-bold text-cyan-300">Add Learning Module</h1>
       <p className="text-sm text-cyan-200/70 mt-2">
         Create a new module draft. It will not appear for learners until published.

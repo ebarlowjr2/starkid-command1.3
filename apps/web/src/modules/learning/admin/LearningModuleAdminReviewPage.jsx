@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from 'react'
 import { listLearningModules, submitModuleForReview, publishModule, sendModuleBackToDraft, archiveModule } from '@starkid/core'
+import { useNavigate } from 'react-router-dom'
 
 export default function LearningModuleAdminReviewPage() {
+  const nav = useNavigate()
   const [modules, setModules] = useState([])
   const [filter, setFilter] = useState('all')
 
@@ -20,6 +22,12 @@ export default function LearningModuleAdminReviewPage() {
 
   return (
     <div className="p-6 max-w-3xl mx-auto text-cyan-100 font-mono">
+      <button
+        className="mb-4 text-xs text-cyan-300 border border-cyan-600/60 px-3 py-1 rounded"
+        onClick={() => nav('/learning/admin')}
+      >
+        Back to Admin
+      </button>
       <h1 className="text-2xl font-bold text-cyan-300">Module Review & Approval</h1>
       <p className="text-sm text-cyan-200/70 mt-2">
         Manage module status, publish, or archive drafts.
