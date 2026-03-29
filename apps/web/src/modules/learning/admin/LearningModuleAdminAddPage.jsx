@@ -1,6 +1,7 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { createLearningModule } from '@starkid/core'
 import { useNavigate } from 'react-router-dom'
+import { getSession } from '@starkid/core'
 
 const MODULE_TYPES = [
   { value: 'stem', label: 'STEM Activities' },
@@ -15,6 +16,7 @@ const LEVELS = ['cadet', 'explorer', 'specialist', 'operator']
 export default function LearningModuleAdminAddPage() {
   const nav = useNavigate()
   const [status, setStatus] = useState('')
+  const [isAuthed, setIsAuthed] = useState(false)
   const [form, setForm] = useState({
     id: '',
     title: '',
@@ -36,6 +38,18 @@ export default function LearningModuleAdminAddPage() {
   })
 
   const update = (field) => (e) => setForm((prev) => ({ ...prev, [field]: e.target.value }))
+
+  useEffect(() => {
+    let active = true
+    async function load() {
+      const session = await getSession()
+      if (active) setIsAuthed(Boolean(session))
+    }
+    load()
+    return () => {
+      active = false
+    }
+  }, [])
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -87,6 +101,18 @@ export default function LearningModuleAdminAddPage() {
       <p className="text-sm text-cyan-200/70 mt-2">
         Create a new module draft. It will not appear for learners until published.
       </p>
+
+      {!isAuthed ? (
+        <div className="mt-6 border border-cyan-700/40 rounded-lg p-4 bg-black/40">
+          <div className="text-sm text-cyan-200">Admin access requires a synced Command Profile.</div>
+          <button
+            className="mt-3 text-xs text-cyan-200 border border-cyan-600/70 px-3 py-2 rounded"
+            onClick={() => nav('/profile')}
+          >
+            Sync Command Profile
+          </button>
+        </div>
+      ) : (
 
       <form onSubmit={handleSubmit} className="mt-6 space-y-4">
         <div className="grid md:grid-cols-2 gap-4">
@@ -184,6 +210,7 @@ export default function LearningModuleAdminAddPage() {
         </button>
         {status ? <div className="text-xs text-cyan-200/80 mt-2">{status}</div> : null}
       </form>
+      )}
     </div>
   )
 }

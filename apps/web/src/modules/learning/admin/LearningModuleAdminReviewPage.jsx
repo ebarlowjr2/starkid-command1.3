@@ -1,23 +1,43 @@
 import React, { useEffect, useState } from 'react'
-import { listLearningModules, submitModuleForReview, publishModule, sendModuleBackToDraft, archiveModule } from '@starkid/core'
+import { listLearningModules, submitModuleForReview, publishModule, sendModuleBackToDraft, archiveModule, getSession } from '@starkid/core'
 import { useNavigate } from 'react-router-dom'
 
 export default function LearningModuleAdminReviewPage() {
   const nav = useNavigate()
   const [modules, setModules] = useState([])
   const [filter, setFilter] = useState('all')
+  const [isAuthed, setIsAuthed] = useState(false)
+  const [counts, setCounts] = useState({ draft: 0, in_review: 0, published: 0, archived: 0 })
 
   const loadModules = async () => {
     try {
       const data = await listLearningModules({ audience: 'admin' })
       setModules(data)
+      const next = { draft: 0, in_review: 0, published: 0, archived: 0 }
+      data.forEach((module) => {
+        const key = module.status || 'draft'
+        if (next[key] !== undefined) next[key] += 1
+      })
+      setCounts(next)
     } catch (error) {
       setModules([])
+      setCounts({ draft: 0, in_review: 0, published: 0, archived: 0 })
     }
   }
 
   useEffect(() => {
-    loadModules()
+    let active = true
+    async function load() {
+      const session = await getSession()
+      if (active) setIsAuthed(Boolean(session))
+      if (session) {
+        loadModules()
+      }
+    }
+    load()
+    return () => {
+      active = false
+    }
   }, [])
 
   return (
@@ -33,8 +53,22 @@ export default function LearningModuleAdminReviewPage() {
         Manage module status, publish, or archive drafts.
       </p>
 
+      {!isAuthed ? (
+        <div className="mt-6 border border-cyan-700/40 rounded-lg p-4 bg-black/40">
+          <div className="text-sm text-cyan-200">Admin access requires a synced Command Profile.</div>
+          <button
+            className="mt-3 text-xs text-cyan-200 border border-cyan-600/70 px-3 py-2 rounded"
+            onClick={() => nav('/profile')}
+          >
+            Sync Command Profile
+          </button>
+        </div>
+      ) : (
       <div className="mt-6 border border-cyan-700/40 rounded-lg p-4 bg-black/40">
         <div className="text-xs text-cyan-300 mb-3">MODULE STATUS</div>
+        <div className="text-xs text-cyan-300/80 mb-3">
+          Draft: {counts.draft} • In Review: {counts.in_review} • Published: {counts.published} • Archived: {counts.archived}
+        </div>
         <div className="flex flex-wrap gap-2 mb-4">
           {['all', 'draft', 'in_review', 'published', 'archived'].map((item) => (
             <button
@@ -111,6 +145,7 @@ export default function LearningModuleAdminReviewPage() {
           ) : null}
         </div>
       </div>
+      )}
     </div>
   )
 }

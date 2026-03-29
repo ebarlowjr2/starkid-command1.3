@@ -1,7 +1,37 @@
+import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { getSession, listLearningModules } from '@starkid/core'
 
 export default function LearningModuleAdminHubPage() {
   const nav = useNavigate()
+  const [isAuthed, setIsAuthed] = useState(false)
+  const [counts, setCounts] = useState({ draft: 0, in_review: 0, published: 0, archived: 0 })
+
+  useEffect(() => {
+    let active = true
+    async function load() {
+      const session = await getSession()
+      if (active) setIsAuthed(Boolean(session))
+      if (session) {
+        try {
+          const modules = await listLearningModules({ audience: 'admin' })
+          if (!active) return
+          const next = { draft: 0, in_review: 0, published: 0, archived: 0 }
+          modules.forEach((module) => {
+            const key = module.status || 'draft'
+            if (next[key] !== undefined) next[key] += 1
+          })
+          setCounts(next)
+        } catch (error) {
+          if (active) setCounts({ draft: 0, in_review: 0, published: 0, archived: 0 })
+        }
+      }
+    }
+    load()
+    return () => {
+      active = false
+    }
+  }, [])
 
   const cards = [
     {
@@ -18,6 +48,23 @@ export default function LearningModuleAdminHubPage() {
 
   return (
     <div className="learning-page">
+      {!isAuthed ? (
+        <div className="learning-hero">
+          <div>
+            <div className="learning-kicker">ADMIN ACCESS</div>
+            <div className="learning-title">Initialize Identity</div>
+            <div className="learning-subtitle">
+              Admin access requires a synced Command Profile.
+            </div>
+          </div>
+          <button
+            className="learning-admin-btn"
+            onClick={() => nav('/profile')}
+          >
+            Sync Command Profile
+          </button>
+        </div>
+      ) : (
       <div className="learning-hero">
         <div>
           <div className="learning-kicker">LEARNING ADMIN</div>
@@ -25,9 +72,14 @@ export default function LearningModuleAdminHubPage() {
           <div className="learning-subtitle">
             Create modules and manage the approval workflow.
           </div>
+          <div className="learning-subtitle" style={{ marginTop: 12 }}>
+            Draft: {counts.draft} • In Review: {counts.in_review} • Published: {counts.published} • Archived: {counts.archived}
+          </div>
         </div>
       </div>
+      )}
 
+      {isAuthed ? (
       <div className="learning-grid">
         {cards.map((card) => (
           <div
@@ -41,6 +93,7 @@ export default function LearningModuleAdminHubPage() {
           </div>
         ))}
       </div>
+      ) : null}
 
       <style>{`
         .learning-page {
