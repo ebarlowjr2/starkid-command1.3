@@ -47,7 +47,7 @@ export default function StemActivitiesPage() {
   }, [])
 
   return (
-    <div className="p-4 max-w-4xl mx-auto">
+    <div className="p-4 max-w-4xl mx-auto aerospace-test">
       <div className="mb-6">
         <h2 className="text-2xl md:text-3xl font-bold tracking-wider text-cyan-400 font-mono mb-2">
           STEM ACTIVITIES
@@ -117,6 +117,12 @@ export default function StemActivitiesPage() {
           <div className="text-cyan-200/60 text-sm">No activities match this filter.</div>
         ) : null}
       </div>
+      <style>{`
+        @import url('https://fonts.cdnfonts.com/css/aerospace');
+        .aerospace-test {
+          font-family: 'Aerospace', sans-serif;
+        }
+      `}</style>
     </div>
   )
 }
