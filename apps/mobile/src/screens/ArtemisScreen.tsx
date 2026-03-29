@@ -391,7 +391,7 @@ const styles = StyleSheet.create({
   },
   statusValue: {
     color: colors.text,
-    fontFamily: "monospace",
+    fontFamily: "Audiowide_400Regular",
   },
   statusBadge: {
     flexDirection: "row",
@@ -409,7 +409,7 @@ const styles = StyleSheet.create({
   },
   statusText: {
     fontWeight: "700",
-    fontFamily: "monospace",
+    fontFamily: "Audiowide_400Regular",
   },
   controlsRow: {
     flexDirection: "row",
@@ -520,7 +520,7 @@ const styles = StyleSheet.create({
   },
   keyValue: {
     color: colors.text,
-    fontFamily: "monospace",
+    fontFamily: "Audiowide_400Regular",
   },
   listRow: {
     flexDirection: "row",
@@ -576,7 +576,7 @@ const styles = StyleSheet.create({
   },
   hardwareValue: {
     color: colors.accent,
-    fontFamily: "monospace",
+    fontFamily: "Audiowide_400Regular",
   },
   crewGrid: {
     flexDirection: "row",
