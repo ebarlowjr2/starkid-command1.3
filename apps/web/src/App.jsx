@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { BrowserRouter, Routes, Route, NavLink } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, NavLink, useLocation } from 'react-router-dom'
 import LandingPage from './pages/LandingPage.jsx'
 import ExploreHubPage from './pages/ExploreHubPage.jsx'
 import CommandCenterPage from './pages/CommandCenterPage.jsx'
@@ -49,9 +49,11 @@ import { navSections } from './config/navConfig.js'
 import { getCurrentActor, getSession, onAuthChange, getSupabaseClient } from '@starkid/core'
 import SyncIdentityModal from './components/auth/SyncIdentityModal.jsx'
 
-export default function App() {
+function AppShell() {
   const [isGuest, setIsGuest] = useState(true)
   const [showSync, setShowSync] = useState(false)
+  const location = useLocation()
+  const useDefaultBackground = location.pathname !== '/' && location.pathname !== '/explore'
 
   useEffect(() => {
     let active = true
@@ -84,8 +86,19 @@ export default function App() {
   }, [])
 
   return (
-    <BrowserRouter>
-      <div className="min-h-screen bg-black text-cyan-200 font-mono flex flex-col">
+      <div
+        className="min-h-screen bg-black text-cyan-200 font-mono flex flex-col"
+        style={
+          useDefaultBackground
+            ? {
+                backgroundImage: "url('/assets/backgrounds/starkid-app-default.png')",
+                backgroundSize: 'cover',
+                backgroundPosition: 'center',
+                backgroundRepeat: 'no-repeat',
+              }
+            : undefined
+        }
+      >
         {/* Global LCARS header + nav */}
         <header className="p-4 bg-gradient-to-r from-zinc-900 to-black border-b-2 border-cyan-500 shadow-lg shadow-cyan-500/50">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
@@ -192,6 +205,13 @@ export default function App() {
           onSync={() => setShowSync(false)}
         />
       </div>
+  )
+}
+
+export default function App() {
+  return (
+    <BrowserRouter>
+      <AppShell />
     </BrowserRouter>
   )
 }

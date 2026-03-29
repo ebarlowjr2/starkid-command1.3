@@ -1,5 +1,5 @@
 import React, { memo } from "react";
-import { View, StyleSheet } from "react-native";
+import { View, StyleSheet, ImageBackground } from "react-native";
 import { View as RNView } from "react-native";
 import { colors } from "../../theme/tokens";
 
@@ -24,22 +24,20 @@ const Gradient = (props: any) => {
 
 export const SpaceBackground = memo(function SpaceBackground({ children }: { children: React.ReactNode }) {
   return (
-    <View style={styles.root}>
+    <ImageBackground
+      source={require("../../../assets/backgrounds/starkid-app-default.png")}
+      style={styles.root}
+      resizeMode="cover"
+    >
       <Gradient
-        colors={[colors.bg0, "#0B0F2A", "#1A0F2F", "#03040B"]}
+        colors={["rgba(4,8,20,0.2)", "rgba(4,8,20,0.55)", "rgba(4,8,20,0.9)"]}
         start={{ x: 0.1, y: 0.0 }}
         end={{ x: 0.8, y: 1.0 }}
         style={StyleSheet.absoluteFill}
       />
-      <Gradient
-        colors={["rgba(61,235,255,0.12)", "rgba(255,79,216,0.06)", "transparent"]}
-        start={{ x: 0.0, y: 0.2 }}
-        end={{ x: 1.0, y: 0.9 }}
-        style={[StyleSheet.absoluteFill, { opacity: 0.9 }]}
-      />
       <Starfield />
       {children}
-    </View>
+    </ImageBackground>
   );
 });
 
