@@ -13,7 +13,7 @@ importers:
       '@babel/runtime':
         specifier: ^7.28.6
         version: 7.28.6
-      '@expo-google-fonts/press-start-2p':
+      '@expo-google-fonts/audiowide':
         specifier: ^0.4.1
         version: 0.4.1
       '@react-native-async-storage/async-storage':
@@ -1013,8 +1013,8 @@ packages:
     cpu: [x64]
     os: [win32]
 
-  '@expo-google-fonts/press-start-2p@0.4.1':
-    resolution: {integrity: sha512-L6SjPh8qwQ9i34VRNa8XPHH0gYACE1AGcq2MDLGfmBpxDnJnbECuChv6pWO81F2XqPx+V7gUlvSL0rbgh/F6/w==}
+  '@expo-google-fonts/audiowide@0.4.1':
+    resolution: {integrity: sha512-/KQNDBg64y0xNEdWxLoFyvLTD7yoMM2sJOWJxU1FLcFdfGoRzpo0SdrBLif/janIpUmKvwbLD2KCj5Tc87BNTg==}
 
   '@expo/bunyan@4.0.1':
     resolution: {integrity: sha512-+Lla7nYSiHZirgK+U/uYzsLv/X+HaJienbD5AKX1UQZHYfWaP+9uuQluRB4GrEVWF0GZ7vEVp/jzaOT9k/SQlg==}
@@ -6143,7 +6143,7 @@ snapshots:
   '@esbuild/win32-x64@0.21.5':
     optional: true
 
-  '@expo-google-fonts/press-start-2p@0.4.1': {}
+  '@expo-google-fonts/audiowide@0.4.1': {}
 
   '@expo/bunyan@4.0.1':
     dependencies:
