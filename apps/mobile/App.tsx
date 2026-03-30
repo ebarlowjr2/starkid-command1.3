@@ -54,16 +54,14 @@ export default function App() {
     async function loadFonts() {
       try {
         const fontModule = require('expo-font')
-        const pressStart = require('@expo-google-fonts/press-start-2p')
         let audiowide = null
         try {
           audiowide = require('@expo-google-fonts/audiowide')
         } catch (error) {
           audiowide = null
         }
-        if (fontModule?.loadAsync && pressStart?.PressStart2P_400Regular) {
+        if (fontModule?.loadAsync) {
           await fontModule.loadAsync({
-            PressStart2P_400Regular: pressStart.PressStart2P_400Regular,
             ...(audiowide?.Audiowide_400Regular ? { Audiowide_400Regular: audiowide.Audiowide_400Regular } : {}),
           })
         }
