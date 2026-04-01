@@ -14,9 +14,11 @@ import {
   saveModuleProgress,
   submitModuleForUser,
   completeModuleProgress,
+  getUserProgressForModule,
 } from '@starkid/core'
 import LessonHeader from '../components/LessonHeader.jsx'
 import BlockRenderer from '../components/BlockRenderer.jsx'
+import SyncIdentityModal from '../../../components/auth/SyncIdentityModal.jsx'
 
 export default function LessonPlayerScreen() {
   const { slug } = useParams()
@@ -26,6 +28,8 @@ export default function LessonPlayerScreen() {
   const [state, setState] = useState(null)
   const [error, setError] = useState(null)
   const [progressLoaded, setProgressLoaded] = useState(false)
+  const [showSync, setShowSync] = useState(false)
+  const [authRequired, setAuthRequired] = useState(false)
 
   useEffect(() => {
     let active = true
@@ -44,11 +48,14 @@ export default function LessonPlayerScreen() {
       }
       if (moduleData && session?.userId) {
         try {
-          const progress = await startModuleProgress({
-            moduleId: moduleData.id,
-            lessonSlug: lessonData.slug,
-            totalSteps: lessonData.blocks.length,
-          })
+          const existing = await getUserProgressForModule(moduleData.id)
+          const progress =
+            existing ||
+            (await startModuleProgress({
+              moduleId: moduleData.id,
+              lessonSlug: lessonData.slug,
+              totalSteps: lessonData.blocks.length,
+            }))
           if (active) {
             setState(hydrateLessonPlayer(lessonData, progress))
           }
@@ -56,6 +63,12 @@ export default function LessonPlayerScreen() {
           // ignore progress load errors
         } finally {
           if (active) setProgressLoaded(true)
+        }
+      } else if (moduleData && !session?.userId) {
+        if (active) {
+          setAuthRequired(true)
+          setShowSync(true)
+          setProgressLoaded(true)
         }
       } else {
         if (active) setProgressLoaded(true)
@@ -71,6 +84,33 @@ export default function LessonPlayerScreen() {
     return (
       <div className="p-4">
         <div className="text-red-400 font-mono">{error}</div>
+      </div>
+    )
+  }
+
+  if (authRequired) {
+    return (
+      <div className="p-4 min-h-screen">
+        <button
+          onClick={() => navigate('/learning/stem')}
+          className="mb-4 px-3 py-2 rounded border border-cyan-500/30 bg-black/40 text-cyan-200 text-xs"
+        >
+          ← BACK TO STEM
+        </button>
+        <div className="text-cyan-200/70 font-mono">
+          Initialize Identity to start this mission.
+        </div>
+        <button
+          onClick={() => setShowSync(true)}
+          className="mt-4 px-3 py-2 rounded border border-cyan-500/30 bg-cyan-500/20 text-cyan-200 text-xs"
+        >
+          Sync Command Profile
+        </button>
+        <SyncIdentityModal
+          open={showSync}
+          onClose={() => setShowSync(false)}
+          onSync={() => setShowSync(false)}
+        />
       </div>
     )
   }
@@ -203,6 +243,7 @@ export default function LessonPlayerScreen() {
           {state.submitError}
         </div>
       ) : null}
+      <SyncIdentityModal open={showSync} onClose={() => setShowSync(false)} onSync={() => setShowSync(false)} />
     </div>
   )
 }

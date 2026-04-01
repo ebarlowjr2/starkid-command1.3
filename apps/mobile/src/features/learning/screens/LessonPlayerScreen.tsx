@@ -14,6 +14,7 @@ import {
   saveModuleProgress,
   submitModuleForUser,
   completeModuleProgress,
+  getUserProgressForModule,
 } from '@starkid/core'
 import { getSession } from '@starkid/core'
 import { SpaceBackground } from '../../../components/home/SpaceBackground'
@@ -23,6 +24,7 @@ import { colors, spacing } from '../../../theme/tokens'
 import { CustomText } from '../../../components/ui/CustomText'
 import LessonHeader from '../components/LessonHeader'
 import BlockRenderer from '../components/BlockRenderer'
+import { SyncIdentityModal } from '../../../components/auth/SyncIdentityModal'
 
 export default function LessonPlayerScreen({ route, navigation }: any) {
   const slug = route?.params?.slug
@@ -31,6 +33,8 @@ export default function LessonPlayerScreen({ route, navigation }: any) {
   const [state, setState] = useState<any | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [progressLoaded, setProgressLoaded] = useState(false)
+  const [authRequired, setAuthRequired] = useState(false)
+  const [showSync, setShowSync] = useState(false)
 
   useEffect(() => {
     let active = true
@@ -49,11 +53,14 @@ export default function LessonPlayerScreen({ route, navigation }: any) {
       }
       if (moduleData && session?.userId) {
         try {
-          const progress = await startModuleProgress({
-            moduleId: moduleData.id,
-            lessonSlug: lessonData.slug,
-            totalSteps: lessonData.blocks.length,
-          })
+          const existing = await getUserProgressForModule(moduleData.id)
+          const progress =
+            existing ||
+            (await startModuleProgress({
+              moduleId: moduleData.id,
+              lessonSlug: lessonData.slug,
+              totalSteps: lessonData.blocks.length,
+            }))
           if (active) {
             setState(hydrateLessonPlayer(lessonData, progress))
           }
@@ -61,6 +68,12 @@ export default function LessonPlayerScreen({ route, navigation }: any) {
           // ignore progress load errors
         } finally {
           if (active) setProgressLoaded(true)
+        }
+      } else if (moduleData && !session?.userId) {
+        if (active) {
+          setAuthRequired(true)
+          setShowSync(true)
+          setProgressLoaded(true)
         }
       } else {
         if (active) setProgressLoaded(true)
@@ -78,6 +91,26 @@ export default function LessonPlayerScreen({ route, navigation }: any) {
         <View style={styles.center}>
           <CustomText variant="body" style={styles.error}>{error}</CustomText>
         </View>
+      </SpaceBackground>
+    )
+  }
+
+  if (authRequired) {
+    return (
+      <SpaceBackground>
+        <SafeAreaView style={{ flex: 1 }}>
+          <View style={[styles.center, { paddingHorizontal: spacing.xl }]}>
+            <CustomText variant="body" style={styles.muted}>
+              Initialize Identity to start this mission.
+            </CustomText>
+            <PixelButton
+              label="SYNC COMMAND PROFILE"
+              onPress={() => setShowSync(true)}
+              style={{ marginTop: spacing.lg }}
+            />
+            <SyncIdentityModal open={showSync} onClose={() => setShowSync(false)} onSync={() => setShowSync(false)} />
+          </View>
+        </SafeAreaView>
       </SpaceBackground>
     )
   }

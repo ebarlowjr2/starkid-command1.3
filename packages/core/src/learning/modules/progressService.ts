@@ -49,6 +49,15 @@ export async function startModuleProgress(params: {
   const supabase = getSupabaseClient()
   if (!supabase) throw new Error('Supabase not configured')
   const userId = await requireUserId()
+  const { data: existing, error: existingError } = await supabase
+    .from('learning_progress')
+    .select('*')
+    .eq('user_id', userId)
+    .eq('module_id', params.moduleId)
+    .single()
+  if (existing && !existingError) {
+    return mapProgressRow(existing)
+  }
   const payload = {
     user_id: userId,
     module_id: params.moduleId,
@@ -60,11 +69,7 @@ export async function startModuleProgress(params: {
     started_at: new Date().toISOString(),
     last_activity_at: new Date().toISOString(),
   }
-  const { data, error } = await supabase
-    .from('learning_progress')
-    .upsert(payload, { onConflict: 'user_id,module_id' })
-    .select()
-    .single()
+  const { data, error } = await supabase.from('learning_progress').insert(payload).select().single()
   if (error) throw error
   return mapProgressRow(data)
 }

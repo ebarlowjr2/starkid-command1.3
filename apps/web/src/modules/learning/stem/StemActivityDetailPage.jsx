@@ -125,7 +125,7 @@ export default function StemActivityDetailPage() {
           <span className="text-xs text-green-300 bg-green-900/30 px-3 py-1 rounded">
             Completed
           </span>
-        ) : (
+        ) : activity.lessonSlug ? null : (
           <button
             className="text-xs text-cyan-300 border border-cyan-600/60 px-3 py-1 rounded hover:text-cyan-200 disabled:opacity-60"
             disabled={saving}
