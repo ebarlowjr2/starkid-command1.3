@@ -15,6 +15,7 @@ import {
   submitModuleForUser,
   completeModuleProgress,
   getUserProgressForModule,
+  ROUTE_MANIFEST,
 } from '@starkid/core'
 import { getSession } from '@starkid/core'
 import { SpaceBackground } from '../../../components/home/SpaceBackground'
@@ -215,7 +216,7 @@ export default function LessonPlayerScreen({ route, navigation }: any) {
               <CustomText variant="body" style={styles.success}>Submission received. Command review will follow.</CustomText>
               <PixelButton
                 label="RETURN HOME"
-                onPress={() => navigation.navigate('Home')}
+                onPress={() => navigation.navigate(ROUTE_MANIFEST.HOME)}
                 style={{ marginTop: spacing.lg, alignSelf: 'flex-start' }}
               />
             </GlassCard>
