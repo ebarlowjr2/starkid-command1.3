@@ -213,6 +213,11 @@ export default function LessonPlayerScreen({ route, navigation }: any) {
           {state.submitState === 'success' ? (
             <GlassCard variant="secondary" style={{ marginTop: spacing.lg }}>
               <CustomText variant="body" style={styles.success}>Submission received. Command review will follow.</CustomText>
+              <PixelButton
+                label="RETURN HOME"
+                onPress={() => navigation.navigate('Home')}
+                style={{ marginTop: spacing.lg, alignSelf: 'flex-start' }}
+              />
             </GlassCard>
           ) : null}
 

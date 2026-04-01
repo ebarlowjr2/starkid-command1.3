@@ -235,6 +235,14 @@ export default function LessonPlayerScreen() {
       {state.submitState === 'success' ? (
         <div className="mt-4 p-3 rounded border border-green-500/30 bg-green-500/10 text-green-200 text-sm">
           Submission received. Command review will follow.
+          <div className="mt-3">
+            <button
+              onClick={() => navigate('/')}
+              className="px-3 py-2 rounded border border-green-400/40 bg-green-500/20 text-green-100 text-xs"
+            >
+              Return Home
+            </button>
+          </div>
         </div>
       ) : null}
 

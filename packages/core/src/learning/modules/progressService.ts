@@ -108,15 +108,25 @@ export async function completeModuleProgress(moduleId: string) {
   const supabase = getSupabaseClient()
   if (!supabase) throw new Error('Supabase not configured')
   const userId = await requireUserId()
-  const { data, error } = await supabase
+  const { data: existing } = await supabase
     .from('learning_progress')
-    .update({
-      status: 'completed',
-      completed_at: new Date().toISOString(),
-      last_activity_at: new Date().toISOString(),
-    })
+    .select('*')
     .eq('user_id', userId)
     .eq('module_id', moduleId)
+    .single()
+  const payload = {
+    user_id: userId,
+    module_id: moduleId,
+    status: 'completed',
+    current_step_index: existing?.current_step_index ?? 0,
+    total_steps: existing?.total_steps ?? 0,
+    answers: existing?.answers ?? {},
+    completed_at: new Date().toISOString(),
+    last_activity_at: new Date().toISOString(),
+  }
+  const { data, error } = await supabase
+    .from('learning_progress')
+    .upsert(payload, { onConflict: 'user_id,module_id' })
     .select()
     .single()
   if (error) throw error
