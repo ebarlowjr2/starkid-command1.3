@@ -8,6 +8,7 @@ import {
   TouchableOpacity,
   Linking,
 } from "react-native";
+import { WebView } from "react-native-webview";
 import { useNavigation } from "@react-navigation/native";
 import {
   ARTEMIS_PROGRAM,
@@ -50,6 +51,7 @@ function KeyValueRow({ label, value }: { label: string; value?: string }) {
 
 export default function ArtemisScreen() {
   const navigation = useNavigation();
+  const ARTEMIS_TRACKER_URL = "https://www.nasa.gov/missions/artemis-ii/arow/";
   const [viewMode, setViewMode] = useState<"ops" | "learn">("ops");
   const [expandedKnowledge, setExpandedKnowledge] = useState<string | null>(null);
   const [selectedMissionId, setSelectedMissionId] = useState(ARTEMIS_MISSIONS[0]?.id);
@@ -104,6 +106,29 @@ export default function ArtemisScreen() {
           <GlassCard variant="secondary" style={styles.countdownCard}>
             <CustomText variant="sectionLabel" style={styles.countdownLabel}>ARTEMIS COUNTDOWN</CustomText>
             <CustomText variant="title" style={styles.countdownValue}>{artemisCountdown}</CustomText>
+          </GlassCard>
+          <GlassCard variant="secondary" style={styles.trackerCard}>
+            <View style={styles.trackerHeader}>
+              <View>
+                <CustomText variant="sectionLabel" style={styles.trackerLabel}>ARTEMIS II TRACKER</CustomText>
+                <CustomText variant="cardTitle" style={styles.trackerTitle}>NASA AROW LIVE VIEW</CustomText>
+              </View>
+              <TouchableOpacity onPress={() => Linking.openURL(ARTEMIS_TRACKER_URL)}>
+                <CustomText variant="sectionLabel" style={styles.trackerLink}>OPEN IN NASA →</CustomText>
+              </TouchableOpacity>
+            </View>
+            <View style={styles.trackerFrame}>
+              <WebView
+                source={{ uri: ARTEMIS_TRACKER_URL }}
+                style={styles.trackerWebview}
+                originWhitelist={["*"]}
+                javaScriptEnabled
+                domStorageEnabled
+              />
+            </View>
+            <CustomText variant="bodySmall" style={styles.trackerNote}>
+              If the tracker does not render, use “OPEN IN NASA.”
+            </CustomText>
           </GlassCard>
           <GlassCard variant="secondary" style={styles.statusBar}>
             <View style={styles.statusRow}>
@@ -495,6 +520,41 @@ const styles = StyleSheet.create({
   },
   cardBlock: {
     padding: 16,
+  },
+  trackerCard: {
+    padding: 16,
+    marginBottom: spacing.lg,
+  },
+  trackerHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: spacing.sm,
+  },
+  trackerLabel: {
+    color: colors.dim,
+  },
+  trackerTitle: {
+    color: colors.text,
+    marginTop: 4,
+  },
+  trackerLink: {
+    color: colors.accent,
+  },
+  trackerFrame: {
+    borderRadius: 12,
+    overflow: "hidden",
+    borderWidth: 1,
+    borderColor: "rgba(34, 211, 238, 0.2)",
+    backgroundColor: "rgba(0,0,0,0.4)",
+  },
+  trackerWebview: {
+    height: 360,
+    backgroundColor: "transparent",
+  },
+  trackerNote: {
+    color: colors.muted,
+    marginTop: spacing.sm,
   },
   cardTitle: {
     color: colors.text,
