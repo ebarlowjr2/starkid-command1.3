@@ -15,6 +15,7 @@ import {
   submitModuleForUser,
   completeModuleProgress,
   getUserProgressForModule,
+  awardXpForModuleCompletion,
 } from '@starkid/core'
 import LessonHeader from '../components/LessonHeader.jsx'
 import BlockRenderer from '../components/BlockRenderer.jsx'
@@ -30,6 +31,8 @@ export default function LessonPlayerScreen() {
   const [progressLoaded, setProgressLoaded] = useState(false)
   const [showSync, setShowSync] = useState(false)
   const [authRequired, setAuthRequired] = useState(false)
+  const [xpEarned, setXpEarned] = useState(0)
+  const [totalXp, setTotalXp] = useState(null)
 
   useEffect(() => {
     let active = true
@@ -178,6 +181,12 @@ export default function LessonPlayerScreen() {
           answers: state.answers,
         })
         await completeModuleProgress(module.id)
+        const xpResult = await awardXpForModuleCompletion({
+          moduleId: module.id,
+          xpReward: module.xpReward || 0,
+        })
+        if (xpResult?.xpAwarded) setXpEarned(module.xpReward || 0)
+        if (typeof xpResult?.totalXp === 'number') setTotalXp(xpResult.totalXp)
       } catch (e) {
         // ignore
       }
@@ -234,7 +243,13 @@ export default function LessonPlayerScreen() {
 
       {state.submitState === 'success' ? (
         <div className="mt-4 p-3 rounded border border-green-500/30 bg-green-500/10 text-green-200 text-sm">
-          Submission received. Command review will follow.
+          <div className="text-green-200 font-mono">Mission Complete</div>
+          {xpEarned ? (
+            <div className="mt-2 text-green-200">+{xpEarned} XP Earned</div>
+          ) : null}
+          {typeof totalXp === 'number' ? (
+            <div className="text-green-200/80 mt-1">Total XP: {totalXp}</div>
+          ) : null}
           <div className="mt-3">
             <button
               onClick={() => navigate('/')}

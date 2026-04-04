@@ -27,6 +27,7 @@ export default function LearningModuleAdminAddPage() {
     track: 'math',
     level: 'cadet',
     estimatedMinutes: 5,
+    xpReward: 50,
     blockCount: 0,
     blockList: '',
     missionContext: '',
@@ -65,6 +66,7 @@ export default function LearningModuleAdminAddPage() {
         track: form.track,
         level: form.level,
         estimatedMinutes: Number(form.estimatedMinutes) || undefined,
+        xpReward: Number(form.xpReward) || 0,
         blockCount: Number(form.blockCount) || undefined,
         blockList: form.blockList
           ? form.blockList.split(',').map((item) => item.trim()).filter(Boolean)
@@ -159,6 +161,10 @@ export default function LearningModuleAdminAddPage() {
           <label className="text-xs">
             Estimated Minutes
             <input type="number" className="w-full mt-1 bg-black/60 border border-cyan-600/60 p-2 rounded" value={form.estimatedMinutes} onChange={update('estimatedMinutes')} />
+          </label>
+          <label className="text-xs">
+            XP Reward
+            <input type="number" className="w-full mt-1 bg-black/60 border border-cyan-600/60 p-2 rounded" value={form.xpReward} onChange={update('xpReward')} />
           </label>
           <label className="text-xs">
             Block Count

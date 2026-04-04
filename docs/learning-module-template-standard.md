@@ -43,6 +43,7 @@ The following fields are supported by the current admin form and Supabase table.
 | Estimated Minutes | `estimated_minutes` | Yes | integer | `5` |
 | Block Count | `block_count` | Yes | integer | `7` |
 | Block List | `block_list` | Yes | array of strings | `['mission_brief', 'concept', ...]` |
+| XP Reward | `xp_reward` | Yes | integer | `50` |
 | Mission Context | `mission_context` | Yes | string | `Mission Control requires verification...` |
 | Objective | `objective` | Yes | string | `Determine the correct oxidizer-to-fuel ratio...` |
 | Mission Outcomes | `mission_outcomes` | Yes | array of strings | `['Review the mission brief', ...]` |
@@ -76,6 +77,7 @@ The following fields are supported by the current admin form and Supabase table.
 - `mission_outcomes`
 - `block_list`
 - `block_count`
+- `xp_reward`
 - `lesson_slug` (required if the module should launch the lesson player)
 - `status` (must be `published` to be learner-visible)
 
@@ -167,6 +169,18 @@ Progress states in `learning_progress`:
 - `in_progress`
 - `submitted`
 - `completed`
+
+---
+
+## XP + Progression (Sprint 5)
+
+XP is awarded on **first successful completion** of a module.
+
+Key rules:
+- Modules define `xp_reward` (integer).
+- XP is awarded once per user per module.
+- XP totals are stored in `learning_user_progression.total_xp`.
+- `learning_progress.xp_awarded` prevents duplicate rewards.
 
 ---
 

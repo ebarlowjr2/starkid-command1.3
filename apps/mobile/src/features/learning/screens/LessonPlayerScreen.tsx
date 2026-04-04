@@ -16,6 +16,7 @@ import {
   completeModuleProgress,
   getUserProgressForModule,
   ROUTE_MANIFEST,
+  awardXpForModuleCompletion,
 } from '@starkid/core'
 import { getSession } from '@starkid/core'
 import { SpaceBackground } from '../../../components/home/SpaceBackground'
@@ -36,6 +37,8 @@ export default function LessonPlayerScreen({ route, navigation }: any) {
   const [progressLoaded, setProgressLoaded] = useState(false)
   const [authRequired, setAuthRequired] = useState(false)
   const [showSync, setShowSync] = useState(false)
+  const [xpEarned, setXpEarned] = useState(0)
+  const [totalXp, setTotalXp] = useState<number | null>(null)
 
   useEffect(() => {
     let active = true
@@ -181,6 +184,12 @@ export default function LessonPlayerScreen({ route, navigation }: any) {
           answers: state.answers,
         })
         await completeModuleProgress(module.id)
+        const xpResult = await awardXpForModuleCompletion({
+          moduleId: module.id,
+          xpReward: module.xpReward || 0,
+        })
+        if (xpResult?.xpAwarded) setXpEarned(module.xpReward || 0)
+        if (typeof xpResult?.totalXp === 'number') setTotalXp(xpResult.totalXp)
       } catch (e) {
         // ignore
       }
@@ -213,7 +222,13 @@ export default function LessonPlayerScreen({ route, navigation }: any) {
 
           {state.submitState === 'success' ? (
             <GlassCard variant="secondary" style={{ marginTop: spacing.lg }}>
-              <CustomText variant="body" style={styles.success}>Submission received. Command review will follow.</CustomText>
+              <CustomText variant="body" style={styles.success}>Mission Complete</CustomText>
+              {xpEarned ? (
+                <CustomText variant="bodySmall" style={styles.success}>+{xpEarned} XP Earned</CustomText>
+              ) : null}
+              {typeof totalXp === 'number' ? (
+                <CustomText variant="bodySmall" style={styles.success}>Total XP: {totalXp}</CustomText>
+              ) : null}
               <PixelButton
                 label="RETURN HOME"
                 onPress={() => navigation.navigate('AppTabs', { screen: ROUTE_MANIFEST.HOME })}

@@ -4,13 +4,14 @@ import { SpaceBackground } from '../../components/home/SpaceBackground'
 import { GlassCard } from '../../components/home/GlassCard'
 import { PixelButton } from '../../components/home/PixelButton'
 import { colors, spacing } from '../../theme/tokens'
-import { listLearningModules, listTracks, listLevels, ROUTE_MANIFEST, listCompletedStemActivities } from '@starkid/core'
+import { listLearningModules, listTracks, listLevels, ROUTE_MANIFEST, getSession, getUserProgressForModule } from '@starkid/core'
 import { CustomText } from '../../components/ui/CustomText'
 
 export default function StemActivitiesScreen({ navigation }: { navigation: any }) {
   const [track, setTrack] = useState('')
   const [level, setLevel] = useState('')
-  const [completedIds, setCompletedIds] = useState<string[]>([])
+  const [progressById, setProgressById] = useState<Record<string, any>>({})
+  const [isAuthed, setIsAuthed] = useState(false)
 
   const [activities, setActivities] = useState([])
   const [loadingModules, setLoadingModules] = useState(true)
@@ -41,19 +42,30 @@ export default function StemActivitiesScreen({ navigation }: { navigation: any }
 
   useEffect(() => {
     let active = true
-    async function loadCompleted() {
+    async function loadProgress() {
       try {
-        const completed = await listCompletedStemActivities()
-        if (active) setCompletedIds((completed || []).map((item) => item.activityId))
+        const session = await getSession()
+        if (active) setIsAuthed(Boolean(session?.userId))
+        if (!session?.userId) {
+          if (active) setProgressById({})
+          return
+        }
+        const entries = await Promise.all(
+          activities.map(async (activity: any) => {
+            const progress = await getUserProgressForModule(activity.id)
+            return [activity.id, progress]
+          })
+        )
+        if (active) setProgressById(Object.fromEntries(entries))
       } catch (error) {
-        if (active) setCompletedIds([])
+        if (active) setProgressById({})
       }
     }
-    loadCompleted()
+    if (activities.length) loadProgress()
     return () => {
       active = false
     }
-  }, [])
+  }, [activities])
 
   return (
     <SpaceBackground>
@@ -106,6 +118,19 @@ export default function StemActivitiesScreen({ navigation }: { navigation: any }
                 <CustomText variant="bodySmall" style={styles.activityMeta}>
                   {item.track} • {item.level}
                 </CustomText>
+                {isAuthed && progressById[item.id]?.status === 'completed' ? (
+                  <CustomText variant="bodySmall" style={styles.statusComplete}>
+                    Completed{item.xpReward ? ` • +${item.xpReward} XP` : ''}
+                  </CustomText>
+                ) : isAuthed && progressById[item.id]?.status === 'in_progress' ? (
+                  <CustomText variant="bodySmall" style={styles.statusProgress}>
+                    In Progress
+                  </CustomText>
+                ) : isAuthed ? (
+                  <CustomText variant="bodySmall" style={styles.statusNotStarted}>
+                    Not Started
+                  </CustomText>
+                ) : null}
                 <CustomText variant="body" style={styles.activityBody}>{item.description}</CustomText>
                 <PixelButton
                   label="ACCESS MODULE"
@@ -146,6 +171,9 @@ const styles = StyleSheet.create({
   filterText: { color: colors.text },
   activityTitle: { color: colors.text },
   activityMeta: { color: colors.muted, marginTop: spacing.xs },
+  statusComplete: { color: '#4ade80', marginTop: 4 },
+  statusProgress: { color: '#facc15', marginTop: 4 },
+  statusNotStarted: { color: colors.dim, marginTop: 4 },
   activityBody: { color: colors.muted, marginTop: 6 },
   activityCard: { marginTop: spacing.md },
   accessButton: {

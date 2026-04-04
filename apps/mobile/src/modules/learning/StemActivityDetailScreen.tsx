@@ -17,6 +17,7 @@ export default function StemActivityDetailScreen({ route, navigation }: { route:
   const levelLabel = activity?.level ? `${activity.level.charAt(0).toUpperCase()}${activity.level.slice(1)}` : ''
   const [showSync, setShowSync] = useState(false)
   const [resumeStep, setResumeStep] = useState<number | null>(null)
+  const [progressStatus, setProgressStatus] = useState<'not_started' | 'in_progress' | 'completed'>('not_started')
 
   useEffect(() => {
     let active = true
@@ -46,9 +47,14 @@ export default function StemActivityDetailScreen({ route, navigation }: { route:
         const progress = await getUserProgressForModule(activityId)
         if (active && progress?.status === 'in_progress') {
           setResumeStep(progress.currentStepIndex + 1)
+          setProgressStatus('in_progress')
         }
         if (active && progress?.status === 'completed') {
           setCompleted(true)
+          setProgressStatus('completed')
+        }
+        if (active && !progress) {
+          setProgressStatus('not_started')
         }
       } catch (error) {
         if (active) setResumeStep(null)
@@ -162,6 +168,16 @@ export default function StemActivityDetailScreen({ route, navigation }: { route:
                   style={styles.completeButton}
                 />
               </View>
+              <View style={{ marginTop: spacing.sm }}>
+                <CustomText variant="bodySmall" style={styles.statusLine}>
+                  Status: {progressStatus === 'in_progress' ? 'In Progress' : progressStatus === 'completed' ? 'Completed' : 'Not Started'}
+                </CustomText>
+                {activity.xpReward ? (
+                  <CustomText variant="bodySmall" style={styles.statusLine}>
+                    XP Reward: {activity.xpReward}
+                  </CustomText>
+                ) : null}
+              </View>
               {resumeStep ? (
                 <CustomText variant="bodySmall" style={styles.resume}>
                   Resume available: Step {resumeStep}
@@ -223,6 +239,7 @@ const styles = StyleSheet.create({
   stepItem: { color: colors.muted, marginTop: 6 },
   muted: { color: colors.muted },
   resume: { color: colors.cyan, marginTop: spacing.sm },
+  statusLine: { color: colors.muted, marginTop: 4 },
   completeButton: {
     alignSelf: 'flex-start',
     paddingHorizontal: 14,

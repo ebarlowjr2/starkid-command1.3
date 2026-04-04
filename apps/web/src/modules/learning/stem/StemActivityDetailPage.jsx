@@ -11,6 +11,7 @@ export default function StemActivityDetailPage() {
   const [showSync, setShowSync] = useState(false)
   const [resumeStep, setResumeStep] = useState(null)
   const [isAuthed, setIsAuthed] = useState(false)
+  const [progressStatus, setProgressStatus] = useState('not_started')
 
   useEffect(() => {
     let active = true
@@ -41,9 +42,14 @@ export default function StemActivityDetailPage() {
         const progress = await getUserProgressForModule(activityId)
         if (active && progress?.status === 'in_progress') {
           setResumeStep(progress.currentStepIndex + 1)
+          setProgressStatus('in_progress')
         }
         if (active && progress?.status === 'completed') {
           setCompleted(true)
+          setProgressStatus('completed')
+        }
+        if (active && !progress) {
+          setProgressStatus('not_started')
         }
       } catch (error) {
         if (active) setResumeStep(null)
@@ -117,6 +123,14 @@ export default function StemActivityDetailPage() {
           >
             Start Mission
           </button>
+        ) : null}
+        {activity.lessonSlug && isAuthed ? (
+          <span className="text-xs text-cyan-200/80">
+            Status: {progressStatus === 'in_progress' ? 'In Progress' : progressStatus === 'completed' ? 'Completed' : 'Not Started'}
+          </span>
+        ) : null}
+        {activity.lessonSlug && activity.xpReward ? (
+          <span className="text-xs text-cyan-200/80">XP Reward: {activity.xpReward}</span>
         ) : null}
         {resumeStep ? (
           <span className="text-xs text-cyan-200/80">Resume from Step {resumeStep}</span>

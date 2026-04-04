@@ -8,6 +8,7 @@ export type LearningModule = StemActivity & {
   level?: StemLevel
   tags?: string[]
   answerKey?: string
+  xpReward?: number
   status?: 'draft' | 'in_review' | 'approved' | 'published' | 'archived'
   submittedForReviewAt?: string
   publishedAt?: string
@@ -23,6 +24,8 @@ export type LearningProgress = {
   currentStepIndex: number
   totalSteps: number
   answers: Record<string, unknown>
+  xpAwarded?: boolean
+  xpAwardedAt?: string | null
   startedAt?: string
   lastActivityAt?: string
   completedAt?: string | null

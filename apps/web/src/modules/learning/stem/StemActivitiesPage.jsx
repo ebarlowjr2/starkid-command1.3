@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { listLearningModules, listTracks, listLevels, listCompletedStemActivities } from '@starkid/core'
+import { listLearningModules, listTracks, listLevels, getSession, getUserProgressForModule } from '@starkid/core'
 
 export default function StemActivitiesPage() {
   const [activities, setActivities] = useState([])
   const [track, setTrack] = useState('')
   const [level, setLevel] = useState('')
-  const [completedIds, setCompletedIds] = useState([])
+  const [progressById, setProgressById] = useState({})
+  const [isAuthed, setIsAuthed] = useState(false)
   const nav = useNavigate()
 
   useEffect(() => {
@@ -32,19 +33,30 @@ export default function StemActivitiesPage() {
 
   useEffect(() => {
     let active = true
-    async function loadCompleted() {
+    async function loadProgress() {
       try {
-        const completed = await listCompletedStemActivities()
-        if (active) setCompletedIds((completed || []).map((item) => item.activityId))
+        const session = await getSession()
+        if (active) setIsAuthed(Boolean(session?.userId))
+        if (!session?.userId) {
+          if (active) setProgressById({})
+          return
+        }
+        const entries = await Promise.all(
+          activities.map(async (activity) => {
+            const progress = await getUserProgressForModule(activity.id)
+            return [activity.id, progress]
+          })
+        )
+        if (active) setProgressById(Object.fromEntries(entries))
       } catch (error) {
-        if (active) setCompletedIds([])
+        if (active) setProgressById({})
       }
     }
-    loadCompleted()
+    if (activities.length) loadProgress()
     return () => {
       active = false
     }
-  }, [])
+  }, [activities])
 
   return (
     <div className="p-4 max-w-4xl mx-auto">
@@ -97,9 +109,17 @@ export default function StemActivitiesPage() {
                 {activity.track}
               </span>
               <span className="text-xs text-cyan-200/70">{activity.level}</span>
-              {completedIds.includes(activity.id) ? (
+              {isAuthed && progressById[activity.id]?.status === 'completed' ? (
                 <span className="text-xs text-green-300 bg-green-900/30 px-2 py-0.5 rounded">
-                  Completed
+                  Completed{activity.xpReward ? ` • +${activity.xpReward} XP` : ''}
+                </span>
+              ) : isAuthed && progressById[activity.id]?.status === 'in_progress' ? (
+                <span className="text-xs text-yellow-200 bg-yellow-900/30 px-2 py-0.5 rounded">
+                  In Progress
+                </span>
+              ) : isAuthed ? (
+                <span className="text-xs text-cyan-200/70 bg-cyan-900/30 px-2 py-0.5 rounded">
+                  Not Started
                 </span>
               ) : null}
             </div>

@@ -19,6 +19,8 @@ function mapProgressRow(row: any): LearningProgress {
     currentStepIndex: row.current_step_index || 0,
     totalSteps: row.total_steps || 0,
     answers: row.answers || {},
+    xpAwarded: row.xp_awarded ?? false,
+    xpAwardedAt: row.xp_awarded_at || null,
     startedAt: row.started_at || undefined,
     lastActivityAt: row.last_activity_at || undefined,
     completedAt: row.completed_at || null,
@@ -174,4 +176,75 @@ export async function listCompletedModulesForUser() {
     .eq('status', 'completed')
   if (error || !data) return []
   return data.map(mapProgressRow)
+}
+
+export async function getUserLearningStats() {
+  const supabase = getSupabaseClient()
+  if (!supabase) throw new Error('Supabase not configured')
+  const userId = await requireUserId()
+  const { data, error } = await supabase
+    .from('learning_user_progression')
+    .select('*')
+    .eq('user_id', userId)
+    .single()
+  if (error || !data) {
+    return { userId, totalXp: 0 }
+  }
+  return { userId: data.user_id, totalXp: data.total_xp ?? 0 }
+}
+
+export async function awardXpForModuleCompletion(params: { moduleId: string; xpReward: number }) {
+  const supabase = getSupabaseClient()
+  if (!supabase) throw new Error('Supabase not configured')
+  const userId = await requireUserId()
+  if (!params.xpReward || params.xpReward <= 0) {
+    const stats = await getUserLearningStats()
+    return { xpAwarded: false, totalXp: stats.totalXp }
+  }
+
+  const { data: progress } = await supabase
+    .from('learning_progress')
+    .select('*')
+    .eq('user_id', userId)
+    .eq('module_id', params.moduleId)
+    .single()
+
+  if (progress?.xp_awarded) {
+    const stats = await getUserLearningStats()
+    return { xpAwarded: false, totalXp: stats.totalXp }
+  }
+
+  await supabase
+    .from('learning_progress')
+    .upsert(
+      {
+        user_id: userId,
+        module_id: params.moduleId,
+        xp_awarded: true,
+        xp_awarded_at: new Date().toISOString(),
+      },
+      { onConflict: 'user_id,module_id' }
+    )
+
+  const { data: existingStats } = await supabase
+    .from('learning_user_progression')
+    .select('*')
+    .eq('user_id', userId)
+    .single()
+
+  const nextTotal = (existingStats?.total_xp ?? 0) + params.xpReward
+
+  const { data: stats } = await supabase
+    .from('learning_user_progression')
+    .upsert(
+      {
+        user_id: userId,
+        total_xp: nextTotal,
+      },
+      { onConflict: 'user_id' }
+    )
+    .select()
+    .single()
+
+  return { xpAwarded: true, totalXp: stats?.total_xp ?? nextTotal }
 }
