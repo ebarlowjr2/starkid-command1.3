@@ -3,6 +3,7 @@ import { NavigationContainer } from '@react-navigation/native'
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
 import { configureCore, configureStorage, ROUTE_MANIFEST, getSession, onAuthChange } from '@starkid/core'
 import { storageAdapter } from './src/platform/storage.native'
+import Constants from 'expo-constants'
 
 import LaunchesScreen from './src/screens/LaunchesScreen'
 import SkyEventsScreen from './src/screens/SkyEventsScreen'
@@ -37,11 +38,13 @@ import TypographyPreviewScreen from './src/screens/TypographyPreviewScreen'
 
 const Stack = createNativeStackNavigator()
 
+const appExtra = Constants?.expoConfig?.extra || Constants?.manifest?.extra || {}
+
 configureCore({
-  nasaApiKey: process.env.EXPO_PUBLIC_NASA_API_KEY,
-  supabaseUrl: process.env.EXPO_PUBLIC_SUPABASE_URL,
-  supabaseAnonKey: process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY,
-  apiBase: process.env.EXPO_PUBLIC_API_BASE,
+  nasaApiKey: process.env.EXPO_PUBLIC_NASA_API_KEY || appExtra.nasaApiKey,
+  supabaseUrl: process.env.EXPO_PUBLIC_SUPABASE_URL || appExtra.supabaseUrl,
+  supabaseAnonKey: process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY || appExtra.supabaseAnonKey,
+  apiBase: process.env.EXPO_PUBLIC_API_BASE || appExtra.apiBase,
 })
 
 configureStorage(storageAdapter)
