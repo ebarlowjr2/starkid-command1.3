@@ -73,12 +73,14 @@ export default function ProfileScreen() {
           <CustomText variant="sectionLabel" style={styles.kicker}>COMMANDER PROFILE</CustomText>
           <CustomText variant="hero" style={styles.title}>{isGuest ? `Guest ${profile.rank}` : profile.displayName}</CustomText>
           <CustomText variant="bodySmall" style={styles.subtitle}>
-            {isGuest ? "Local Profile" : profile.rank} • Joined {new Date(profile.joinedAt).toLocaleDateString()}
+            {isGuest ? "Local Profile" : "Command Profile"} • Joined {new Date(profile.joinedAt).toLocaleDateString()}
           </CustomText>
 
           <GlassCard variant="secondary" style={{ marginTop: spacing.lg }}>
             <CustomText variant="body" style={styles.body}>
-              {profile.bio || "Guest profile — sync later to access on other devices."}
+              {isGuest
+                ? "Guest profile — sync later to access on other devices."
+                : (profile.bio || "Command profile synced.")}
             </CustomText>
             {isGuest ? (
               <PixelButton

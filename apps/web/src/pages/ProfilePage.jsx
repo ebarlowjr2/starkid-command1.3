@@ -51,7 +51,9 @@ export default function ProfilePage() {
     <div className="p-6 max-w-5xl mx-auto text-white">
       <div className="mb-6">
         <h1 className="text-2xl md:text-3xl font-bold tracking-wider text-cyan-300">COMMANDER PROFILE</h1>
-        <p className="text-sm text-cyan-200/70">Local profile • Sync Command Profile to access across devices.</p>
+        <p className="text-sm text-cyan-200/70">
+          {isGuest ? 'Local profile • Sync Command Profile to access across devices.' : 'Command profile synced.'}
+        </p>
       </div>
 
       <section className="border border-cyan-700/60 rounded-lg p-4 bg-black/60 mb-6">
@@ -61,10 +63,10 @@ export default function ProfilePage() {
               {isGuest ? `Guest ${profile.rank}` : profile.displayName}
             </div>
             <div className="text-xs text-cyan-300">
-              {isGuest ? 'Local Profile' : profile.rank} • Joined {new Date(profile.joinedAt).toLocaleDateString()}
+              {isGuest ? 'Local Profile' : 'Command Profile'} • Joined {new Date(profile.joinedAt).toLocaleDateString()}
             </div>
             <div className="text-sm text-cyan-200/70 mt-2">
-              {profile.bio || (isGuest ? 'Guest profile' : '')}
+              {isGuest ? 'Guest profile — sync later to access on other devices.' : (profile.bio || 'Command profile synced.')}
             </div>
           </div>
           <div className="flex items-center gap-3">
