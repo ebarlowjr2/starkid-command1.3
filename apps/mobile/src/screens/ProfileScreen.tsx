@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useCallback } from "react";
 import { SafeAreaView, StyleSheet, View, ScrollView, TextInput, Pressable, Switch } from "react-native";
+import { Linking } from "react-native";
 import { SpaceBackground } from "../components/home/SpaceBackground";
 import { GlassCard } from "../components/home/GlassCard";
 import { PixelButton } from "../components/home/PixelButton";
@@ -178,6 +179,24 @@ export default function ProfileScreen() {
               <CustomText variant="bodySmall" style={styles.note}>Initialize Identity to sync this profile.</CustomText>
             ) : null}
           </GlassCard>
+
+          <GlassCard variant="secondary" style={{ marginTop: spacing.lg }}>
+            <CustomText variant="sectionLabel" style={styles.sectionTitle}>Legal & About</CustomText>
+            {[
+              ['About StarKid Command', 'https://starkidcommand.com/about'],
+              ['Privacy Policy', 'https://starkidcommand.com/privacy'],
+              ['Terms of Service', 'https://starkidcommand.com/terms'],
+            ].map(([label, url]) => (
+              <Pressable
+                key={label}
+                onPress={() => Linking.openURL(url)}
+                style={styles.legalRow}
+              >
+                <CustomText variant="body" style={styles.legalText}>{label}</CustomText>
+                <CustomText variant="bodySmall" style={styles.legalArrow}>→</CustomText>
+              </Pressable>
+            ))}
+          </GlassCard>
           <SyncIdentityModal
             open={showSync}
             onClose={() => setShowSync(false)}
@@ -217,6 +236,16 @@ const styles = StyleSheet.create({
   savedRow: { flexDirection: "row", flexWrap: "wrap", gap: 8 },
   savedItem: { color: colors.muted },
   note: { color: colors.dim, marginTop: spacing.sm },
+  legalRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingVertical: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: "rgba(61,235,255,0.12)",
+  },
+  legalText: { color: colors.text },
+  legalArrow: { color: colors.accent },
   signOut: {
     color: colors.text,
     paddingVertical: 6,

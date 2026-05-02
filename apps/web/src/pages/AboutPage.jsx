@@ -25,16 +25,16 @@ export default function AboutPage() {
         Back to Explore
       </button>
 
-      <h1
-        style={{
-          fontSize: 28,
-          fontWeight: 700,
-          color: '#fff',
-          marginBottom: 48,
-          fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace',
-        }}
-      >
-        About
+        <h1
+          style={{
+            fontSize: 28,
+            fontWeight: 700,
+            color: '#fff',
+            marginBottom: 48,
+            fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace',
+          }}
+        >
+        About StarKid Command
       </h1>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 48 }}>
@@ -51,10 +51,16 @@ export default function AboutPage() {
           </h2>
           <div style={{ fontSize: 15, color: 'rgba(255,255,255,0.85)', lineHeight: 1.8 }}>
             <p style={{ marginBottom: 16 }}>
-              StarKid Command is a live mission-control interface for tracking, understanding, and exploring space.
+              StarKid Command is a space-inspired learning and mission platform that turns real-world space events into interactive STEM activities.
             </p>
             <p>
-              It brings together real mission data, spacecraft information, live events, and educational context into a single, interactive command-style experience.
+              The platform helps learners explore launches, sky events, space weather, mission alerts, and guided educational modules through a command-center style experience.
+            </p>
+            <p style={{ marginTop: 16 }}>
+              StarKid Command is designed to make space science, math, technology, and future-ready skills more accessible through interactive missions, progress tracking, and learning modules.
+            </p>
+            <p style={{ marginTop: 16, marginBottom: 0, color: 'rgba(255,255,255,0.65)' }}>
+              StarKid Command is an educational platform and is not an official NASA product.
             </p>
           </div>
         </section>
@@ -75,7 +81,7 @@ export default function AboutPage() {
               Space exploration information is often spread across many different sources — news articles, agency websites, videos, and technical documents.
             </p>
             <p>
-              StarKid Command exists to bring those pieces together in a format that feels like a real operations console, allowing enthusiasts and learners to explore missions, vehicles, and events with context and clarity.
+              StarKid Command brings those pieces together in a format that feels like a real operations console, allowing enthusiasts and learners to explore missions, vehicles, and events with context and clarity — then practice through guided learning modules.
             </p>
           </div>
         </section>

@@ -37,6 +37,8 @@ import LearningModuleAdminAddPage from './modules/learning/admin/LearningModuleA
 import LearningModuleAdminReviewPage from './modules/learning/admin/LearningModuleAdminReviewPage.jsx'
 import SupportPage from './pages/SupportPage.jsx'
 import AboutPage from './pages/AboutPage.jsx'
+import PrivacyPage from './pages/PrivacyPage.jsx'
+import TermsPage from './pages/TermsPage.jsx'
 import ProfilePage from './pages/ProfilePage.jsx'
 import AuthCallbackPage from './pages/AuthCallbackPage.jsx'
 import SocialQueuePage from './pages/ops/SocialQueuePage.jsx'
@@ -175,6 +177,8 @@ function AppShell() {
                                                                           <Route path="/profile" element={<ProfilePage />} />
                                                                           <Route path="/auth/callback" element={<AuthCallbackPage />} />
                     <Route path="/about" element={<AboutPage />} />
+                    <Route path="/privacy" element={<PrivacyPage />} />
+                    <Route path="/terms" element={<TermsPage />} />
                     <Route path="/ops/social-queue" element={<SocialQueuePage />} />
                     {import.meta.env.DEV ? (
                       <Route path="/dev/learning-preview" element={<LearningPreviewPage />} />
@@ -194,6 +198,10 @@ function AppShell() {
                       <a href="/support" className="hover:text-cyan-200 transition-colors">Support the Mission</a>
                       <span className="opacity-30">|</span>
                       <a href="/about" className="hover:text-cyan-200 transition-colors">About</a>
+                      <span className="opacity-30">|</span>
+                      <a href="/privacy" className="hover:text-cyan-200 transition-colors">Privacy</a>
+                      <span className="opacity-30">|</span>
+                      <a href="/terms" className="hover:text-cyan-200 transition-colors">Terms</a>
                     </div>
                     <p className="text-center opacity-50">© {new Date().getFullYear()} StarKid Command</p>
                   </div>
