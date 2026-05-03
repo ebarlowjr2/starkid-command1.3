@@ -18,11 +18,14 @@ export default function ProfileScreen() {
 
   const loadProfile = async (activeRef?: { current: boolean }) => {
     const session = await getSession();
-    const data = await getProfile();
     const actor = await getCurrentActor();
+    const data = await getProfile();
     if (activeRef && !activeRef.current) return;
     setProfile(data);
-    setIsGuest(!session?.userId && actor?.mode !== "user");
+
+    // Source of truth: if Supabase session exists, this is NOT a guest.
+    // (Actor mode can lag if getSession hasn't hydrated yet.)
+    setIsGuest(!session?.userId);
     setForm({ displayName: data.displayName, bio: data.bio || "" });
   };
 
