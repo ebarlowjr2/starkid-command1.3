@@ -104,11 +104,10 @@ export default function TermsPage() {
 
         <Section title="9. Contact">
           <p style={{ margin: 0 }}>
-            For questions, contact: <span style={{ color: '#22d3ee' }}>[INSERT CONTACT EMAIL]</span>
+            For questions, contact: <span style={{ color: '#22d3ee' }}>info@onecs.net</span>
           </p>
         </Section>
       </div>
     </div>
   )
 }
-
