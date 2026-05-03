@@ -50,10 +50,12 @@ import MobileNav from './components/nav/MobileNav.jsx'
 import { navSections } from './config/navConfig.js'
 import { getCurrentActor, getSession, onAuthChange, getSupabaseClient } from '@starkid/core'
 import SyncIdentityModal from './components/auth/SyncIdentityModal.jsx'
+import OnboardingModal, { isOnboardingComplete } from './components/OnboardingModal.jsx'
 
 function AppShell() {
   const [isGuest, setIsGuest] = useState(true)
   const [showSync, setShowSync] = useState(false)
+  const [showOnboarding, setShowOnboarding] = useState(false)
   const location = useLocation()
   const useDefaultBackground = location.pathname !== '/' && location.pathname !== '/explore'
 
@@ -85,6 +87,10 @@ function AppShell() {
       active = false
       unsubscribe?.()
     }
+  }, [])
+
+  useEffect(() => {
+    if (!isOnboardingComplete()) setShowOnboarding(true)
   }, [])
 
   return (
@@ -207,6 +213,13 @@ function AppShell() {
                   </div>
                 </footer>
         <CometWidget />
+        {showOnboarding ? (
+          <OnboardingModal
+            onDone={() => {
+              setShowOnboarding(false)
+            }}
+          />
+        ) : null}
         <SyncIdentityModal
           open={showSync}
           onClose={() => setShowSync(false)}

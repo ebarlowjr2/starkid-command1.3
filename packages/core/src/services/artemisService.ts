@@ -14,11 +14,11 @@ type ArtemisSummary = {
 const ARTEMIS_SUMMARY: ArtemisSummary = {
   programName: 'Artemis',
   description:
-    'NASA’s Artemis program is returning humans to the Moon and preparing for future missions to Mars.',
-  nextMission: 'Artemis II',
-  nextMissionDate: '2026-04-01T00:00:00Z',
+    'NASA’s Artemis program is returning humans to the Moon and preparing for future missions to Mars. Artemis III is currently tracked as a late-2027 estimated target.',
+  nextMission: 'Artemis III Estimated Target',
+  nextMissionDate: '2027-12-01T00:00:00Z',
   sourceUrl: 'https://www.nasa.gov/artemis/',
-  missionUrl: 'https://www.nasa.gov/missions/artemis-ii/',
+  missionUrl: 'https://www.nasa.gov/artemis/',
   programTag: 'Artemis',
 }
 

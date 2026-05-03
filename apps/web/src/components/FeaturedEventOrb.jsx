@@ -26,9 +26,9 @@ export function FeaturedEventOrb() {
         setFeatured((prev) => ({
           ...prev,
           title: alert.title?.split("•")?.[0]?.trim() || prev.title,
-          subtitle: "LAUNCH WINDOW OPENS (NET)",
+          subtitle: "ESTIMATED TARGET (LATE 2027)",
           targetIso: alert.startTime,
-          route: "/missions/artemis?mission=artemis-2",
+          route: "/missions/artemis?mission=artemis-3",
         }));
       } catch (error) {
         // Fall back to static config.
@@ -66,7 +66,7 @@ export function FeaturedEventOrb() {
       }}
       onClick={() => nav(targetRoute)}
       role="button"
-      aria-label={isWindowOpen ? "Go to live updates" : "Open Artemis II page"}
+      aria-label={isWindowOpen ? "Go to live updates" : "Open Artemis page"}
       tabIndex={0}
       onKeyDown={(e) => e.key === "Enter" && nav(targetRoute)}
     >

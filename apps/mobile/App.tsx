@@ -35,6 +35,8 @@ import UpdatesXScreen from './src/screens/UpdatesXScreen'
 import ArtemisScreen from './src/screens/ArtemisScreen'
 import AppTabs from './src/navigation/AppTabs'
 import TypographyPreviewScreen from './src/screens/TypographyPreviewScreen'
+import OnboardingScreen from './src/screens/OnboardingScreen'
+import { getItem, setItem } from '@starkid/core'
 
 const Stack = createNativeStackNavigator()
 
@@ -51,6 +53,7 @@ configureStorage(storageAdapter)
 
 export default function App() {
   const [fontsReady, setFontsReady] = useState(false)
+  const [onboardingDone, setOnboardingDone] = useState<boolean | null>(null)
 
   useEffect(() => {
     let active = true
@@ -93,8 +96,39 @@ export default function App() {
     }
   }, [])
 
+  useEffect(() => {
+    let active = true
+    async function loadOnboarding() {
+      try {
+        const value = await getItem('starkid:onboardingComplete')
+        if (active) setOnboardingDone(value === 'true')
+      } catch (e) {
+        if (active) setOnboardingDone(false)
+      }
+    }
+    loadOnboarding()
+    return () => {
+      active = false
+    }
+  }, [])
+
   if (!fontsReady) {
     return null
+  }
+
+  if (onboardingDone === null) {
+    return null
+  }
+
+  if (!onboardingDone) {
+    return (
+      <OnboardingScreen
+        onDone={async () => {
+          await setItem('starkid:onboardingComplete', 'true')
+          setOnboardingDone(true)
+        }}
+      />
+    )
   }
 
   return (

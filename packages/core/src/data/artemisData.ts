@@ -332,7 +332,7 @@ export const ARTEMIS_MISSIONS = [
     missionType: 'Crewed Lunar Landing',
     summary:
       'Historic return to the lunar surface, landing the first woman and first person of color on the Moon near the south pole using SpaceX Starship HLS.',
-    targetLaunch: '2026',
+    targetLaunch: 'Late 2027 (Estimated)',
     duration: '~30 days',
     rocket: 'sls',
     rocketConfig: 'block1',
@@ -340,7 +340,7 @@ export const ARTEMIS_MISSIONS = [
     lander: 'hls',
     gateway: false,
     dates: {
-      launchWindow: '2026',
+      launchWindow: 'Late 2027 (Estimated)',
       milestones: [
         { date: 'Pre-mission', event: 'Starship HLS pre-positioned in lunar orbit' },
         { date: 'T+0', event: 'SLS/Orion launch from Kennedy Space Center' },

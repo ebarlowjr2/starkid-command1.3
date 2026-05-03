@@ -9,7 +9,7 @@ export default function LandingPage() {
   const nav = useNavigate()
   const [artemis, setArtemis] = useState(null)
   const [now, setNow] = useState(Date.now())
-  const fallbackArtemisDate = "2026-04-01T00:00:00Z"
+  const fallbackArtemisDate = "2027-12-01T00:00:00Z"
 
   useEffect(() => {
     let active = true
@@ -106,7 +106,7 @@ export default function LandingPage() {
           onKeyDown={(e) => e.key === "Enter" && nav("/artemis")}
         >
           <div className="artemis-label">ARTEMIS SPOTLIGHT</div>
-          <div className="artemis-title">{artemis?.nextMission || "Artemis II"}</div>
+          <div className="artemis-title">{artemis?.nextMission || "Artemis III Estimated Target"}</div>
           <div className="artemis-countdown">
             COUNTDOWN · <span>{artemisCountdown}</span>
           </div>
