@@ -24,7 +24,13 @@ export function getSupabaseClient() {
     return null
   }
 
-  supabase = createClient(supabaseUrl, supabaseAnonKey)
+  const { supabaseAuthStorage } = getCoreConfig()
+
+  // In React Native, Supabase requires an explicit storage adapter so sessions
+  // persist across app restarts. On web we can omit and use default localStorage.
+  supabase = createClient(supabaseUrl, supabaseAnonKey, {
+    auth: supabaseAuthStorage ? { storage: supabaseAuthStorage, persistSession: true, autoRefreshToken: true } : undefined,
+  })
   return supabase
 }
 

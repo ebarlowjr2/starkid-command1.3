@@ -25,6 +25,7 @@ export * from './domain/missions/grading.ts'
 export * from './services/index.ts'
 export * from './learning/index.ts'
 export * from './profile/index.ts'
+export * from './profile/supabaseProfiles.ts'
 
 export * from './storage/identity.ts'
 export * from './storage/repos/repoFactory.ts'
@@ -34,6 +35,8 @@ export * from './auth/types.ts'
 export * from './auth/noAuthProvider.ts'
 export * from './auth/supabaseAuthProvider.ts'
 export * from './auth/service.ts'
+
+export * from './learning/modules/localProgress'
 
 export * from './utils/uuid.ts'
 

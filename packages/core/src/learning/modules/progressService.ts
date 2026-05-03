@@ -1,6 +1,8 @@
 import { getSupabaseClient } from '../../clients/supabase/supabase.js'
 import { getSession } from '../../auth/service'
 import type { LearningProgress, LearningSubmission } from './types'
+import { updateSupabaseProfile } from '../../profile/supabaseProfiles'
+import { rankForXp } from '../../profile/rank'
 
 function requireUserId() {
   return getSession().then((session) => {
@@ -246,5 +248,13 @@ export async function awardXpForModuleCompletion(params: { moduleId: string; xpR
     .select()
     .single()
 
-  return { xpAwarded: true, totalXp: stats?.total_xp ?? nextTotal }
+  const totalXp = stats?.total_xp ?? nextTotal
+  // Mirror into profiles for App Store readiness / profile surfaces.
+  try {
+    await updateSupabaseProfile(userId, { xp_total: totalXp, rank: rankForXp(totalXp) })
+  } catch {
+    // ignore
+  }
+
+  return { xpAwarded: true, totalXp }
 }

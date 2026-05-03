@@ -46,6 +46,7 @@ configureCore({
   nasaApiKey: process.env.EXPO_PUBLIC_NASA_API_KEY || appExtra.nasaApiKey,
   supabaseUrl: process.env.EXPO_PUBLIC_SUPABASE_URL || appExtra.supabaseUrl,
   supabaseAnonKey: process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY || appExtra.supabaseAnonKey,
+  supabaseAuthStorage: storageAdapter,
   apiBase: process.env.EXPO_PUBLIC_API_BASE || appExtra.apiBase,
 })
 

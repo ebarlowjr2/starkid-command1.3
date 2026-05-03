@@ -158,11 +158,6 @@ export default function StemActivityDetailScreen({ route, navigation }: { route:
                   label={activity.lessonSlug ? 'START MISSION' : 'COMING SOON'}
                   onPress={async () => {
                     if (!activity.lessonSlug) return
-                    const session = await getSession()
-                    if (!session?.userId) {
-                      setShowSync(true)
-                      return
-                    }
                     navigation?.navigate?.('LessonPlayer', { slug: activity.lessonSlug })
                   }}
                   style={styles.completeButton}

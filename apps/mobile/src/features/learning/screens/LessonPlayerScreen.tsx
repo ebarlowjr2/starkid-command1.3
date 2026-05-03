@@ -99,6 +99,7 @@ export default function LessonPlayerScreen({ route, navigation }: any) {
     )
   }
 
+  // Route guard: mission execution requires auth (guest-first browsing is still supported elsewhere).
   if (authRequired) {
     return (
       <SpaceBackground>
@@ -112,7 +113,13 @@ export default function LessonPlayerScreen({ route, navigation }: any) {
               onPress={() => setShowSync(true)}
               style={{ marginTop: spacing.lg }}
             />
-            <SyncIdentityModal open={showSync} onClose={() => setShowSync(false)} onSync={() => setShowSync(false)} />
+            <SyncIdentityModal
+              open={showSync}
+              onClose={() => setShowSync(false)}
+              onSync={() => {
+                setShowSync(false)
+              }}
+            />
           </View>
         </SafeAreaView>
       </SpaceBackground>
@@ -177,19 +184,22 @@ export default function LessonPlayerScreen({ route, navigation }: any) {
     const result = submitLesson(lesson, state)
     setState(result.nextState)
     if (result.nextState.submitState === 'success' && module) {
+      const session = await getSession()
       try {
-        await submitModuleForUser({
-          moduleId: module.id,
-          lessonSlug: lesson.slug,
-          answers: state.answers,
-        })
-        await completeModuleProgress(module.id)
-        const xpResult = await awardXpForModuleCompletion({
-          moduleId: module.id,
-          xpReward: module.xpReward || 0,
-        })
-        if (xpResult?.xpAwarded) setXpEarned(module.xpReward || 0)
-        if (typeof xpResult?.totalXp === 'number') setTotalXp(xpResult.totalXp)
+        if (session?.userId) {
+          await submitModuleForUser({
+            moduleId: module.id,
+            lessonSlug: lesson.slug,
+            answers: state.answers,
+          })
+          await completeModuleProgress(module.id)
+          const xpResult = await awardXpForModuleCompletion({
+            moduleId: module.id,
+            xpReward: module.xpReward || 0,
+          })
+          if (xpResult?.xpAwarded) setXpEarned(module.xpReward || 0)
+          if (typeof xpResult?.totalXp === 'number') setTotalXp(xpResult.totalXp)
+        }
       } catch (e) {
         // ignore
       }
