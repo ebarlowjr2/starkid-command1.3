@@ -39,6 +39,7 @@ import SupportPage from './pages/SupportPage.jsx'
 import AboutPage from './pages/AboutPage.jsx'
 import PrivacyPage from './pages/PrivacyPage.jsx'
 import TermsPage from './pages/TermsPage.jsx'
+import LaunchChecklistPage from './pages/LaunchChecklistPage.jsx'
 import ProfilePage from './pages/ProfilePage.jsx'
 import AuthCallbackPage from './pages/AuthCallbackPage.jsx'
 import SocialQueuePage from './pages/ops/SocialQueuePage.jsx'
@@ -185,6 +186,9 @@ function AppShell() {
                     <Route path="/about" element={<AboutPage />} />
                     <Route path="/privacy" element={<PrivacyPage />} />
                     <Route path="/terms" element={<TermsPage />} />
+                    {import.meta.env.DEV ? (
+                      <Route path="/launch-checklist" element={<LaunchChecklistPage />} />
+                    ) : null}
                     <Route path="/ops/social-queue" element={<SocialQueuePage />} />
                     {import.meta.env.DEV ? (
                       <Route path="/dev/learning-preview" element={<LearningPreviewPage />} />

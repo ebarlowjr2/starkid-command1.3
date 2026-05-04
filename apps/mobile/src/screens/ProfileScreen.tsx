@@ -1,11 +1,11 @@
 import React, { useEffect, useState, useCallback } from "react";
-import { SafeAreaView, StyleSheet, View, ScrollView, TextInput, Pressable, Switch } from "react-native";
+import { SafeAreaView, StyleSheet, View, ScrollView, TextInput, Pressable, Switch, Alert } from "react-native";
 import { Linking } from "react-native";
 import { SpaceBackground } from "../components/home/SpaceBackground";
 import { GlassCard } from "../components/home/GlassCard";
 import { PixelButton } from "../components/home/PixelButton";
 import { colors, spacing } from "../theme/tokens";
-import { getProfile, updateProfile, getCurrentActor, signOut, getSession } from "@starkid/core";
+import { getProfile, updateProfile, getCurrentActor, signOut, getSession, deleteAccount } from "@starkid/core";
 import { SyncIdentityModal } from "../components/auth/SyncIdentityModal";
 import { useFocusEffect } from "@react-navigation/native";
 import { CustomText } from "../components/ui/CustomText";
@@ -15,6 +15,8 @@ export default function ProfileScreen() {
   const [form, setForm] = useState({ displayName: "", bio: "" });
   const [isGuest, setIsGuest] = useState(true);
   const [showSync, setShowSync] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
+  const [deleting, setDeleting] = useState(false);
 
   const loadProfile = async (activeRef?: { current: boolean }) => {
     const session = await getSession();
@@ -103,6 +105,43 @@ export default function ProfileScreen() {
                 <CustomText variant="button" style={styles.signOut}>Sign Out</CustomText>
               </Pressable>
             )}
+
+            {!isGuest ? (
+              <Pressable
+                disabled={deleting}
+                onPress={async () => {
+                  const ok = await new Promise<boolean>((resolve) => {
+                    Alert.alert(
+                      'Delete Account',
+                      'Delete your account? This cannot be undone.',
+                      [
+                        { text: 'Cancel', style: 'cancel', onPress: () => resolve(false) },
+                        { text: 'Delete', style: 'destructive', onPress: () => resolve(true) },
+                      ]
+                    )
+                  })
+                  if (!ok) return
+                  try {
+                    setDeleting(true);
+                    setDeleteError(null);
+                    await deleteAccount();
+                    await loadProfile();
+                  } catch (e: any) {
+                    setDeleteError(e?.message || 'Failed to delete account');
+                  } finally {
+                    setDeleting(false);
+                  }
+                }}
+                style={{ marginTop: spacing.sm, alignSelf: "flex-start" }}
+              >
+                <CustomText variant="button" style={styles.deleteAccount}>
+                  {deleting ? 'Deleting…' : 'Delete Account'}
+                </CustomText>
+              </Pressable>
+            ) : null}
+            {deleteError ? (
+              <CustomText variant="bodySmall" style={styles.deleteError}>{deleteError}</CustomText>
+            ) : null}
           </GlassCard>
 
           <View style={styles.statsGrid}>
@@ -221,6 +260,8 @@ const styles = StyleSheet.create({
   title: { color: colors.text },
   subtitle: { color: colors.muted, marginTop: 6 },
   body: { color: colors.muted },
+  deleteAccount: { color: '#fca5a5' },
+  deleteError: { color: '#fca5a5', marginTop: spacing.sm },
   statsGrid: { marginTop: spacing.lg, flexDirection: "row", flexWrap: "wrap", gap: spacing.md },
   statCard: { width: "47%" },
   statLabel: { color: colors.dim },

@@ -35,6 +35,7 @@ export * from './auth/types.ts'
 export * from './auth/noAuthProvider.ts'
 export * from './auth/supabaseAuthProvider.ts'
 export * from './auth/service.ts'
+export * from './auth/accountService.ts'
 
 export * from './learning/modules/localProgress'
 

@@ -11,6 +11,7 @@ import { SyncIdentityModal } from '../../components/auth/SyncIdentityModal'
 export default function StemActivityDetailScreen({ route, navigation }: { route: any; navigation: any }) {
   const { activityId } = route?.params || {}
   const [activity, setActivity] = useState<any | null>(null)
+  const [loadError, setLoadError] = useState<string | null>(null)
   const [completed, setCompleted] = useState(false)
   const [saving, setSaving] = useState(false)
   const hasMissionEntry = Boolean(activity?.missionContext || activity?.objective)
@@ -23,10 +24,14 @@ export default function StemActivityDetailScreen({ route, navigation }: { route:
     let active = true
     async function loadActivity() {
       try {
+        setLoadError(null)
         const module = await getLearningModuleById(activityId)
         if (active) setActivity(module)
       } catch (error) {
-        if (active) setActivity(null)
+        if (active) {
+          setActivity(null)
+          setLoadError('Activity not found or failed to load.')
+        }
       }
     }
     if (activityId) loadActivity()
@@ -85,9 +90,20 @@ export default function StemActivityDetailScreen({ route, navigation }: { route:
   if (!activity) {
     return (
       <SpaceBackground>
-        <View style={styles.center}>
-          <CustomText variant="body" style={styles.muted}>Activity not found.</CustomText>
-        </View>
+        <SafeAreaView style={{ flex: 1 }}>
+          <View style={styles.container}>
+            <GlassCard variant="secondary">
+              <CustomText variant="body" style={styles.muted}>
+                {loadError || 'Activity not found.'}
+              </CustomText>
+              <PixelButton
+                label="BACK"
+                onPress={() => navigation.goBack()}
+                style={{ marginTop: spacing.md, alignSelf: 'flex-start' }}
+              />
+            </GlassCard>
+          </View>
+        </SafeAreaView>
       </SpaceBackground>
     )
   }

@@ -141,11 +141,25 @@ export default function StemActivitiesScreen({ navigation }: { navigation: any }
             </Pressable>
           )}
           ListFooterComponent={() => (
-            <GlassCard variant="secondary" style={{ marginTop: spacing.lg }}>
-              <CustomText variant="body" style={styles.cardText}>
-                {loadingModules ? 'Loading modules from Command...' : 'We’re building lesson-ready activities for classrooms and self-guided missions.'}
-              </CustomText>
-            </GlassCard>
+            <>
+              {loadingModules ? (
+                <GlassCard variant="secondary" style={{ marginTop: spacing.lg }}>
+                  <CustomText variant="body" style={styles.cardText}>Loading modules from Command...</CustomText>
+                </GlassCard>
+              ) : activities.length === 0 ? (
+                <GlassCard variant="secondary" style={{ marginTop: spacing.lg }}>
+                  <CustomText variant="body" style={styles.cardText}>
+                    No modules available right now.
+                  </CustomText>
+                </GlassCard>
+              ) : (
+                <GlassCard variant="secondary" style={{ marginTop: spacing.lg }}>
+                  <CustomText variant="body" style={styles.cardText}>
+                    We’re building lesson-ready activities for classrooms and self-guided missions.
+                  </CustomText>
+                </GlassCard>
+              )}
+            </>
           )}
         />
       </SafeAreaView>

@@ -5,6 +5,7 @@ import { GlassCard } from '../components/home/GlassCard'
 import { PixelButton } from '../components/home/PixelButton'
 import { CustomText } from '../components/ui/CustomText'
 import { colors, spacing } from '../theme/tokens'
+import { Linking, Pressable } from 'react-native'
 
 const SCREENS = [
   {
@@ -65,6 +66,17 @@ export default function OnboardingScreen({ onDone }: { onDone: () => void }) {
               }}
               style={styles.cta}
             />
+
+            <View style={styles.legalRow}>
+              {[
+                ['Privacy', 'https://starkidcommand.com/privacy'],
+                ['Terms', 'https://starkidcommand.com/terms'],
+              ].map(([label, url]) => (
+                <Pressable key={label} onPress={() => Linking.openURL(url)} style={styles.legalLink}>
+                  <CustomText variant="bodySmall" style={styles.legalText}>{label}</CustomText>
+                </Pressable>
+              ))}
+            </View>
           </GlassCard>
         </View>
       </SafeAreaView>
@@ -85,5 +97,7 @@ const styles = StyleSheet.create({
   dotIdle: { backgroundColor: 'rgba(61,235,255,0.10)' },
   cta: { alignSelf: 'flex-start' },
   skipBtn: { alignSelf: 'flex-end', paddingHorizontal: 10, paddingVertical: 6 },
+  legalRow: { flexDirection: 'row', gap: 12, marginTop: spacing.md },
+  legalLink: { paddingVertical: 6, paddingHorizontal: 10, borderRadius: 10, borderWidth: 1, borderColor: 'rgba(61,235,255,0.25)' },
+  legalText: { color: colors.dim },
 })
-
