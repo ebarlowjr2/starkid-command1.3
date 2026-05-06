@@ -3,6 +3,9 @@ export const ARTEMIS_PROGRAM = {
   name: 'ARTEMIS PROGRAM',
   subtitle: 'Human return to the Moon | Deep space operations | Gateway preparation',
   status: 'ACTIVE',
+  // Countdown uses an estimated target date (not an official launch date).
+  nextMission: 'Artemis III Estimated Target',
+  nextMissionDate: '2027-12-01T00:00:00Z',
   leadAgency: 'NASA',
   primaryRocket: 'Space Launch System (SLS)',
   crewVehicle: 'Orion',

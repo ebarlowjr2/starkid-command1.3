@@ -180,8 +180,12 @@ export default function ArtemisPage() {
     <div className="p-4" style={{ maxWidth: 1400, margin: '0 auto' }}>
       <style>{STATUS_DOT_STYLES}</style>
       <div style={{ marginBottom: 18, padding: '14px 18px', borderRadius: 12, background: 'rgba(0,0,0,0.7)', border: '1px solid rgba(34, 211, 238, 0.25)', display: 'flex', alignItems: 'center', gap: 16, flexWrap: 'wrap' }}>
-        <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)', fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace', letterSpacing: '0.12em' }}>ARTEMIS COUNTDOWN</div>
-        <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.6)', fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace' }}>{countdownLabel}</div>
+        <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)', fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace', letterSpacing: '0.12em' }}>
+          {ARTEMIS_PROGRAM?.nextMission ? ARTEMIS_PROGRAM.nextMission.toUpperCase() : 'ARTEMIS COUNTDOWN'}
+        </div>
+        <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.6)', fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace' }}>
+          ESTIMATED TARGET • {countdownLabel}
+        </div>
         <div style={{ fontSize: 18, color: '#22d3ee', fontWeight: 700, fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace' }}>
           {countdownTime}
         </div>
@@ -189,7 +193,7 @@ export default function ArtemisPage() {
       <div style={{ marginBottom: 18, padding: '16px 18px', borderRadius: 12, background: 'rgba(0,0,0,0.7)', border: '1px solid rgba(34, 211, 238, 0.25)' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap', marginBottom: 12 }}>
           <div>
-            <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)', fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace', letterSpacing: '0.12em' }}>ARTEMIS II TRACKER</div>
+            <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)', fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace', letterSpacing: '0.12em' }}>AROW TRACKER (ARTEMIS II)</div>
             <div style={{ fontSize: 14, color: '#fff', fontWeight: 700, fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace' }}>NASA AROW LIVE VIEW</div>
           </div>
           <a
