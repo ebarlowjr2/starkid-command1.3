@@ -9,7 +9,8 @@ const ICONS: Record<string, string> = {
   Home: "🏠",
   Explore: "🧭",
   "Command Center": "📡",
-  "Lunar Events": "🌙",
+  // Reused route name for the Missions hub tab (keeps route manifest stable).
+  "Lunar Events": "🎯",
   Learning: "🧪",
   Profile: "👤",
   "C.O.M.E.T.": "✨",

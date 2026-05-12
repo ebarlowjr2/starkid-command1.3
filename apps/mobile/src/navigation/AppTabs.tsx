@@ -4,7 +4,7 @@ import { ROUTE_MANIFEST } from "@starkid/core";
 import HomeScreen from "../screens/HomeScreen";
 import ExploreHubV2 from "../screens/ExploreHubV2";
 import CommandCenterScreen from "../screens/CommandCenterScreen";
-import SkyEventsScreen from "../screens/SkyEventsScreen";
+import MissionsHubScreen from "../screens/MissionsHubScreen";
 import LearningHubScreen from "../modules/learning/LearningHubScreen";
 import ProfileScreen from "../screens/ProfileScreen";
 import CometScreen from "../screens/CometScreen";
@@ -19,7 +19,11 @@ export default function AppTabs() {
       <Tab.Screen name={ROUTE_MANIFEST.EXPLORE} component={ExploreHubV2} options={{ title: "Exp", tabBarLabel: "Exp" }} />
       <Tab.Screen name={ROUTE_MANIFEST.COMMAND_CENTER} component={CommandCenterScreen} options={{ title: "Comm", tabBarLabel: "Comm" }} />
       <Tab.Screen name={ROUTE_MANIFEST.COMET} component={CometScreen} options={{ title: "C.O.M.E.T." }} />
-      <Tab.Screen name={ROUTE_MANIFEST.LUNAR_EVENTS} component={SkyEventsScreen} options={{ title: "Lunar", tabBarLabel: "Lunar" }} />
+      <Tab.Screen
+        name={ROUTE_MANIFEST.LUNAR_EVENTS}
+        component={MissionsHubScreen}
+        options={{ title: "Missions", tabBarLabel: "Mission" }}
+      />
       <Tab.Screen name={ROUTE_MANIFEST.LEARNING} component={LearningHubScreen} options={{ title: "Learn", tabBarLabel: "Learn" }} />
       <Tab.Screen name={ROUTE_MANIFEST.PROFILE} component={ProfileScreen} options={{ title: "Profile" }} />
     </Tab.Navigator>

@@ -14,6 +14,8 @@ export default function MissionAlertsScreen() {
   const navigation = useNavigation()
   const [alerts, setAlerts] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
+  const [loadError, setLoadError] = useState<string | null>(null)
+  const [reloadKey, setReloadKey] = useState(0)
   const [alertSources, setAlertSources] = useState<any[]>([])
   const [stemTrack, setStemTrack] = useState('math')
   const [stemLevel, setStemLevel] = useState('cadet')
@@ -24,6 +26,7 @@ export default function MissionAlertsScreen() {
     let active = true
     async function load() {
       try {
+        if (active) setLoading(true)
         const { data: list, sources } = await getAlertsForUser()
         if (active) setAlertSources(sources || [])
         const { missionsRepo, actor } = await getRepos()
@@ -43,7 +46,15 @@ export default function MissionAlertsScreen() {
             }
           })
         )
-        if (active) setAlerts(enriched || [])
+        if (active) {
+          setAlerts(enriched || [])
+          setLoadError(null)
+        }
+      } catch (e: any) {
+        if (active) {
+          setLoadError(e?.message || 'Failed to load mission alerts')
+          setAlerts([])
+        }
       } finally {
         if (active) setLoading(false)
       }
@@ -52,7 +63,7 @@ export default function MissionAlertsScreen() {
     return () => {
       active = false
     }
-  }, [stemTrack, stemLevel])
+  }, [stemTrack, stemLevel, reloadKey])
 
   if (loading) {
     return (
@@ -61,6 +72,24 @@ export default function MissionAlertsScreen() {
           <ActivityIndicator size="large" />
           <CustomText variant="body" style={styles.muted}>Loading mission alerts…</CustomText>
         </View>
+      </SpaceBackground>
+    )
+  }
+
+  if (loadError) {
+    return (
+      <SpaceBackground>
+        <SafeAreaView style={{ flex: 1 }}>
+          <View style={[styles.center, { paddingHorizontal: spacing.xl }]}>
+            <CustomText variant="body" style={styles.errorText}>{loadError}</CustomText>
+            <CustomText variant="bodySmall" style={styles.muted}>Check your connection and try again.</CustomText>
+            <PixelButton
+              label="RETRY"
+              onPress={() => setReloadKey((k) => k + 1)}
+              style={{ marginTop: spacing.lg }}
+            />
+          </View>
+        </SafeAreaView>
       </SpaceBackground>
     )
   }
@@ -189,6 +218,7 @@ const styles = StyleSheet.create({
   chipText: { color: colors.dim },
   chipTextActive: { color: colors.text },
   muted: { marginTop: 8, color: colors.muted },
+  errorText: { color: '#fca5a5', textAlign: 'center' },
   section: { marginTop: spacing.lg },
   card: { marginBottom: 12 },
   glowStrip: {

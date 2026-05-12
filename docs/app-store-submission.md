@@ -1,60 +1,65 @@
-# App Store Submission Draft — StarKid Command
+# StarKid Command — App Store Submission Draft
 
-Last updated: 2026-05-04
+## App Name
+StarKid Command
 
-## App Identity
-
-- App Name: StarKid Command
-- Bundle ID: com.onecirclesolutions.starkidcommand
-
-## Subtitle (30 chars max)
-
-Mission-style STEM learning
+## Subtitle
+Space missions + STEM training
 
 ## Short Description
-
-Explore space events and complete guided STEM missions with progress and XP.
+Explore launches, mission alerts, and guided STEM modules—then earn XP as you learn through missions.
 
 ## Full Description
+StarKid Command is a space-inspired mission-control experience that turns real-world space events into guided learning missions.
 
-StarKid Command is a space-inspired learning and mission platform that turns real-world space events into interactive STEM activities through a command-center style experience.
+Explore what’s happening now:
+- Upcoming launch windows and mission feeds
+- Sky events and space weather context
+- Mission alerts and briefings inspired by current activity
 
-Use StarKid Command to:
-
-- Explore launches, sky events, and mission alerts.
-- Start guided STEM learning modules with step-by-step mission flow.
-- Submit your work to Command and track your progress.
-- Earn XP as you complete missions and build your StarKid profile.
+Learn through missions:
+- Open structured STEM training modules
+- Follow a guided step-by-step lesson flow
+- Submit your work to Command and track completion
+- Earn XP and build your StarKid profile over time
 
 StarKid Command is an educational platform and is not an official NASA product.
 
 ## Keywords
+space, nasa, artemis, launches, astronomy, science, stem, education, learning, missions, rocket, sky events
 
-space, STEM, learning, missions, astronomy, rockets, science, education
+## Support URL
+https://starkidcommand.com/support
+
+## Privacy Policy URL
+https://starkidcommand.com/privacy
+
+## Terms of Service URL
+https://starkidcommand.com/terms
 
 ## Category Recommendation
-
-- Primary: Education
-- Secondary (optional): Entertainment
-
-## Support + Legal URLs
-
-- Support URL: https://starkidcommand.com/support
-- Privacy Policy URL: https://starkidcommand.com/privacy
-- Terms URL: https://starkidcommand.com/terms
+Primary: Education  
+Secondary (optional): Reference
 
 ## Screenshot Checklist
-
-- Home / Command Center screen
+- Onboarding screens (welcome, missions, XP)
+- Home / Command Center overview
+- Missions hub (launches, alerts, Artemis, lunar events)
 - STEM Activities list
-- Module detail (mission entry)
-- Lesson player (step view)
-- Completion screen (XP earned)
-- Profile screen
+- Module detail (mission-style entry)
+- Lesson player (step progress + inputs)
+- Completion screen (+XP earned)
+- Profile (XP + rank + legal links + delete account)
 
-## Review Notes
+## Review Notes (For App Review)
+- Guest-first browsing is supported for most content.
+- Learning mission execution requires identity initialization to save progress and submissions.
+- Legal pages are hosted on the web app:
+  - /about
+  - /privacy
+  - /terms
+- Account deletion is available in Profile (Delete Account).
 
-- Guest-first browsing: users can explore content without creating an account.
-- Authentication is required for mission execution, progress sync, and XP tracking.
-- Learning modules are governed by an approval workflow (draft → review → published).
+## Contact
+info@onecs.net
 

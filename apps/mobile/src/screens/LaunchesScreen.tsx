@@ -4,6 +4,7 @@ import { getUpcomingLaunchesWindow, getProviderSpotlights } from '@starkid/core'
 import { SpaceBackground } from '../components/home/SpaceBackground'
 import { GlassCard } from '../components/home/GlassCard'
 import { Badge } from '../components/home/Badge'
+import { PixelButton } from '../components/home/PixelButton'
 import { colors, spacing } from '../theme/tokens'
 import { CustomText } from '../components/ui/CustomText'
 
@@ -17,6 +18,8 @@ type LaunchItem = {
 
 export default function LaunchesScreen() {
   const [loading, setLoading] = useState(true)
+  const [loadError, setLoadError] = useState<string | null>(null)
+  const [reloadKey, setReloadKey] = useState(0)
   const [launches, setLaunches] = useState<LaunchItem[]>([])
   const [spotlights, setSpotlights] = useState<LaunchItem[]>([])
   const now = Date.now()
@@ -25,6 +28,7 @@ export default function LaunchesScreen() {
     let active = true
     async function load() {
       try {
+        if (active) setLoading(true)
         const [launchesResult, spotlightsResult] = await Promise.all([
           getUpcomingLaunchesWindow({ days: 7, limit: 12 }),
           getProviderSpotlights(),
@@ -32,6 +36,13 @@ export default function LaunchesScreen() {
         if (active) {
           setLaunches(launchesResult.data || [])
           setSpotlights(spotlightsResult.data || [])
+          setLoadError(null)
+        }
+      } catch (e: any) {
+        if (active) {
+          setLoadError(e?.message || 'Failed to load launches')
+          setLaunches([])
+          setSpotlights([])
         }
       } finally {
         if (active) setLoading(false)
@@ -41,7 +52,7 @@ export default function LaunchesScreen() {
     return () => {
       active = false
     }
-  }, [])
+  }, [reloadKey])
 
   if (loading) {
     return (
@@ -50,6 +61,24 @@ export default function LaunchesScreen() {
           <ActivityIndicator size="large" />
           <CustomText variant="body" style={styles.muted}>Loading upcoming launches…</CustomText>
         </View>
+      </SpaceBackground>
+    )
+  }
+
+  if (loadError) {
+    return (
+      <SpaceBackground>
+        <SafeAreaView style={{ flex: 1 }}>
+          <View style={[styles.center, { paddingHorizontal: spacing.xl }]}>
+            <CustomText variant="body" style={styles.errorText}>{loadError}</CustomText>
+            <CustomText variant="bodySmall" style={styles.muted}>Check your connection and try again.</CustomText>
+            <PixelButton
+              label="RETRY"
+              onPress={() => setReloadKey((k) => k + 1)}
+              style={{ marginTop: spacing.lg }}
+            />
+          </View>
+        </SafeAreaView>
       </SpaceBackground>
     )
   }
@@ -72,6 +101,14 @@ export default function LaunchesScreen() {
                   <CustomText variant="sectionLabel" style={styles.badgeHelper}>Sorted by earliest launch time</CustomText>
                 </View>
               </GlassCard>
+              {!launches.length ? (
+                <GlassCard variant="secondary" style={{ marginTop: spacing.lg }}>
+                  <CustomText variant="body" style={{ color: colors.text }}>No launches available.</CustomText>
+                  <CustomText variant="bodySmall" style={{ color: colors.muted, marginTop: 6 }}>
+                    Data may be delayed — refresh later for updated windows.
+                  </CustomText>
+                </GlassCard>
+              ) : null}
             </View>
           )}
           ListFooterComponent={() =>
@@ -118,6 +155,7 @@ const styles = StyleSheet.create({
   subtitle: { color: colors.muted, marginTop: 6 },
   badgeRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
   badgeHelper: { color: colors.dim, flex: 1 },
+  errorText: { color: '#fca5a5', textAlign: 'center' },
   muted: { marginTop: 8, color: colors.muted },
   card: {
     marginBottom: 12,

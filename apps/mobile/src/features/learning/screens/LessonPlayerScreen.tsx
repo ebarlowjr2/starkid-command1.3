@@ -39,6 +39,7 @@ export default function LessonPlayerScreen({ route, navigation }: any) {
   const [showSync, setShowSync] = useState(false)
   const [xpEarned, setXpEarned] = useState(0)
   const [totalXp, setTotalXp] = useState<number | null>(null)
+  const [progressSaveError, setProgressSaveError] = useState<string | null>(null)
 
   useEffect(() => {
     let active = true
@@ -150,8 +151,10 @@ export default function LessonPlayerScreen({ route, navigation }: any) {
         totalSteps: lesson.blocks.length,
         answers: nextState.answers,
       })
+      if (progressSaveError) setProgressSaveError(null)
     } catch (e) {
-      // ignore
+      const msg = (e as any)?.message || 'Failed to save progress'
+      setProgressSaveError(msg)
     }
   }
 
@@ -214,6 +217,20 @@ export default function LessonPlayerScreen({ route, navigation }: any) {
 
           <LessonHeader lesson={lesson} activeIndex={state.activeIndex} totalBlocks={state.totalBlocks} />
 
+          {progressSaveError ? (
+            <GlassCard variant="secondary" style={{ marginTop: spacing.md }}>
+              <CustomText variant="bodySmall" style={styles.warningTitle}>Progress sync issue</CustomText>
+              <CustomText variant="bodySmall" style={styles.warningText}>
+                {progressSaveError}. Your answers are still kept on this device for this session.
+              </CustomText>
+              <PixelButton
+                label="RETRY SAVE"
+                onPress={() => persistProgress(state)}
+                style={{ marginTop: spacing.sm, alignSelf: 'flex-start' }}
+              />
+            </GlassCard>
+          ) : null}
+
           <GlassCard variant="secondary">
             <BlockRenderer block={block} value={value} onChange={handleAnswer} onCheckpoint={handleAnswer} />
             {validation && !validation.valid ? (
@@ -264,6 +281,8 @@ const styles = StyleSheet.create({
   muted: { color: colors.muted },
   error: { color: '#f87171' },
   success: { color: '#4ade80' },
+  warningTitle: { color: 'rgba(255, 221, 150, 0.95)', marginBottom: 4 },
+  warningText: { color: 'rgba(255, 221, 150, 0.8)' },
   validation: { color: '#f87171', marginTop: spacing.sm },
   navRow: { flexDirection: 'row', gap: spacing.sm, marginTop: spacing.lg },
 })

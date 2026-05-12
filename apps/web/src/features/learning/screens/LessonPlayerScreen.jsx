@@ -33,6 +33,7 @@ export default function LessonPlayerScreen() {
   const [authRequired, setAuthRequired] = useState(false)
   const [xpEarned, setXpEarned] = useState(0)
   const [totalXp, setTotalXp] = useState(null)
+  const [progressSaveError, setProgressSaveError] = useState(null)
 
   useEffect(() => {
     let active = true
@@ -140,8 +141,9 @@ export default function LessonPlayerScreen() {
         totalSteps: lesson.blocks.length,
         answers: nextState.answers,
       })
+      if (progressSaveError) setProgressSaveError(null)
     } catch (e) {
-      // ignore
+      setProgressSaveError(e?.message || 'Failed to save progress')
     }
   }
 
@@ -203,6 +205,23 @@ export default function LessonPlayerScreen() {
       </button>
 
       <LessonHeader lesson={lesson} activeIndex={state.activeIndex} totalBlocks={state.totalBlocks} />
+
+      {progressSaveError ? (
+        <div className="mt-3 p-3 rounded border border-yellow-500/30 bg-yellow-500/10 text-yellow-100 text-xs">
+          <div className="font-mono text-yellow-200">Progress sync issue</div>
+          <div className="mt-1 opacity-90">
+            {progressSaveError}. Your answers are still kept in this session.
+          </div>
+          <div className="mt-2">
+            <button
+              onClick={() => persistProgress(state)}
+              className="px-3 py-2 rounded border border-yellow-500/30 bg-yellow-500/20 text-yellow-50 text-xs"
+            >
+              Retry Save
+            </button>
+          </div>
+        </div>
+      ) : null}
 
       <div className="p-4 rounded-xl border border-cyan-500/30 bg-black/40">
         <BlockRenderer

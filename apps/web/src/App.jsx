@@ -186,7 +186,7 @@ function AppShell() {
                     <Route path="/about" element={<AboutPage />} />
                     <Route path="/privacy" element={<PrivacyPage />} />
                     <Route path="/terms" element={<TermsPage />} />
-                    {import.meta.env.DEV ? (
+                    {(import.meta.env.DEV || import.meta.env.VITE_ENABLE_LAUNCH_CHECKLIST === 'true') ? (
                       <Route path="/launch-checklist" element={<LaunchChecklistPage />} />
                     ) : null}
                     <Route path="/ops/social-queue" element={<SocialQueuePage />} />
