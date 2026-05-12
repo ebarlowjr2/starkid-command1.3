@@ -8,12 +8,16 @@ export default function StemActivitiesPage() {
   const [level, setLevel] = useState('')
   const [progressById, setProgressById] = useState({})
   const [isAuthed, setIsAuthed] = useState(false)
+  const [loading, setLoading] = useState(true)
+  const [loadError, setLoadError] = useState(null)
   const nav = useNavigate()
 
   useEffect(() => {
     let active = true
     async function loadModules() {
       try {
+        setLoading(true)
+        setLoadError(null)
         const data = await listLearningModules({
           moduleType: 'stem',
           track: track || undefined,
@@ -22,7 +26,12 @@ export default function StemActivitiesPage() {
         })
         if (active) setActivities(data)
       } catch (error) {
-        if (active) setActivities([])
+        if (active) {
+          setActivities([])
+          setLoadError(error?.message || 'Failed to load modules')
+        }
+      } finally {
+        if (active) setLoading(false)
       }
     }
     loadModules()
@@ -99,6 +108,20 @@ export default function StemActivitiesPage() {
       </div>
 
       <div className="grid gap-4">
+        {loading ? (
+          <div className="border border-cyan-600/40 rounded-lg p-4 bg-black/30 text-cyan-200/70 font-mono">
+            Loading modules from Command…
+          </div>
+        ) : loadError ? (
+          <div className="border border-red-500/30 rounded-lg p-4 bg-black/30 text-red-200 text-sm">
+            {loadError}
+          </div>
+        ) : activities.length === 0 ? (
+          <div className="border border-cyan-600/40 rounded-lg p-4 bg-black/30 text-cyan-200/70 text-sm">
+            No modules available right now.
+          </div>
+        ) : null}
+
         {activities.map((activity) => (
           <div
             key={activity.id}
@@ -133,9 +156,7 @@ export default function StemActivitiesPage() {
             </button>
           </div>
         ))}
-        {activities.length === 0 ? (
-          <div className="text-cyan-200/60 text-sm">No activities match this filter.</div>
-        ) : null}
+        {!loading && !loadError && activities.length > 0 ? null : null}
       </div>
     </div>
   )

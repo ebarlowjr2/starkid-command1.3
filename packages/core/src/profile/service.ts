@@ -3,6 +3,10 @@ import { getDefaultProfile } from './defaults'
 import { getRepos } from '../storage/repos/repoFactory'
 import { listTracks, listLevels } from '../learning/stem/service'
 import { listStemActivities } from '../learning/stem/service'
+import { getSession } from '../auth/service'
+import { ensureSupabaseProfile, updateSupabaseProfile } from './supabaseProfiles'
+import { rankForXp } from './rank'
+import { getUserLearningStats } from '../learning/modules/progressService'
 
 const SAVED_TYPES: SavedObjectType[] = [
   'near_earth_object',
@@ -21,7 +25,21 @@ export async function getProfile(): Promise<UserProfile> {
   const summary = await getSavedObjectsSummary()
   const missionSummary = await getMissionHistorySummary()
   const stemSummary = await getStemProgressSummary()
-  const rank = await recalculateRank()
+  // Rank and XP: for authenticated users, prefer Supabase-backed totals.
+  // For guests, fall back to local heuristic rank.
+  const session = await getSession()
+  let rank: UserRank = await recalculateRank()
+  if (session?.userId) {
+    const stats = await getUserLearningStats().catch(() => ({ totalXp: 0 } as any))
+    const computedRank = rankForXp(stats?.totalXp ?? 0)
+    rank = computedRank
+    await ensureSupabaseProfile(session.userId)
+    // Keep profile table in sync with the progression table if needed.
+    await updateSupabaseProfile(session.userId, {
+      xp_total: stats?.totalXp ?? 0,
+      rank: computedRank,
+    }).catch(() => {})
+  }
 
   const profile: UserProfile = {
     ...base,
@@ -45,6 +63,18 @@ export async function updateProfile(patch: Partial<UserProfile>) {
   const updated = await profileRepo.updateProfile(actor.actorId, patch)
   if (patch.alertPreferences) {
     await preferencesRepo.set(actor.actorId, { alertPreferences: patch.alertPreferences })
+  }
+
+  // If authenticated, mirror user-facing fields into Supabase profiles.
+  // This keeps web/mobile in sync and avoids "guest profile" confusion.
+  const session = await getSession()
+  if (session?.userId) {
+    const username = patch.displayName ?? undefined
+    const onboardingComplete = (patch as any).onboardingComplete
+    await updateSupabaseProfile(session.userId, {
+      ...(typeof username === 'string' ? { username } : {}),
+      ...(typeof onboardingComplete === 'boolean' ? { onboarding_complete: onboardingComplete } : {}),
+    }).catch(() => {})
   }
   return updated
 }

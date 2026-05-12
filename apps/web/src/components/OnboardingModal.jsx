@@ -20,6 +20,11 @@ const SCREENS = [
   },
 ]
 
+const LEGAL_LINKS = [
+  { label: 'Privacy', href: '/privacy' },
+  { label: 'Terms', href: '/terms' },
+]
+
 export function isOnboardingComplete() {
   try {
     return window.localStorage.getItem(STORAGE_KEY) === 'true'
@@ -140,8 +145,30 @@ export default function OnboardingModal({ onDone }) {
             {isLast ? 'START EXPLORING' : 'CONTINUE'}
           </button>
         </div>
+
+        <div style={{ display: 'flex', gap: 10, marginTop: 14, flexWrap: 'wrap' }}>
+          {LEGAL_LINKS.map((l) => (
+            <a
+              key={l.href}
+              href={l.href}
+              target="_blank"
+              rel="noreferrer"
+              style={{
+                border: '1px solid rgba(34, 211, 238, 0.25)',
+                background: 'rgba(255,255,255,0.04)',
+                color: 'rgba(255,255,255,0.65)',
+                padding: '8px 10px',
+                borderRadius: 10,
+                fontSize: 12,
+                fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace',
+                textDecoration: 'none',
+              }}
+            >
+              {l.label}
+            </a>
+          ))}
+        </div>
       </div>
     </div>
   )
 }
-

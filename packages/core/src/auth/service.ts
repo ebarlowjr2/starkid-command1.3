@@ -8,6 +8,9 @@ import { createLocalStemProgressRepo } from '../storage/repos/localStemProgressR
 import { createLocalProfileRepo } from '../storage/repos/localProfileRepo.ts'
 import { createLocalPreferencesRepo } from '../storage/repos/localPreferencesRepo.ts'
 import { removeItem } from '../storage/storage.ts'
+import { listLocalLearningProgress, clearLocalLearningProgress } from '../learning/modules/localProgress'
+import { saveModuleProgress } from '../learning/modules/progressService'
+import { ensureSupabaseProfile } from '../profile/supabaseProfiles'
 
 const SAVED_TYPES = ['near_earth_object', 'comet', 'sky_event', 'mission', 'activity']
 
@@ -34,6 +37,7 @@ export async function signInWithPassword(email: string, password: string) {
   const session = toSession(data?.session)
   if (session?.userId) {
     await migrateLocalGuestData(guestId, session.userId)
+    await ensureSupabaseProfile(session.userId)
   }
   await setUserSession(session)
   return session
@@ -52,6 +56,7 @@ export async function signUpWithPassword(email: string, password: string, redire
   const session = toSession(data?.session)
   if (session?.userId) {
     await migrateLocalGuestData(guestId, session.userId)
+    await ensureSupabaseProfile(session.userId)
   }
   await setUserSession(session)
   return session
@@ -138,6 +143,25 @@ export async function migrateLocalGuestData(guestId: string, userId: string) {
     }
   }
 
+  // Learning module progress migration (guest -> user).
+  // This keeps progress/answers when a user establishes identity.
+  try {
+    const learningRows = await listLocalLearningProgress(guestId)
+    for (const row of learningRows) {
+      await saveModuleProgress({
+        moduleId: row.moduleId,
+        lessonSlug: row.lessonSlug,
+        currentStepIndex: row.currentStepIndex,
+        totalSteps: row.totalSteps,
+        answers: row.answers || {},
+        status: row.status || 'in_progress',
+      })
+      await clearLocalLearningProgress(guestId, row.moduleId)
+    }
+  } catch {
+    // ignore migration failures
+  }
+
   await clearGuestData(guestId)
 }
 
@@ -151,4 +175,12 @@ async function clearGuestData(guestId: string) {
     ...SAVED_TYPES.map((type) => `starkid:${guestId}:saved:${type}`),
   ]
   await Promise.all(keys.map((key) => removeItem(key)))
+
+  // best-effort: clear learning progress keys
+  try {
+    const rows = await listLocalLearningProgress(guestId)
+    await Promise.all(rows.map((r) => clearLocalLearningProgress(guestId, r.moduleId)))
+  } catch {
+    // ignore
+  }
 }

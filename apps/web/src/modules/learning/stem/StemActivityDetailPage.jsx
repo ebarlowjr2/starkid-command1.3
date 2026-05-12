@@ -79,7 +79,9 @@ export default function StemActivityDetailPage() {
   if (!activity) {
     return (
       <div className="p-4 max-w-4xl mx-auto">
-        <div className="text-cyan-200/70">Activity not found.</div>
+        <div className="border border-cyan-600/40 rounded-lg p-4 bg-black/30 text-cyan-200/70">
+          Activity not found or failed to load.
+        </div>
       </div>
     )
   }

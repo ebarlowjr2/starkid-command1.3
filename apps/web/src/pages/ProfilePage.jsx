@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { getProfile, updateProfile, getCurrentActor, signOut, getSession } from '@starkid/core'
+import { getProfile, updateProfile, getCurrentActor, signOut, getSession, deleteAccount } from '@starkid/core'
 import SyncIdentityModal from '../components/auth/SyncIdentityModal.jsx'
 
 export default function ProfilePage() {
@@ -8,14 +8,15 @@ export default function ProfilePage() {
   const [form, setForm] = useState({ displayName: '', bio: '' })
   const [isGuest, setIsGuest] = useState(true)
   const [showSync, setShowSync] = useState(false)
+  const [deleteError, setDeleteError] = useState(null)
+  const [deleting, setDeleting] = useState(false)
 
   const loadProfile = async (activeRef) => {
     const session = await getSession()
     const data = await getProfile()
-    const actor = await getCurrentActor()
     if (activeRef && !activeRef.current) return
     setProfile(data)
-    setIsGuest(!session?.userId && actor?.mode !== 'user')
+    setIsGuest(!session?.userId)
     setForm({ displayName: data.displayName, bio: data.bio || '' })
     setLoading(false)
   }
@@ -74,19 +75,44 @@ export default function ProfilePage() {
               RANK: {profile.rank.toUpperCase()}
             </div>
             {!isGuest ? (
-              <button
-                className="px-3 py-2 rounded border border-cyan-700/60 text-cyan-200 hover:text-cyan-100 text-xs"
-                onClick={async () => {
-                  await signOut()
-                  const actor = await getCurrentActor()
-                  setIsGuest(actor?.mode !== 'user')
-                }}
-              >
-                Sign Out
-              </button>
+              <div className="flex items-center gap-2">
+                <button
+                  className="px-3 py-2 rounded border border-cyan-700/60 text-cyan-200 hover:text-cyan-100 text-xs"
+                  onClick={async () => {
+                    await signOut()
+                    const actor = await getCurrentActor()
+                    setIsGuest(actor?.mode !== 'user')
+                  }}
+                >
+                  Sign Out
+                </button>
+                <button
+                  className="px-3 py-2 rounded border border-red-500/40 text-red-200 hover:text-red-100 text-xs"
+                  disabled={deleting}
+                  onClick={async () => {
+                    const ok = window.confirm('Delete your account? This cannot be undone.')
+                    if (!ok) return
+                    try {
+                      setDeleting(true)
+                      setDeleteError(null)
+                      await deleteAccount()
+                      window.location.href = '/'
+                    } catch (e) {
+                      setDeleteError(e?.message || 'Failed to delete account')
+                    } finally {
+                      setDeleting(false)
+                    }
+                  }}
+                >
+                  {deleting ? 'Deleting…' : 'Delete Account'}
+                </button>
+              </div>
             ) : null}
           </div>
         </div>
+        {deleteError ? (
+          <div className="mt-3 text-xs text-red-300">{deleteError}</div>
+        ) : null}
         {isGuest ? (
           <div className="mt-4">
             <button
