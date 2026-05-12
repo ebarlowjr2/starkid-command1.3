@@ -27,6 +27,7 @@ import { CustomText } from '../../../components/ui/CustomText'
 import LessonHeader from '../components/LessonHeader'
 import BlockRenderer from '../components/BlockRenderer'
 import { SyncIdentityModal } from '../../../components/auth/SyncIdentityModal'
+import { CommonActions } from '@react-navigation/native'
 
 export default function LessonPlayerScreen({ route, navigation }: any) {
   const slug = route?.params?.slug
@@ -258,7 +259,23 @@ export default function LessonPlayerScreen({ route, navigation }: any) {
               ) : null}
               <PixelButton
                 label="RETURN HOME"
-                onPress={() => navigation.navigate('AppTabs', { screen: ROUTE_MANIFEST.HOME })}
+                onPress={() => {
+                  // Reliable cross-navigator return-to-home: reset to the tab navigator and select Home.
+                  navigation.dispatch(
+                    CommonActions.reset({
+                      index: 0,
+                      routes: [
+                        {
+                          name: 'AppTabs',
+                          state: {
+                            index: 0,
+                            routes: [{ name: ROUTE_MANIFEST.HOME }],
+                          },
+                        },
+                      ],
+                    })
+                  )
+                }}
                 style={{ marginTop: spacing.lg, alignSelf: 'flex-start' }}
               />
             </GlassCard>
