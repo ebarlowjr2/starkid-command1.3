@@ -29,6 +29,7 @@ export default function LaunchChecklistPage() {
   const [modules, setModules] = useState([])
   const [error, setError] = useState(null)
   const [sampleProgress, setSampleProgress] = useState(null)
+  const qaEnabledByEnv = import.meta.env.VITE_ENABLE_LAUNCH_CHECKLIST === 'true'
 
   useEffect(() => {
     let active = true
@@ -80,6 +81,15 @@ export default function LaunchChecklistPage() {
         <p className="text-sm text-cyan-200/70 mt-2">
           This page is for internal QA. It runs lightweight checks and provides quick links for manual verification.
         </p>
+        {qaEnabledByEnv ? (
+          <div className="mt-3 p-3 rounded border border-yellow-500/30 bg-yellow-500/10 text-yellow-100 text-xs">
+            <div className="font-mono text-yellow-200">QA Window Enabled</div>
+            <div className="mt-1 opacity-90">
+              This page is exposed because <span className="font-mono">VITE_ENABLE_LAUNCH_CHECKLIST=true</span>.
+              Disable it before public launch if you don’t want this route available.
+            </div>
+          </div>
+        ) : null}
         <div className="mt-3 flex flex-wrap gap-2">
           {links.map((l) => (
             <a
@@ -157,4 +167,3 @@ export default function LaunchChecklistPage() {
     </div>
   )
 }
-
