@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import MissionCard from '../components/MissionCard.jsx'
 import { getMoonSummary, getMoonDescription } from '@starkid/core'
-import { getSkyEvents } from '@starkid/core'
+import { getUpcomingSkyEventsService } from '@starkid/core'
 import { getTonightsMissions, calculateTotalPoints, getBadgeForPoints } from '@starkid/core'
 
 const STORAGE_KEY = 'starkid_tonights_mission_completed'
@@ -42,7 +42,7 @@ export default function TonightsMissionPage() {
       try {
         const [m, evs, ms] = await Promise.all([
           getMoonSummary(),
-          getSkyEvents({ days: 1 }),
+          getUpcomingSkyEventsService({ days: 1 }).then((res) => res.data),
           getTonightsMissions(),
         ])
         setMoon(m)

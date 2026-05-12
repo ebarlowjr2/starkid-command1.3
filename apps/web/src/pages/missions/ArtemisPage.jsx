@@ -9,7 +9,9 @@ import {
   ARTEMIS_SYSTEMS,
   ARTEMIS_KNOWLEDGE,
   MISSION_STATUS_COLORS,
-} from '../../config/missions/artemis'
+  getArtemisPriorityAlert,
+} from '@starkid/core'
+import { useCountdown } from '../../hooks/useCountdown.js'
 
 const STATUS_DOT_STYLES = `
 @keyframes telemetryPulse {
@@ -121,11 +123,13 @@ function MissionPathDiagram({ mission }) {
 }
 
 export default function ArtemisPage() {
+  const ARTEMIS_TRACKER_URL = 'https://www.nasa.gov/missions/artemis-ii/arow/'
   const navigate = useNavigate()
   const [searchParams, setSearchParams] = useSearchParams()
   const [viewMode, setViewMode] = useState('ops')
   const [expandedKnowledge, setExpandedKnowledge] = useState(null)
   const [lastRefresh, setLastRefresh] = useState(new Date())
+  const [countdownTargetIso, setCountdownTargetIso] = useState(ARTEMIS_PROGRAM?.nextMissionDate || null)
   const missionParam = searchParams.get('mission')
   const initialMissionId = ARTEMIS_MISSIONS.find(m => m.id === missionParam)?.id || 'artemis-1'
   const [selectedMissionId, setSelectedMissionId] = useState(initialMissionId)
@@ -135,6 +139,26 @@ export default function ArtemisPage() {
       setSelectedMissionId(missionParam)
     }
   }, [missionParam])
+
+  useEffect(() => {
+    let active = true
+    async function load() {
+      try {
+        const result = await getArtemisPriorityAlert()
+        const alert = result?.data
+        if (!active || !alert?.startTime) return
+        const alertTime = new Date(alert.startTime).getTime()
+        if (!Number.isFinite(alertTime) || alertTime <= Date.now()) return
+        setCountdownTargetIso(alert.startTime)
+      } catch (error) {
+        // fallback to ARTEMIS_PROGRAM
+      }
+    }
+    load()
+    return () => {
+      active = false
+    }
+  }, [])
 
   const handleMissionSelect = (missionId) => {
     setSelectedMissionId(missionId)
@@ -146,10 +170,54 @@ export default function ArtemisPage() {
   const rocketConfig = rocketData?.configurations?.[selectedMission?.rocketConfig]
   const handleRefresh = () => setLastRefresh(new Date())
   const formatTime = (date) => date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false })
+  const countdown = useCountdown(countdownTargetIso || ARTEMIS_PROGRAM?.nextMissionDate || null)
+  const countdownLabel = countdown?.done ? 'WINDOW OPEN' : 'COUNTDOWN'
+  const countdownTime = countdown?.done
+    ? '00:00:00'
+    : `${String(countdown.days).padStart(2, '0')}d ${String(countdown.hours).padStart(2, '0')}:${String(countdown.minutes).padStart(2, '0')}:${String(countdown.seconds).padStart(2, '0')}`
 
   return (
     <div className="p-4" style={{ maxWidth: 1400, margin: '0 auto' }}>
       <style>{STATUS_DOT_STYLES}</style>
+      <div style={{ marginBottom: 18, padding: '14px 18px', borderRadius: 12, background: 'rgba(0,0,0,0.7)', border: '1px solid rgba(34, 211, 238, 0.25)', display: 'flex', alignItems: 'center', gap: 16, flexWrap: 'wrap' }}>
+        <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)', fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace', letterSpacing: '0.12em' }}>
+          {ARTEMIS_PROGRAM?.nextMission ? ARTEMIS_PROGRAM.nextMission.toUpperCase() : 'ARTEMIS COUNTDOWN'}
+        </div>
+        <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.6)', fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace' }}>
+          ESTIMATED TARGET • {countdownLabel}
+        </div>
+        <div style={{ fontSize: 18, color: '#22d3ee', fontWeight: 700, fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace' }}>
+          {countdownTime}
+        </div>
+      </div>
+      <div style={{ marginBottom: 18, padding: '16px 18px', borderRadius: 12, background: 'rgba(0,0,0,0.7)', border: '1px solid rgba(34, 211, 238, 0.25)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap', marginBottom: 12 }}>
+          <div>
+            <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)', fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace', letterSpacing: '0.12em' }}>AROW TRACKER (ARTEMIS II)</div>
+            <div style={{ fontSize: 14, color: '#fff', fontWeight: 700, fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace' }}>NASA AROW LIVE VIEW</div>
+          </div>
+          <a
+            href={ARTEMIS_TRACKER_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ color: '#22d3ee', fontSize: 11, fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace', textDecoration: 'none' }}
+          >
+            OPEN IN NASA → 
+          </a>
+        </div>
+        <div style={{ borderRadius: 10, overflow: 'hidden', border: '1px solid rgba(34, 211, 238, 0.2)', background: 'rgba(0,0,0,0.4)' }}>
+          <iframe
+            title="Artemis II Tracker"
+            src={ARTEMIS_TRACKER_URL}
+            style={{ width: '100%', height: 520, border: '0' }}
+            loading="lazy"
+            sandbox="allow-same-origin allow-scripts allow-popups allow-forms"
+          />
+        </div>
+        <div style={{ marginTop: 10, fontSize: 11, color: 'rgba(255,255,255,0.45)', fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace' }}>
+          If the NASA tracker does not load here, use the “OPEN IN NASA” link above.
+        </div>
+      </div>
       <div className="artemis-status-bar" style={{ position: 'sticky', top: 0, zIndex: 100, marginBottom: 24, padding: '12px 20px', borderRadius: 12, background: 'rgba(0,0,0,0.8)', backdropFilter: 'blur(12px)', border: '1px solid rgba(34, 211, 238, 0.3)', display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 24 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)', fontFamily: 'monospace' }}>PROGRAM:</span>

@@ -4,6 +4,21 @@
     "slug": "starkid-command",
     "version": "0.0.1",
     "orientation": "portrait",
-    "assetBundlePatterns": ["**/*"]
+    "icon": "./assets/icon.png",
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "5a63907a-ff3d-4362-af42-68c7b4e5765d"
+      }
+    },
+    "ios": {
+      "icon": "./assets/icon.png",
+      "bundleIdentifier": "com.onecirclesolutions.starkidcommand",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
+    }
   }
 }

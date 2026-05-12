@@ -31,6 +31,15 @@ export const navSections = [
     ]
   },
   {
+    label: 'Learning',
+    color: 'cyan',
+    items: [
+      { label: 'Learning Hub', to: '/learning' },
+      { label: 'STEM Activities', to: '/learning/stem' },
+      { label: 'Cyber Lab', to: '/learning/cyberlab' }
+    ]
+  },
+  {
     label: 'Updates',
     color: 'orange',
     items: [
@@ -38,6 +47,14 @@ export const navSections = [
       { label: 'Official Updates', to: '/updates/official' },
       { label: 'News', to: '/updates/news' },
       { label: 'Blog', to: '/updates/blog' }
+    ]
+  },
+  {
+    label: 'Account',
+    color: 'cyan',
+    items: [
+      { label: 'Profile', to: '/profile' },
+      { label: 'STEM Progress', to: '/learning/stem/progress' }
     ]
   }
 ]

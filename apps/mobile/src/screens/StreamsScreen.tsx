@@ -1,17 +1,34 @@
 import React from 'react'
-import { View, Text, StyleSheet } from 'react-native'
+import { SafeAreaView, StyleSheet, View } from 'react-native'
+import { SpaceBackground } from '../components/home/SpaceBackground'
+import { GlassCard } from '../components/home/GlassCard'
+import { colors, spacing } from '../theme/tokens'
+import { CustomText } from '../components/ui/CustomText'
 
 export default function StreamsScreen() {
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Streams</Text>
-      <Text style={styles.body}>Live streams will be available here soon.</Text>
-    </View>
+    <SpaceBackground>
+      <SafeAreaView style={{ flex: 1 }}>
+        <View style={styles.container}>
+          <CustomText variant="sectionLabel" style={styles.kicker}>STREAMS</CustomText>
+          <CustomText variant="hero" style={styles.title}>Live Streams</CustomText>
+          <CustomText variant="body" style={styles.subtitle}>Mission broadcasts and live feeds are coming soon.</CustomText>
+
+          <GlassCard variant="secondary" style={{ marginTop: spacing.lg }}>
+            <CustomText variant="body" style={styles.cardText}>
+              We’re integrating launch control rooms, telescope feeds, and live events.
+            </CustomText>
+          </GlassCard>
+        </View>
+      </SafeAreaView>
+    </SpaceBackground>
   )
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 16, backgroundColor: '#0b0f1a' },
-  title: { fontSize: 22, fontWeight: '700', color: '#f9fafb', marginBottom: 8 },
-  body: { color: '#9ca3af' },
+  container: { padding: spacing.xl },
+  kicker: { color: colors.dim, marginBottom: 8 },
+  title: { color: colors.text },
+  subtitle: { color: colors.muted, marginTop: 6 },
+  cardText: { color: colors.muted },
 })

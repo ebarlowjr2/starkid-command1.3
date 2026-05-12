@@ -1,5 +1,5 @@
-import React from 'react'
-import { BrowserRouter, Routes, Route, NavLink } from 'react-router-dom'
+import React, { useEffect, useState } from 'react'
+import { BrowserRouter, Routes, Route, NavLink, useLocation } from 'react-router-dom'
 import LandingPage from './pages/LandingPage.jsx'
 import ExploreHubPage from './pages/ExploreHubPage.jsx'
 import CommandCenterPage from './pages/CommandCenterPage.jsx'
@@ -27,18 +27,86 @@ import ArtemisPage from './pages/missions/ArtemisPage.jsx'
 import SLSDetailPage from './pages/missions/SLSDetailPage.jsx'
 import OrionDetailPage from './pages/missions/OrionDetailPage.jsx'
 import MissionBriefingPage from './pages/MissionBriefingPage.jsx'
+import LearningHubPage from './modules/learning/learningHub/LearningHubPage.jsx'
+import StemActivitiesPage from './modules/learning/stem/StemActivitiesPage.jsx'
+import StemActivityDetailPage from './modules/learning/stem/StemActivityDetailPage.jsx'
+import StemProgressPage from './modules/learning/stem/StemProgressPage.jsx'
+import CyberLabPage from './modules/learning/cyberlab/CyberLabPage.jsx'
+import LearningModuleAdminHubPage from './modules/learning/admin/LearningModuleAdminHubPage.jsx'
+import LearningModuleAdminAddPage from './modules/learning/admin/LearningModuleAdminAddPage.jsx'
+import LearningModuleAdminReviewPage from './modules/learning/admin/LearningModuleAdminReviewPage.jsx'
 import SupportPage from './pages/SupportPage.jsx'
 import AboutPage from './pages/AboutPage.jsx'
+import PrivacyPage from './pages/PrivacyPage.jsx'
+import TermsPage from './pages/TermsPage.jsx'
+import ProfilePage from './pages/ProfilePage.jsx'
+import AuthCallbackPage from './pages/AuthCallbackPage.jsx'
 import SocialQueuePage from './pages/ops/SocialQueuePage.jsx'
+import LearningPreviewPage from './pages/dev/LearningPreviewPage.jsx'
+import LessonPlayerScreen from './features/learning/screens/LessonPlayerScreen.jsx'
 import CometWidget from './components/comet/CometWidget.jsx'
 import DesktopNav from './components/nav/DesktopNav.jsx'
 import MobileNav from './components/nav/MobileNav.jsx'
 import { navSections } from './config/navConfig.js'
+import { getCurrentActor, getSession, onAuthChange, getSupabaseClient } from '@starkid/core'
+import SyncIdentityModal from './components/auth/SyncIdentityModal.jsx'
+import OnboardingModal, { isOnboardingComplete } from './components/OnboardingModal.jsx'
 
-export default function App() {
+function AppShell() {
+  const [isGuest, setIsGuest] = useState(true)
+  const [showSync, setShowSync] = useState(false)
+  const [showOnboarding, setShowOnboarding] = useState(false)
+  const location = useLocation()
+  const useDefaultBackground = location.pathname !== '/' && location.pathname !== '/explore'
+
+  useEffect(() => {
+    let active = true
+    async function loadActor() {
+      const hash = window.location.hash
+      if (hash && hash.includes('access_token')) {
+        const supabase = getSupabaseClient()
+        if (supabase) {
+          try {
+            await supabase.auth.getSessionFromUrl({ storeSession: true })
+            window.history.replaceState({}, document.title, window.location.pathname + window.location.search)
+          } catch (e) {
+            // ignore
+          }
+        }
+      }
+      await getSession()
+      const actor = await getCurrentActor()
+      if (active) setIsGuest(actor?.mode !== 'user')
+    }
+    loadActor()
+    const unsubscribe = onAuthChange((session) => {
+      if (!active) return
+      setIsGuest(!session)
+    })
+    return () => {
+      active = false
+      unsubscribe?.()
+    }
+  }, [])
+
+  useEffect(() => {
+    if (!isOnboardingComplete()) setShowOnboarding(true)
+  }, [])
+
   return (
-    <BrowserRouter>
-      <div className="min-h-screen bg-black text-cyan-200 font-mono flex flex-col">
+      <div
+        className="min-h-screen bg-black text-cyan-200 font-mono flex flex-col"
+        style={
+          useDefaultBackground
+            ? {
+                backgroundImage: "url('/assets/backgrounds/starkid-app-default.png')",
+                backgroundSize: 'cover',
+                backgroundPosition: 'center',
+                backgroundRepeat: 'no-repeat',
+              }
+            : undefined
+        }
+      >
         {/* Global LCARS header + nav */}
         <header className="p-4 bg-gradient-to-r from-zinc-900 to-black border-b-2 border-cyan-500 shadow-lg shadow-cyan-500/50">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
@@ -55,6 +123,15 @@ export default function App() {
             
             {/* Mobile Navigation */}
             <MobileNav navSections={navSections} />
+
+            {isGuest ? (
+              <button
+                className="ml-auto md:ml-0 px-3 py-2 rounded border border-cyan-600/60 text-cyan-200 hover:text-cyan-100 bg-black/40 text-xs"
+                onClick={() => setShowSync(true)}
+              >
+                Sync Command Profile
+              </button>
+            ) : null}
           </div>
         </header>
 
@@ -84,14 +161,35 @@ export default function App() {
                                       <Route path="/updates/blog/:slug" element={<BlogDetailPage />} />
                                       <Route path="/updates/live" element={<LivePage />} />
                                       <Route path="/updates/x" element={<XPage />} />
-                                      <Route path="/missions/artemis" element={<ArtemisPage />} />
+                    <Route path="/missions/artemis" element={<ArtemisPage />} />
+                    <Route path="/artemis" element={<ArtemisPage />} />
                                                                           <Route path="/missions/artemis/sls" element={<SLSDetailPage />} />
                     <Route path="/missions/artemis/orion" element={<OrionDetailPage />} />
                     <Route path="/missions/briefing" element={<MissionBriefingPage />} />
-                                                                                                                                                  <Route path="/support" element={<SupportPage />} />
-                                                                                                                                                  <Route path="/about" element={<AboutPage />} />
-                                                                                                                                                  <Route path="/ops/social-queue" element={<SocialQueuePage />} />
-                                                                                                                                                </Routes>
+                    <Route path="/missions/briefing/:missionId" element={<MissionBriefingPage />} />
+                    <Route path="/learning" element={<LearningHubPage />} />
+                    <Route path="/learning/stem" element={<StemActivitiesPage />} />
+                    <Route path="/learning/stem/:activityId" element={<StemActivityDetailPage />} />
+                    <Route path="/learning/cyberlab" element={<CyberLabPage />} />
+                    <Route path="/learning/admin" element={<LearningModuleAdminHubPage />} />
+                    <Route path="/learning/admin/add" element={<LearningModuleAdminAddPage />} />
+                    <Route path="/learning/admin/approve" element={<LearningModuleAdminReviewPage />} />
+                    <Route path="/learning/stem/progress" element={<StemProgressPage />} />
+                    <Route path="/learning/lesson/:slug" element={<LessonPlayerScreen />} />
+                    <Route path="/stem-activities" element={<StemActivitiesPage />} />
+                    <Route path="/stem-activities/:activityId" element={<StemActivityDetailPage />} />
+                    <Route path="/stem/progress" element={<StemProgressPage />} />
+                                                                          <Route path="/support" element={<SupportPage />} />
+                                                                          <Route path="/profile" element={<ProfilePage />} />
+                                                                          <Route path="/auth/callback" element={<AuthCallbackPage />} />
+                    <Route path="/about" element={<AboutPage />} />
+                    <Route path="/privacy" element={<PrivacyPage />} />
+                    <Route path="/terms" element={<TermsPage />} />
+                    <Route path="/ops/social-queue" element={<SocialQueuePage />} />
+                    {import.meta.env.DEV ? (
+                      <Route path="/dev/learning-preview" element={<LearningPreviewPage />} />
+                    ) : null}
+                                                                                </Routes>
                 </main>
 
                 <footer className="p-4 bg-gradient-to-r from-black to-zinc-900 border-t border-cyan-800 text-xs text-cyan-300">
@@ -106,12 +204,35 @@ export default function App() {
                       <a href="/support" className="hover:text-cyan-200 transition-colors">Support the Mission</a>
                       <span className="opacity-30">|</span>
                       <a href="/about" className="hover:text-cyan-200 transition-colors">About</a>
+                      <span className="opacity-30">|</span>
+                      <a href="/privacy" className="hover:text-cyan-200 transition-colors">Privacy</a>
+                      <span className="opacity-30">|</span>
+                      <a href="/terms" className="hover:text-cyan-200 transition-colors">Terms</a>
                     </div>
                     <p className="text-center opacity-50">© {new Date().getFullYear()} StarKid Command</p>
                   </div>
                 </footer>
         <CometWidget />
+        {showOnboarding ? (
+          <OnboardingModal
+            onDone={() => {
+              setShowOnboarding(false)
+            }}
+          />
+        ) : null}
+        <SyncIdentityModal
+          open={showSync}
+          onClose={() => setShowSync(false)}
+          onSync={() => setShowSync(false)}
+        />
       </div>
+  )
+}
+
+export default function App() {
+  return (
+    <BrowserRouter>
+      <AppShell />
     </BrowserRouter>
   )
 }

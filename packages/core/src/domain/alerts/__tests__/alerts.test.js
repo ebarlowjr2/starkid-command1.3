@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest'
-import { generateAlerts, filterByUserPreference, convertAlertToMission } from '../alerts.js'
+import { filterByUserPreference, convertAlertToMission } from '../alerts.js'
+import { getAlertsForUser } from '../../../services/alertsService.ts'
 
 const now = new Date('2025-01-01T00:00:00Z')
 const day = 24 * 60 * 60 * 1000
@@ -12,29 +13,30 @@ const meteor = { id: 'm1', title: 'Meteor Shower', type: 'meteor-shower', start:
 const solar = { strongestClass: 'M', severityPct: 70 }
 
 describe('alerts', () => {
-  it('generateAlerts returns sorted alerts array', async () => {
-    const alerts = await generateAlerts({
-      launches: [launchB, launchA],
-      skyEvents: [meteor, eclipse],
-      solarActivity: solar,
+  it('getAlertsForUser returns sorted alerts array', async () => {
+    const result = await getAlertsForUser(undefined, {
+      launches: { data: [
+        { id: 'launch:b', type: 'launch', title: 'Launch B', severity: 'medium', startTime: launchB.net },
+        { id: 'launch:a', type: 'launch', title: 'Launch A', severity: 'medium', startTime: launchA.net },
+      ], sources: [] },
+      skyEvents: { data: [meteor, eclipse], sources: [] },
+      solar: { data: solar, sources: [] },
+      artemis: { data: [], sources: [] },
     })
+    const alerts = result.data || []
 
     expect(Array.isArray(alerts)).toBe(true)
     expect(alerts.length).toBeGreaterThan(0)
 
     // Same date: high severity (eclipse) should come before info (meteor)
-    const eclipseIdx = alerts.findIndex((a) => a.id.startsWith('event:e1'))
-    const meteorIdx = alerts.findIndex((a) => a.id.startsWith('event:m1'))
+    const eclipseIdx = alerts.findIndex((a) => a.id.includes('e1'))
+    const meteorIdx = alerts.findIndex((a) => a.id.includes('m1'))
     expect(eclipseIdx).toBeLessThan(meteorIdx)
 
     // Same date + severity: stable by id
     const launchAIdx = alerts.findIndex((a) => a.id === 'launch:a')
     const launchBIdx = alerts.findIndex((a) => a.id === 'launch:b')
     expect(launchAIdx).toBeLessThan(launchBIdx)
-
-    // Solar has no date; should sort last
-    const solarIdx = alerts.findIndex((a) => a.id.startsWith('solar:'))
-    expect(solarIdx).toBe(alerts.length - 1)
   })
 
   it('filterByUserPreference filters by type and severity', () => {

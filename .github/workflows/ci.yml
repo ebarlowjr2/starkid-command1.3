@@ -1,0 +1,23 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 9.12.2
+
+      - run: pnpm install
+
+      - run: pnpm -C packages/core test
+
+      - run: pnpm -C apps/web build
+

@@ -11,6 +11,8 @@ describe('mission engine', () => {
     expect(['math', 'cyber', 'linux', 'science']).toContain(mission.type)
     expect(mission.difficulty).toBeTruthy()
     expect(mission.briefing).toBeTruthy()
+    expect(mission.steps.length).toBeGreaterThan(0)
+    expect(mission.steps.length).toBeLessThanOrEqual(3)
   })
 
   it('createMissionFromEclipse returns valid mission', () => {

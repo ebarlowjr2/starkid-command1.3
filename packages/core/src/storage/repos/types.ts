@@ -2,6 +2,7 @@ export type MissionsRepo = {
   listAttempts(actorId: string): Promise<any[]>
   saveAttempt(actorId: string, attempt: any): Promise<void>
   markCompleted(actorId: string, missionId: string): Promise<void>
+  isCompleted(actorId: string, missionId: string): Promise<boolean>
   listCompleted(actorId: string): Promise<string[]>
 }
 
@@ -14,6 +15,18 @@ export type SavedItemsRepo = {
 export type PreferencesRepo = {
   get(actorId: string): Promise<any>
   set(actorId: string, prefs: any): Promise<void>
+}
+
+export type StemProgressRepo = {
+  markCompleted(actorId: string, completion: any): Promise<void>
+  isCompleted(actorId: string, activityId: string): Promise<boolean>
+  listCompleted(actorId: string): Promise<any[]>
+}
+
+export type ProfileRepo = {
+  getProfile(actorId: string): Promise<any | null>
+  saveProfile(actorId: string, profile: any): Promise<void>
+  updateProfile(actorId: string, patch: any): Promise<any>
 }
 
 export class RepoNotEnabledError extends Error {
@@ -33,6 +46,9 @@ export class NotEnabledRepo {
   async markCompleted() {
     throw new RepoNotEnabledError('Repo not enabled yet')
   }
+  async isCompleted() {
+    throw new RepoNotEnabledError('Repo not enabled yet')
+  }
   async listCompleted() {
     throw new RepoNotEnabledError('Repo not enabled yet')
   }
@@ -49,6 +65,15 @@ export class NotEnabledRepo {
     throw new RepoNotEnabledError('Repo not enabled yet')
   }
   async set() {
+    throw new RepoNotEnabledError('Repo not enabled yet')
+  }
+  async getProfile() {
+    throw new RepoNotEnabledError('Repo not enabled yet')
+  }
+  async saveProfile() {
+    throw new RepoNotEnabledError('Repo not enabled yet')
+  }
+  async updateProfile() {
     throw new RepoNotEnabledError('Repo not enabled yet')
   }
 }

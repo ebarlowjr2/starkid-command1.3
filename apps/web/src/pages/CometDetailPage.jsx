@@ -19,7 +19,7 @@ export default function CometDetailPage() {
   }, [decodedDesignation])
 
   async function loadCometData() {
-    const cometDetails = getCometByDesignation(decodedDesignation)
+    const { data: cometDetails } = await getCometByDesignation(decodedDesignation)
     setComet(cometDetails || { designation: decodedDesignation, name: decodedDesignation })
 
     const { savedItemsRepo, actor } = await getRepos()

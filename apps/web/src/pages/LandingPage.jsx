@@ -1,213 +1,319 @@
 import { useNavigate } from "react-router-dom"
-import NebulaHero from "../components/hero/NebulaHero.jsx"
+import { useEffect, useState } from "react"
+import { getArtemisProgramSummary, getArtemisPriorityAlert } from "@starkid/core"
 import { TelemetryStrip } from "../components/TelemetryStrip.jsx"
 import { FeaturedEventOrb } from "../components/FeaturedEventOrb.jsx"
 import UpcomingEventsBanner from "../components/UpcomingEventsBanner.jsx"
 
 export default function LandingPage() {
   const nav = useNavigate()
+  const [artemis, setArtemis] = useState(null)
+  const [now, setNow] = useState(Date.now())
+  const fallbackArtemisDate = "2027-12-01T00:00:00Z"
+
+  useEffect(() => {
+    let active = true
+    async function load() {
+      const [summaryResult, alertResult] = await Promise.allSettled([
+        getArtemisProgramSummary(),
+        getArtemisPriorityAlert(),
+      ])
+      if (!active) return
+      const summary = summaryResult.status === "fulfilled" ? summaryResult.value?.data : null
+      const alert = alertResult.status === "fulfilled" ? alertResult.value?.data : null
+      const nextMissionDate = summary?.nextMissionDate || alert?.startTime || null
+      setArtemis(
+        summary
+          ? { ...summary, nextMissionDate }
+          : alert
+            ? {
+                programName: "Artemis",
+                description: alert.description,
+                nextMission: alert.title,
+                nextMissionDate,
+                sourceUrl: alert.sourceUrl,
+                missionUrl: alert.sourceUrl,
+                programTag: "Artemis",
+              }
+            : null
+      )
+    }
+    load()
+    return () => {
+      active = false
+    }
+  }, [])
+
+  useEffect(() => {
+    const timer = setInterval(() => setNow(Date.now()), 1000)
+    return () => clearInterval(timer)
+  }, [])
+
+  const artemisCountdown = (() => {
+    const targetIso = artemis?.nextMissionDate || fallbackArtemisDate
+    const target = new Date(targetIso).getTime()
+    if (!Number.isFinite(target)) return "TBD"
+    const diff = Math.max(0, target - now)
+    const days = Math.floor(diff / (24 * 3600 * 1000))
+    const hours = Math.floor((diff % (24 * 3600 * 1000)) / (3600 * 1000))
+    const minutes = Math.floor((diff % (3600 * 1000)) / (60 * 1000))
+    const seconds = Math.floor((diff % (60 * 1000)) / 1000)
+    return `${days}d ${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`
+  })()
 
   return (
     <div
       className="landing-page-bg"
       style={{
-        minHeight: "calc(100vh - 120px)",
-        padding: "28px 18px",
-        position: "relative",
-        overflow: "hidden",
+        backgroundImage: "url('/assets/backgrounds/starkid-home-hero-web.png')",
+        backgroundSize: "cover",
+        backgroundPosition: "center",
       }}
     >
-      <div
-        className="landing-grid"
-        style={{
-          maxWidth: 1200,
-          margin: "0 auto",
-          display: "grid",
-          gridTemplateColumns: "1.05fr 1fr",
-          gap: 22,
-          alignItems: "center",
-        }}
-      >
-        <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-          <div 
-            style={{ 
-              fontSize: 52, 
-              fontWeight: 800, 
-              lineHeight: 1.05,
-              fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace",
-              letterSpacing: "-0.02em",
-            }}
-          >
-            WELCOME TO <br /> 
-            <span style={{ color: "#22d3ee" }}>STARKID</span> COMMAND
-          </div>
-          <div 
-            style={{ 
-              opacity: 0.85, 
-              maxWidth: 520, 
-              lineHeight: 1.6,
-              fontSize: 18,
-              color: "rgba(255,255,255,0.8)",
-            }}
-          >
-            StarKid Command is a live mission-control interface for tracking, understanding, and exploring space — built for enthusiasts and learners alike.
-          </div>
-
-          <div style={{ marginTop: 18 }}>
-            <button
-              onClick={() => nav("/explore")}
-              style={{
-                padding: "14px 24px",
-                borderRadius: 12,
-                border: "1px solid rgba(34, 211, 238, 0.4)",
-                background: "rgba(34, 211, 238, 0.15)",
-                fontWeight: 800,
-                cursor: "pointer",
-                fontSize: 16,
-                color: "#22d3ee",
-                fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace",
-                transition: "all 0.2s ease",
-              }}
-              onMouseOver={(e) => {
-                e.target.style.background = "rgba(34, 211, 238, 0.25)"
-                e.target.style.borderColor = "rgba(34, 211, 238, 0.6)"
-              }}
-              onMouseOut={(e) => {
-                e.target.style.background = "rgba(34, 211, 238, 0.15)"
-                e.target.style.borderColor = "rgba(34, 211, 238, 0.4)"
-              }}
-            >
-              EXPLORE →
-            </button>
-          </div>
-
-          <div 
-            style={{ 
-              marginTop: 32,
-              display: "flex",
-              gap: 24,
-              opacity: 0.6,
-              fontSize: 12,
-              fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace",
-            }}
-          >
-            <div>
-              <div style={{ color: "#22d3ee", marginBottom: 4 }}>SYSTEMS</div>
-              <div>ONLINE</div>
+      <div className="landing-hero-image">
+        <div className="landing-hero-overlay">
+          <div className="landing-hero">
+            <div className="landing-hero-kicker">WELCOME TO</div>
+            <div className="landing-hero-title">
+              STARKID <span className="landing-hero-accent">COMMAND</span>
             </div>
-            <div>
-              <div style={{ color: "#22d3ee", marginBottom: 4 }}>MISSIONS</div>
-              <div>8 ACTIVE</div>
+            <div className="landing-hero-subtitle">Junior Science Officer Control Network</div>
+            <div className="landing-hero-body">
+              StarKid Command is a live mission-control interface for tracking, understanding, and exploring space — built for enthusiasts and learners alike.
             </div>
-            <div>
-              <div style={{ color: "#22d3ee", marginBottom: 4 }}>DATA</div>
-              <div>LIVE</div>
+            <div style={{ marginTop: 18 }}>
+              <button
+                onClick={() => nav("/explore")}
+                className="landing-hero-button"
+              >
+                EXPLORE →
+              </button>
             </div>
           </div>
         </div>
+      </div>
 
-              <div className="nebula-container" style={{ height: 520 }}>
-                <NebulaHero />
-              </div>
-            </div>
+      <div className="landing-section">
+        <FeaturedEventOrb />
+      </div>
 
-                        <div
-                          style={{
-                            maxWidth: 1200,
-                            margin: "24px auto 0",
-                            padding: "0 18px",
-                          }}
-                        >
-                          <FeaturedEventOrb />
-                        </div>
+      <div className="landing-section">
+        <div
+          className="artemis-card"
+          onClick={() => nav("/artemis")}
+          role="button"
+          tabIndex={0}
+          onKeyDown={(e) => e.key === "Enter" && nav("/artemis")}
+        >
+          <div className="artemis-label">ARTEMIS SPOTLIGHT</div>
+          <div className="artemis-title">{artemis?.nextMission || "Artemis III Estimated Target"}</div>
+          <div className="artemis-countdown">
+            COUNTDOWN · <span>{artemisCountdown}</span>
+          </div>
+          <div className="artemis-body">
+            {artemis?.description || "NASA’s priority lunar exploration program."}
+          </div>
+          <div className="artemis-cta">OPEN ARTEMIS →</div>
+        </div>
+      </div>
 
-                        <div
-                          style={{
-                            maxWidth: 1200,
-                            margin: "18px auto 0",
-                            padding: "0 18px",
-                          }}
-                        >
-                          <UpcomingEventsBanner />
-                        </div>
+      <div className="landing-section">
+        <UpcomingEventsBanner />
+      </div>
 
-                        <div
-                          style={{
-                            maxWidth: 1200,
-                            margin: "18px auto 0",
-                            padding: "0 18px",
-                          }}
-                        >
-                          <TelemetryStrip />
-                        </div>
+      <div className="landing-section">
+        <TelemetryStrip />
+      </div>
 
-            <style>{`
-              .landing-page-bg {
-                background: 
-                  radial-gradient(ellipse at 20% 80%, rgba(30, 64, 175, 0.15) 0%, transparent 50%),
-                  radial-gradient(ellipse at 80% 20%, rgba(88, 28, 135, 0.12) 0%, transparent 50%),
-                  radial-gradient(ellipse at 50% 50%, rgba(6, 182, 212, 0.08) 0%, transparent 60%),
-                  linear-gradient(to bottom, #000000 0%, #0a0a1a 50%, #000000 100%);
-              }
-        
-              .landing-page-bg::before {
-                content: '';
-                position: absolute;
-                top: 0;
-                left: 0;
-                right: 0;
-                bottom: 0;
-                background-image: 
-                  radial-gradient(1px 1px at 10% 10%, rgba(255,255,255,0.8) 0%, transparent 100%),
-                  radial-gradient(1px 1px at 20% 30%, rgba(255,255,255,0.6) 0%, transparent 100%),
-                  radial-gradient(1px 1px at 35% 15%, rgba(255,255,255,0.9) 0%, transparent 100%),
-                  radial-gradient(1px 1px at 45% 45%, rgba(255,255,255,0.5) 0%, transparent 100%),
-                  radial-gradient(1px 1px at 55% 25%, rgba(255,255,255,0.7) 0%, transparent 100%),
-                  radial-gradient(1px 1px at 65% 55%, rgba(255,255,255,0.6) 0%, transparent 100%),
-                  radial-gradient(1px 1px at 75% 35%, rgba(255,255,255,0.8) 0%, transparent 100%),
-                  radial-gradient(1px 1px at 85% 65%, rgba(255,255,255,0.5) 0%, transparent 100%),
-                  radial-gradient(1px 1px at 95% 20%, rgba(255,255,255,0.7) 0%, transparent 100%),
-                  radial-gradient(1px 1px at 5% 50%, rgba(255,255,255,0.6) 0%, transparent 100%),
-                  radial-gradient(1px 1px at 15% 70%, rgba(255,255,255,0.8) 0%, transparent 100%),
-                  radial-gradient(1px 1px at 25% 85%, rgba(255,255,255,0.5) 0%, transparent 100%),
-                  radial-gradient(1px 1px at 40% 75%, rgba(255,255,255,0.7) 0%, transparent 100%),
-                  radial-gradient(1px 1px at 50% 90%, rgba(255,255,255,0.6) 0%, transparent 100%),
-                  radial-gradient(1px 1px at 60% 80%, rgba(255,255,255,0.8) 0%, transparent 100%),
-                  radial-gradient(1px 1px at 70% 95%, rgba(255,255,255,0.5) 0%, transparent 100%),
-                  radial-gradient(1px 1px at 80% 5%, rgba(255,255,255,0.9) 0%, transparent 100%),
-                  radial-gradient(1px 1px at 90% 40%, rgba(255,255,255,0.6) 0%, transparent 100%),
-                  radial-gradient(2px 2px at 12% 22%, rgba(255,255,255,0.4) 0%, transparent 100%),
-                  radial-gradient(2px 2px at 32% 62%, rgba(255,255,255,0.3) 0%, transparent 100%),
-                  radial-gradient(2px 2px at 52% 12%, rgba(255,255,255,0.5) 0%, transparent 100%),
-                  radial-gradient(2px 2px at 72% 72%, rgba(255,255,255,0.4) 0%, transparent 100%),
-                  radial-gradient(2px 2px at 92% 52%, rgba(255,255,255,0.3) 0%, transparent 100%),
-                  radial-gradient(1.5px 1.5px at 8% 88%, rgba(200,220,255,0.6) 0%, transparent 100%),
-                  radial-gradient(1.5px 1.5px at 28% 38%, rgba(255,200,200,0.5) 0%, transparent 100%),
-                  radial-gradient(1.5px 1.5px at 48% 58%, rgba(200,255,220,0.4) 0%, transparent 100%),
-                  radial-gradient(1.5px 1.5px at 68% 18%, rgba(255,255,200,0.5) 0%, transparent 100%),
-                  radial-gradient(1.5px 1.5px at 88% 78%, rgba(220,200,255,0.6) 0%, transparent 100%);
-                pointer-events: none;
-                z-index: 0;
-              }
-        
-              .landing-page-bg > * {
-                position: relative;
-                z-index: 1;
-              }
-        
-              @media (max-width: 900px) {
-                .landing-grid {
-                  grid-template-columns: 1fr !important;
-                  text-align: center;
-                }
-                .landing-grid > div:first-child {
-                  align-items: center;
-                }
-                .nebula-container {
-                  height: 380px !important;
-                }
-              }
-            `}</style>
+      <style>{`
+        .landing-page-bg {
+          min-height: calc(100vh - 120px);
+          padding: 0 18px 36px;
+          background-repeat: no-repeat;
+          position: relative;
+        }
+
+        .landing-page-bg::before {
+          content: '';
+          position: absolute;
+          inset: 0;
+          background: linear-gradient(180deg, rgba(4,8,20,0.35) 0%, rgba(4,8,20,0.75) 55%, rgba(4,8,20,0.92) 100%);
+          z-index: 0;
+          pointer-events: none;
+        }
+
+        .landing-page-bg > * {
+          position: relative;
+          z-index: 1;
+        }
+
+        .landing-hero-image {
+          position: relative;
+          min-height: 360px;
+          border-radius: 22px;
+          margin: 24px auto 0;
+          max-width: 1200px;
+          overflow: hidden;
+          background: rgba(8, 12, 24, 0.35);
+          border: 1px solid rgba(34, 211, 238, 0.28);
+          box-shadow: 0 24px 60px rgba(0,0,0,0.45);
+        }
+
+        .landing-hero-overlay {
+          position: absolute;
+          inset: 0;
+          background: linear-gradient(180deg, rgba(4,8,20,0.15) 0%, rgba(4,8,20,0.65) 60%, rgba(4,8,20,0.9) 100%);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 36px;
+          text-align: center;
+        }
+
+        .landing-hero {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 10px;
+          max-width: 720px;
+        }
+
+        .landing-hero-kicker {
+          font-size: 12px;
+          letter-spacing: 0.35em;
+          color: rgba(255,255,255,0.7);
+          font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+        }
+
+        .landing-hero-title {
+          font-size: 42px;
+          font-weight: 800;
+          color: #f8fafc;
+          letter-spacing: 0.04em;
+          font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+        }
+
+        .landing-hero-accent {
+          color: #22d3ee;
+        }
+
+        .landing-hero-subtitle {
+          color: rgba(148, 163, 184, 0.85);
+          font-size: 16px;
+          font-weight: 600;
+        }
+
+        .landing-hero-body {
+          opacity: 0.9;
+          line-height: 1.6;
+          font-size: 16px;
+          color: rgba(226,232,240,0.82);
+        }
+
+        .landing-hero-button {
+          padding: 12px 28px;
+          border-radius: 14px;
+          border: 2px solid rgba(34, 211, 238, 0.7);
+          background: rgba(0,0,0,0.35);
+          font-weight: 800;
+          cursor: pointer;
+          font-size: 14px;
+          color: #22d3ee;
+          font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+          box-shadow: 0 0 18px rgba(34, 211, 238, 0.45);
+          transition: all 0.2s ease;
+        }
+
+        .landing-hero-button:hover {
+          background: rgba(34, 211, 238, 0.2);
+          box-shadow: 0 0 24px rgba(34, 211, 238, 0.6);
+        }
+
+        .landing-section {
+          max-width: 1200px;
+          margin: 22px auto 0;
+          padding: 0 6px;
+        }
+
+        .artemis-card {
+          padding: 18px;
+          border-radius: 16px;
+          border: 1px solid rgba(34, 211, 238, 0.35);
+          background: rgba(8, 12, 24, 0.55);
+          cursor: pointer;
+          transition: transform 0.2s ease, border-color 0.2s ease;
+        }
+
+        .artemis-card:hover {
+          transform: translateY(-2px);
+          border-color: rgba(34, 211, 238, 0.6);
+        }
+
+        .artemis-label {
+          font-size: 10px;
+          letter-spacing: 0.2em;
+          color: rgba(255,255,255,0.6);
+          font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+        }
+
+        .artemis-title {
+          font-size: 20px;
+          font-weight: 700;
+          color: #22d3ee;
+          margin-top: 8px;
+        }
+
+        .artemis-body {
+          font-size: 14px;
+          color: rgba(226,232,240,0.8);
+          margin-top: 6px;
+        }
+
+        .artemis-countdown {
+          margin-top: 8px;
+          font-size: 12px;
+          letter-spacing: 0.12em;
+          color: rgba(148, 163, 184, 0.9);
+          font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+        }
+
+        .artemis-countdown span {
+          color: #22d3ee;
+          font-weight: 700;
+        }
+
+        .artemis-cta {
+          margin-top: 12px;
+          font-size: 11px;
+          letter-spacing: 0.14em;
+          color: rgba(34,211,238,0.8);
+          font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+        }
+
+        @media (max-width: 900px) {
+          .landing-hero-image {
+            min-height: 360px;
+          }
+          .landing-hero-title {
+            font-size: 32px;
+          }
+          .landing-hero-subtitle {
+            font-size: 14px;
+          }
+        }
+
+        @media (max-width: 600px) {
+          .landing-hero-image {
+            min-height: 320px;
+          }
+          .landing-hero-title {
+            font-size: 26px;
+          }
+          .landing-hero-overlay {
+            padding: 24px 16px;
+          }
+        }
+      `}</style>
     </div>
   )
 }

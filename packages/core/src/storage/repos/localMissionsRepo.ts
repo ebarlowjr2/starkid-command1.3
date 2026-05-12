@@ -35,5 +35,9 @@ export function createLocalMissionsRepo(actorId) {
     async listCompleted() {
       return readJson(keyFor(actorId, 'completed'), [])
     },
+    async isCompleted(_actorId, missionId) {
+      const completed = await readJson(keyFor(actorId, 'completed'), [])
+      return completed.includes(missionId)
+    },
   }
 }

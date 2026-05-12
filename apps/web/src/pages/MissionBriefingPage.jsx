@@ -1,16 +1,50 @@
-import React, { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import React, { useEffect, useState } from 'react'
+import { useNavigate, useParams } from 'react-router-dom'
 import { getMission } from '../state/missionStore.js'
-import { gradeAttempt, getRepos } from '@starkid/core'
+import { gradeStemAttempt, getRepos, syncMissionCompletionToActivity, getMissionById, getCurrentActor } from '@starkid/core'
+import SyncIdentityModal from '../components/auth/SyncIdentityModal.jsx'
 
 export default function MissionBriefingPage() {
   const nav = useNavigate()
+  const { missionId } = useParams()
   const mission = getMission()
+  const missionFromStore = missionId ? getMissionById(missionId) : null
+  const activeMission = mission || missionFromStore
   const [started, setStarted] = useState(false)
-  const [answer, setAnswer] = useState('')
+  const [answers, setAnswers] = useState({})
   const [result, setResult] = useState(null)
+  const totalSteps = activeMission?.steps?.length || 0
+  const answeredSteps = activeMission
+    ? activeMission.steps.filter((step) => (answers?.[step.id] ?? '') !== '').length
+    : 0
+  const progressPct = totalSteps ? Math.round((answeredSteps / totalSteps) * 100) : 0
+  const [completed, setCompleted] = useState(false)
+  const [isGuest, setIsGuest] = useState(true)
+  const [showSync, setShowSync] = useState(false)
 
-  if (!mission) {
+  useEffect(() => {
+    async function loadCompleted() {
+      if (!activeMission) return
+      const { missionsRepo, actor } = await getRepos()
+      const isDone = await missionsRepo.isCompleted(actor.actorId, activeMission.id)
+      setCompleted(isDone)
+    }
+    loadCompleted()
+  }, [activeMission])
+
+  useEffect(() => {
+    let active = true
+    async function loadActor() {
+      const actor = await getCurrentActor()
+      if (active) setIsGuest(actor?.mode !== 'user')
+    }
+    loadActor()
+    return () => {
+      active = false
+    }
+  }, [])
+
+  if (!activeMission) {
     return (
       <div className="p-6 text-white">
         <h1 className="text-2xl font-semibold mb-4">No Mission Selected</h1>
@@ -26,70 +60,113 @@ export default function MissionBriefingPage() {
 
   return (
     <div className="p-6 text-white">
-      <h1 className="text-2xl font-semibold mb-2">{mission.title}</h1>
+      <h1 className="text-2xl font-semibold mb-2">{activeMission.title}</h1>
       <div className="text-sm text-cyan-200 mb-4">
-        {mission.type} • {mission.difficulty}
+        {activeMission.type} • {activeMission.difficulty}
       </div>
-      <p className="text-sm mb-4">{mission.briefing}</p>
+      <p className="text-sm mb-4">{activeMission.briefing}</p>
+      <div className="mb-4 border border-cyan-700/60 rounded-lg p-3 bg-black/40">
+        <div className="flex items-center justify-between text-xs text-cyan-300/80 mb-2">
+          <span>Mission Progress</span>
+          <span>{answeredSteps} / {totalSteps} steps • {progressPct}%</span>
+        </div>
+        <div className="h-2 bg-cyan-900/40 rounded overflow-hidden">
+          <div className="h-2 bg-cyan-400 rounded" style={{ width: `${progressPct}%` }} />
+        </div>
+      </div>
       {!started ? (
         <button
-          className="mb-6 px-4 py-2 rounded bg-cyan-600 hover:bg-cyan-500"
+          className={`mb-6 px-4 py-2 rounded ${completed ? 'bg-green-700/60 cursor-not-allowed' : 'bg-cyan-600 hover:bg-cyan-500'}`}
           onClick={() => setStarted(true)}
+          disabled={completed}
         >
-          Start Mission
+          {completed ? 'Completed' : 'Start Mission'}
         </button>
+      ) : null}
+      {completed && !started ? (
+        <div className="mb-4 text-xs text-green-300">✅ Completed</div>
       ) : null}
       {started ? (
         <div className="mb-6">
           <div className="text-cyan-300 font-semibold mb-2">Steps</div>
-          <ol className="list-decimal ml-5 space-y-1 text-sm">
-            {(mission.steps || []).map((step) => (
-              <li key={step.id}>{step.prompt}</li>
+          <ol className="list-decimal ml-5 space-y-3 text-sm">
+            {activeMission.steps.map((step) => (
+              <li key={step.id}>
+                <div className="mb-2">{step.prompt}</div>
+                {step.inputType === 'choice' ? (
+                  <select
+                    className="w-full px-3 py-2 bg-black/50 border border-cyan-600 rounded text-cyan-100"
+                    value={answers[step.id] || ''}
+                    onChange={(e) => setAnswers((prev) => ({ ...prev, [step.id]: e.target.value }))}
+                  >
+                    <option value="">Select...</option>
+                    {(step.choices || []).map((choice) => (
+                      <option key={choice} value={choice}>{choice}</option>
+                    ))}
+                  </select>
+                ) : (
+                  <input
+                    type={step.inputType === 'number' ? 'number' : 'text'}
+                    className="w-full px-3 py-2 bg-black/50 border border-cyan-600 rounded text-cyan-100"
+                    value={answers[step.id] || ''}
+                    onChange={(e) => setAnswers((prev) => ({ ...prev, [step.id]: e.target.value }))}
+                    placeholder={step.unitLabel ? `Enter value (${step.unitLabel})` : 'Enter response'}
+                  />
+                )}
+              </li>
             ))}
           </ol>
-          <div className="mt-4 text-sm">
-            <label className="block text-cyan-300 mb-1">Response</label>
-            <input
-              className="w-full px-3 py-2 bg-black/50 border border-cyan-600 rounded text-cyan-100"
-              value={answer}
-              onChange={(e) => setAnswer(e.target.value)}
-              placeholder="Type your response (e.g., acknowledged)"
-            />
-          </div>
           <button
-            className="mt-4 px-4 py-2 rounded bg-cyan-600 hover:bg-cyan-500"
+            className={`mt-4 px-4 py-2 rounded ${completed ? 'bg-green-700/60 cursor-not-allowed' : 'bg-cyan-600 hover:bg-cyan-500'}`}
             onClick={async () => {
-              const { pass, feedback } = gradeAttempt(mission, { main: answer })
+              const firstStep = activeMission.steps[0]
+              const payload = firstStep ? { main: answers[firstStep.id] } : { main: null }
+              const { pass, feedback } = gradeStemAttempt(activeMission, payload)
               const { missionsRepo, actor } = await getRepos()
               const attempt = {
-                missionId: mission.id,
+                missionId: activeMission.id,
                 actorId: actor.actorId,
-                answers: { main: answer },
+                answers,
                 submittedAt: new Date().toISOString(),
-                result: pass ? 'pass' : 'fail',
-                feedback,
               }
               await missionsRepo.saveAttempt(actor.actorId, attempt)
               if (pass) {
-                await missionsRepo.markCompleted(actor.actorId, mission.id)
+                await missionsRepo.markCompleted(actor.actorId, activeMission.id)
+                await syncMissionCompletionToActivity(activeMission)
+                setCompleted(true)
               }
               setResult({ pass, feedback })
             }}
+            disabled={completed}
           >
-            Submit
+            {completed ? 'Completed' : 'Submit'}
           </button>
           {result ? (
-            <div className={`mt-3 text-sm ${result.pass ? 'text-green-300' : 'text-red-300'}`}>
+            <div className={`mt-3 text-sm border rounded p-3 ${result.pass ? 'border-green-700/60 bg-green-900/30 text-green-200' : 'border-red-700/60 bg-red-900/30 text-red-200'}`}>
               {result.feedback}
+            </div>
+          ) : null}
+          {completed ? (
+            <div className="mt-2 text-xs text-green-300">✅ Completed</div>
+          ) : null}
+          {completed && isGuest ? (
+            <div className="mt-4 text-xs text-cyan-300/70">
+              Sync Command Profile to save your rank and mission progress across devices.
+              <button
+                className="ml-3 px-2 py-1 rounded border border-cyan-600/60 text-cyan-300 hover:text-cyan-200"
+                onClick={() => setShowSync(true)}
+              >
+                Sync Command Profile
+              </button>
             </div>
           ) : null}
         </div>
       ) : null}
-      {mission.requiredData ? (
+      {activeMission.requiredData ? (
         <div className="text-sm">
           <div className="text-cyan-300 font-semibold mb-2">Required Data</div>
           <ul className="list-disc ml-5 space-y-1">
-            {Object.entries(mission.requiredData).map(([key, value]) => (
+            {Object.entries(activeMission.requiredData).map(([key, value]) => (
               <li key={key}>
                 {key}: {value == null ? 'N/A' : String(value)}
               </li>
@@ -103,6 +180,11 @@ export default function MissionBriefingPage() {
       >
         Back to Command Center
       </button>
+      <SyncIdentityModal
+        open={showSync}
+        onClose={() => setShowSync(false)}
+        onSync={() => setShowSync(false)}
+      />
     </div>
   )
 }

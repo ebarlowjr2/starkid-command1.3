@@ -1,6 +1,11 @@
 import React, { useEffect, useState } from 'react'
-import { View, Text, StyleSheet, ActivityIndicator, FlatList, Pressable } from 'react-native'
-import { getNotableComets, getRepos } from '@starkid/core'
+import { View, StyleSheet, ActivityIndicator, FlatList, Pressable, SafeAreaView } from 'react-native'
+import { getComets, getRepos } from '@starkid/core'
+import { SpaceBackground } from '../components/home/SpaceBackground'
+import { GlassCard } from '../components/home/GlassCard'
+import { Badge } from '../components/home/Badge'
+import { colors, spacing } from '../theme/tokens'
+import { CustomText } from '../components/ui/CustomText'
 
 type Comet = {
   designation?: string
@@ -17,11 +22,11 @@ export default function CometsScreen() {
     let active = true
     async function load() {
       try {
-        const notable = getNotableComets()
+        const { data: notable } = await getComets({ notableOnly: true })
         const { savedItemsRepo, actor } = await getRepos()
         const saved = await savedItemsRepo.list(actor.actorId, 'comet')
         if (!active) return
-        setComets(notable)
+        setComets(notable || [])
         setSavedCount(saved.length)
         setSavedIds(saved.map((item: any) => item.id))
       } finally {
@@ -36,75 +41,103 @@ export default function CometsScreen() {
 
   if (loading) {
     return (
-      <View style={styles.center}>
-        <ActivityIndicator size="large" />
-        <Text style={styles.muted}>Loading comets…</Text>
-      </View>
+      <SpaceBackground>
+        <View style={styles.center}>
+          <ActivityIndicator size="large" />
+          <CustomText variant="body" style={styles.muted}>Loading comets…</CustomText>
+        </View>
+      </SpaceBackground>
     )
   }
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Comets</Text>
-      <Text style={styles.subtitle}>Saved: {savedCount}</Text>
-      <FlatList
-        data={comets}
-        keyExtractor={(item, index) => `${item.designation ?? index}`}
-        renderItem={({ item }) => (
-          <View style={styles.card}>
-            <Text style={styles.cardTitle}>{item.name || item.designation || 'Unknown Comet'}</Text>
-            <Pressable
-              style={[styles.saveButton, savedIds.includes(item.designation || '') && styles.saveButtonActive]}
-              onPress={async () => {
-                const { savedItemsRepo, actor } = await getRepos()
-                const id = item.designation || ''
-                if (!id) return
-                if (savedIds.includes(id)) {
-                  await savedItemsRepo.remove(actor.actorId, id, 'comet')
-                } else {
-                  await savedItemsRepo.save(actor.actorId, { id, type: 'comet', designation: id, name: item.name })
-                }
-                const saved = await savedItemsRepo.list(actor.actorId, 'comet')
-                setSavedCount(saved.length)
-                setSavedIds(saved.map((entry: any) => entry.id))
-              }}
-            >
-              <Text style={styles.saveText}>{savedIds.includes(item.designation || '') ? 'Saved' : 'Save'}</Text>
-            </Pressable>
-          </View>
-        )}
-      />
-    </View>
+    <SpaceBackground>
+      <SafeAreaView style={{ flex: 1 }}>
+        <FlatList
+          data={comets}
+          keyExtractor={(item, index) => `${item.designation ?? index}`}
+          contentContainerStyle={styles.container}
+          ListHeaderComponent={() => (
+            <View style={styles.header}>
+              <CustomText variant="sectionLabel" style={styles.kicker}>COMETS</CustomText>
+              <CustomText variant="hero" style={styles.title}>Comet Tracker</CustomText>
+              <CustomText variant="body" style={styles.subtitle}>Save comets to track observation windows.</CustomText>
+              <GlassCard variant="secondary" style={{ marginTop: spacing.lg }}>
+                <View style={styles.badgeRow}>
+                  <Badge label="SAVED" />
+                  <CustomText variant="sectionLabel" style={styles.badgeHelper}>Currently tracking: {savedCount}</CustomText>
+                </View>
+              </GlassCard>
+            </View>
+          )}
+          renderItem={({ item }) => {
+            const id = item.designation || ''
+            const saved = savedIds.includes(id)
+            return (
+              <GlassCard variant="secondary" style={styles.card}>
+                <View style={styles.glowStrip} />
+                <CustomText variant="cardTitle" style={styles.cardTitle}>{item.name || item.designation || 'Unknown Comet'}</CustomText>
+                <CustomText variant="bodySmall" style={styles.cardMeta}>{item.designation}</CustomText>
+                <Pressable
+                  style={[styles.saveButton, saved && styles.saveButtonActive]}
+                  onPress={async () => {
+                    const { savedItemsRepo, actor } = await getRepos()
+                    if (!id) return
+                    if (saved) {
+                      await savedItemsRepo.remove(actor.actorId, id, 'comet')
+                    } else {
+                      await savedItemsRepo.save(actor.actorId, { id, type: 'comet', designation: id, name: item.name })
+                    }
+                    const savedList = await savedItemsRepo.list(actor.actorId, 'comet')
+                    setSavedCount(savedList.length)
+                    setSavedIds(savedList.map((entry: any) => entry.id))
+                  }}
+                >
+                  <CustomText variant="bodySmall" style={styles.saveText}>{saved ? 'Saved' : 'Save'}</CustomText>
+                </Pressable>
+              </GlassCard>
+            )
+          }}
+        />
+      </SafeAreaView>
+    </SpaceBackground>
   )
 }
 
 const styles = StyleSheet.create({
-  container: { padding: 16 },
+  container: { padding: spacing.xl, paddingBottom: 44 },
   center: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 16 },
-  title: { fontSize: 22, fontWeight: '700', marginBottom: 6, color: '#f9fafb' },
-  subtitle: { color: '#9ca3af', marginBottom: 12 },
-  muted: { marginTop: 8, color: '#9ca3af' },
-  card: {
-    padding: 12,
-    borderRadius: 12,
-    backgroundColor: '#111827',
-    marginBottom: 10,
+  header: { marginBottom: spacing.lg },
+  kicker: { color: colors.dim, marginBottom: 6 },
+  title: { color: colors.text },
+  subtitle: { color: colors.muted, marginTop: 6 },
+  badgeRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
+  badgeHelper: { color: colors.dim, flex: 1 },
+  muted: { marginTop: 8, color: colors.muted },
+  card: { marginBottom: 12 },
+  glowStrip: {
+    position: 'absolute',
+    left: 0,
+    top: 0,
+    bottom: 0,
+    width: 6,
+    backgroundColor: 'rgba(255,79,216,0.35)',
   },
-  cardTitle: { fontSize: 16, fontWeight: '600', color: '#f9fafb' },
+  cardTitle: { color: colors.text },
+  cardMeta: { color: colors.muted, marginTop: 6 },
   saveButton: {
-    marginTop: 8,
+    marginTop: spacing.md,
     alignSelf: 'flex-start',
     paddingVertical: 6,
-    paddingHorizontal: 10,
-    borderRadius: 8,
-    backgroundColor: '#1f2937',
+    paddingHorizontal: 12,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: 'rgba(61,235,255,0.5)',
+    backgroundColor: 'rgba(6, 10, 22, 0.6)',
   },
   saveButtonActive: {
-    backgroundColor: '#2563eb',
+    borderColor: 'rgba(255,79,216,0.6)',
+    backgroundColor: 'rgba(26, 12, 32, 0.6)',
   },
-  saveText: {
-    color: '#f9fafb',
-    fontSize: 12,
-    fontWeight: '600',
-  },
+  saveText: { color: colors.text },
 })

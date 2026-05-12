@@ -61,7 +61,7 @@ export default function UpcomingEventsBanner() {
   useEffect(() => {
     async function load() {
       try {
-        const alerts = await getAlertsForUser()
+        const { data: alerts } = await getAlertsForUser()
         const now = new Date()
         const in30Days = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000)
         const urgentEvents = alerts

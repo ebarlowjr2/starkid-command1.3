@@ -1,9 +1,10 @@
 export const FEATURED_EVENT = {
-  id: "artemis-2-window-opens",
-  title: "ARTEMIS II",
-  subtitle: "LAUNCH WINDOW OPENS (NET)",
-  targetIso: "2026-03-06T20:29:00-05:00",
+  id: "artemis-3-estimated-target",
+  title: "ARTEMIS III",
+  subtitle: "ESTIMATED TARGET (LATE 2027)",
+  targetIso: "2027-12-01T00:00:00Z",
   tzLabel: "ET",
-  route: "/missions/artemis?mission=artemis-2",
-  sourceNote: "Delayed from Feb 6 due to hydrogen leaks. Times are NET and subject to change.",
+  route: "/missions/artemis?mission=artemis-3",
+  sourceNote:
+    "NASA’s Artemis III mission is currently tracked as a late-2027 target. This countdown uses an estimated date and may change as mission planning evolves.",
 };

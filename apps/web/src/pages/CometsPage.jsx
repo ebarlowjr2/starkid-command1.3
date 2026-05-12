@@ -1,25 +1,42 @@
 import React, { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { getRepos } from '@starkid/core'
-import { CURATED_COMETS, searchComets, getNotableComets } from '@starkid/core'
+import { getComets } from '@starkid/core'
 
 export default function CometsPage() {
   const [savedComets, setSavedComets] = useState([])
   const [searchQuery, setSearchQuery] = useState('')
   const [searchResults, setSearchResults] = useState([])
   const [loading, setLoading] = useState(true)
+  const [cometIndex, setCometIndex] = useState({})
 
   useEffect(() => {
     loadSavedComets()
+    loadCometIndex()
   }, [])
 
   useEffect(() => {
-    if (searchQuery.trim()) {
-      setSearchResults(searchComets(searchQuery))
-    } else {
-      setSearchResults(getNotableComets())
-    }
+    loadSearchResults()
   }, [searchQuery])
+
+  async function loadCometIndex() {
+    const { data } = await getComets()
+    const index = (data || []).reduce((acc, comet) => {
+      if (comet.designation) acc[comet.designation] = comet
+      return acc
+    }, {})
+    setCometIndex(index)
+  }
+
+  async function loadSearchResults() {
+    if (searchQuery.trim()) {
+      const { data } = await getComets({ query: searchQuery })
+      setSearchResults(data || [])
+    } else {
+      const { data } = await getComets({ notableOnly: true })
+      setSearchResults(data || [])
+    }
+  }
 
   async function loadSavedComets() {
     setLoading(true)
@@ -45,7 +62,7 @@ export default function CometsPage() {
   }
 
   function getCometDetails(designation) {
-    return CURATED_COMETS.find(c => c.designation === designation)
+    return cometIndex[designation]
   }
 
   return (

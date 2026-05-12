@@ -8,21 +8,15 @@ import Globe from '../components/Globe.jsx'
 import AdminPanel from '../components/AdminPanel.jsx'
 import MissionCard from '../components/MissionCard.jsx'
 
-import { getUpcomingLaunchesFromLibrary, getAlertsForUser, convertAlertToMission } from '@starkid/core'
+import { getUpcomingLaunches, getLatestLaunch, getAlertsForUser, generateMissionFromAlert, getRepos, getSolarActivity, formatSourceStatus, listTracks, listLevels, getUpcomingLaunchesWindow, getProviderSpotlights, getLaunchAlerts } from '@starkid/core'
 import {
   getAPOD,
   getNEOsToday,
   getDonkiAlerts,
   getEPICLatest,
-  getRecentSolarActivity,
 } from '@starkid/core'
 import { getISSNow, getAstros } from '@starkid/core'
-import {
-  getLatestLaunch,
-  getUpcomingLaunches,
-  getRockets,
-  getCrew,
-} from '@starkid/core'
+import { getRockets, getCrew } from '@starkid/core'
 import { setMission } from '../state/missionStore.js'
 
 export default function CommandCenterPage() {
@@ -45,12 +39,20 @@ export default function CommandCenterPage() {
   const [rockets, setRockets] = useState([])
   const [crew, setCrew] = useState([])
   const [missionAlerts, setMissionAlerts] = useState([])
+  const [alertSources, setAlertSources] = useState([])
+  const [providerSpotlights, setProviderSpotlights] = useState([])
+  const [upcomingWindow, setUpcomingWindow] = useState([])
+  const [launchAlerts, setLaunchAlerts] = useState([])
+  const [stemTrack, setStemTrack] = useState('math')
+  const [stemLevel, setStemLevel] = useState('cadet')
+  const tracks = useMemo(() => listTracks(), [])
+  const levels = useMemo(() => listLevels(), [])
 
   useEffect(() => {
     async function loadLaunchData() {
       try {
         setLoading(true)
-        const launchData = await getUpcomingLaunchesFromLibrary(20)
+        const { data: launchData } = await getUpcomingLaunches({ limit: 20 })
         setLaunches(launchData)
 
         const sites = launchData
@@ -80,29 +82,35 @@ export default function CommandCenterPage() {
 
     async function loadNASASpaceXData() {
       try {
-        const [a, n, d, l, u, r, c] = await Promise.all([
+        const [a, n, d, l, u, r, c, windowed, providerList, launchAlertResult] = await Promise.all([
           getAPOD(),
           getNEOsToday(),
           getDonkiAlerts(),
           getLatestLaunch(),
-          getUpcomingLaunches(1),
+          getUpcomingLaunches({ limit: 1 }),
           getRockets(),
           getCrew(6),
+          getUpcomingLaunchesWindow({ days: 7, limit: 10 }),
+          getProviderSpotlights(),
+          getLaunchAlerts(),
         ])
         setApod(a)
         setNeos(n)
         setAlerts(d)
-        setLaunch(l)
-        setUpcoming(u)
+        setLaunch(l?.data || null)
+        setUpcoming(u.data || [])
         setRockets(r)
         setCrew(c)
+        setUpcomingWindow(windowed?.data || [])
+        setProviderSpotlights(providerList?.data || [])
+        setLaunchAlerts(launchAlertResult?.data || [])
       } catch (e) {
         console.error('Error loading NASA/SpaceX data:', e)
       }
 
       const settled = await Promise.allSettled([
         getEPICLatest(),
-        getRecentSolarActivity(3),
+        getSolarActivity({ days: 3 }),
         getISSNow(),
         getAstros(),
       ])
@@ -110,15 +118,25 @@ export default function CommandCenterPage() {
         settled[i].status === 'fulfilled' ? settled[i].value : null
 
       setEpic(val(0))
-      setSolar(val(1))
+      setSolar(val(1)?.data || null)
       setIssPos(val(2))
       setAstros(val(3))
     }
 
     async function loadMissionAlerts() {
       try {
-        const alerts = await getAlertsForUser()
-        setMissionAlerts(alerts)
+        const { data: alerts, sources } = await getAlertsForUser()
+        setAlertSources(sources || [])
+        const { missionsRepo, actor } = await getRepos()
+        const enriched = await Promise.all(
+          alerts.map(async (alert) => {
+            const mission = generateMissionFromAlert(alert, stemTrack, stemLevel)
+            if (!mission) return { ...alert, completed: false }
+            const completed = await missionsRepo.isCompleted(actor.actorId, mission.id)
+            return { ...alert, completed, missionId: mission.id }
+          })
+        )
+        setMissionAlerts(enriched)
       } catch (e) {
         console.warn('Error loading mission alerts:', e)
       }
@@ -130,13 +148,14 @@ export default function CommandCenterPage() {
 
     const interval = setInterval(loadLaunchData, 1800000)
     return () => clearInterval(interval)
-  }, [])
+  }, [stemTrack, stemLevel])
 
   const currentMission = launches.length > 0 ? launches[0] : null
+  const debugEnabled = new URLSearchParams(window.location.search).get('debug') === '1'
   const nextLaunch = upcoming?.[0] || null
   const nextRocket = useMemo(() => {
     if (!nextLaunch || !rockets?.length) return null
-    return rockets.find((r) => r.id === nextLaunch.rocket) || null
+    return rockets.find((r) => r.id === nextLaunch.rocketId) || null
   }, [nextLaunch, rockets])
 
   return (
@@ -147,6 +166,11 @@ export default function CommandCenterPage() {
           <p>{error}</p>
         </div>
       )}
+      {debugEnabled && alertSources.length ? (
+        <div className="p-3 mb-4 border border-cyan-600/40 rounded bg-black/40 text-xs text-cyan-200/80 font-mono">
+          {formatSourceStatus(alertSources)}
+        </div>
+      ) : null}
 
       <section className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-4">
         <div className="lg:col-span-2">
@@ -233,10 +257,94 @@ export default function CommandCenterPage() {
         />
       </section>
 
+      <section className="grid gap-4 grid-cols-1 md:grid-cols-2 mb-6">
+        <MissionCard
+          title="Upcoming Launches (7 Days)"
+          subtitle="Mission Feed"
+          content={
+            upcomingWindow.length ? (
+              <ul className="text-xs space-y-1">
+                {upcomingWindow.slice(0, 7).map((launch, i) => (
+                  <li key={launch.id || `${launch.name}-${i}`}>
+                    • {launch.name || 'Launch'} — {launch.net ? new Date(launch.net).toLocaleDateString() : 'TBD'}
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              'No upcoming launches in the next 7 days.'
+            )
+          }
+        />
+
+        <MissionCard
+          title="Launch Provider Spotlights"
+          subtitle="Next Launch per Provider"
+          content={
+            providerSpotlights.length ? (
+              <ul className="text-xs space-y-1">
+                {providerSpotlights.map((launch, i) => (
+                  <li key={`${launch.providerName || launch.providerType || 'provider'}-${i}`}>
+                    • {launch.providerName || launch.providerType || 'Provider'} • {launch.name || 'Next Launch'} — {launch.net ? new Date(launch.net).toLocaleDateString() : 'TBD'}
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              'No provider spotlights available.'
+            )
+          }
+        />
+      </section>
+
+      <section className="grid gap-4 grid-cols-1 md:grid-cols-2 mb-6">
+        <MissionCard
+          title="Launch Alerts (24h)"
+          subtitle="Immediate Windows"
+          content={
+            launchAlerts.length ? (
+              <ul className="text-xs space-y-1">
+                {launchAlerts.map((alert, i) => (
+                  <li key={`${alert.id}-${i}`}>
+                    • {alert.title} <span className="text-cyan-400">LAUNCH &lt;24H</span>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              'No launches within 24 hours.'
+            )
+          }
+        />
+      </section>
+
       <section className="border border-cyan-700/60 rounded-lg p-4 mb-6 bg-black/60">
-        <div className="flex items-center justify-between mb-3">
+        <div className="flex flex-wrap items-center justify-between gap-3 mb-3">
           <h2 className="text-lg font-semibold text-cyan-300 tracking-wider">MISSION ALERTS</h2>
-          <span className="text-xs text-cyan-400">{missionAlerts.length} active</span>
+          <div className="flex items-center gap-2 text-xs text-cyan-200">
+            <div className="flex items-center gap-2">
+              <span className="text-cyan-500">Track</span>
+              <select
+                className="bg-black/60 border border-cyan-700/60 rounded px-2 py-1 text-cyan-200"
+                value={stemTrack}
+                onChange={(e) => setStemTrack(e.target.value)}
+              >
+                {tracks.map((track) => (
+                  <option key={track} value={track}>{track}</option>
+                ))}
+              </select>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-cyan-500">Level</span>
+              <select
+                className="bg-black/60 border border-cyan-700/60 rounded px-2 py-1 text-cyan-200"
+                value={stemLevel}
+                onChange={(e) => setStemLevel(e.target.value)}
+              >
+                {levels.map((level) => (
+                  <option key={level} value={level}>{level}</option>
+                ))}
+              </select>
+            </div>
+            <span className="text-cyan-400">{missionAlerts.length} active</span>
+          </div>
         </div>
         {missionAlerts.length ? (
           <ul className="space-y-2 text-sm">
@@ -246,14 +354,16 @@ export default function CommandCenterPage() {
                   <div className="text-cyan-100 font-medium">{alert.title}</div>
                   <div className="text-xs text-cyan-500">{alert.type} • {alert.severity}</div>
                 </div>
-                {alert.missionAvailable ? (
+                {alert.completed ? (
+                  <span className="text-xs text-green-300">Completed</span>
+                ) : alert.missionAvailable ? (
                   <button
                     className="px-3 py-1 text-xs rounded bg-cyan-600 hover:bg-cyan-500 text-white"
                     onClick={() => {
-                      const mission = convertAlertToMission(alert)
+                      const mission = generateMissionFromAlert(alert, stemTrack, stemLevel)
                       if (mission) {
                         setMission(mission)
-                        nav('/missions/briefing')
+                        nav(`/missions/briefing/${mission.id}`)
                       }
                     }}
                   >

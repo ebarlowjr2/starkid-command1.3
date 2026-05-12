@@ -1,30 +1,136 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { NavigationContainer } from '@react-navigation/native'
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
-import { configureCore, configureStorage, ROUTES } from '@starkid/core'
+import { configureCore, configureStorage, ROUTE_MANIFEST, getSession, onAuthChange } from '@starkid/core'
 import { storageAdapter } from './src/platform/storage.native'
+import Constants from 'expo-constants'
 
-import HomeScreen from './src/screens/HomeScreen'
-import CommandCenterScreen from './src/screens/CommandCenterScreen'
 import LaunchesScreen from './src/screens/LaunchesScreen'
 import SkyEventsScreen from './src/screens/SkyEventsScreen'
 import CometsScreen from './src/screens/CometsScreen'
 import SolarMapScreen from './src/screens/SolarMapScreen'
 import StreamsScreen from './src/screens/StreamsScreen'
 import MissionBriefingScreen from './src/screens/MissionBriefingScreen'
+import LearningHubScreen from './src/modules/learning/LearningHubScreen'
+import StemActivitiesScreen from './src/modules/learning/StemActivitiesScreen'
+import StemActivityDetailScreen from './src/modules/learning/StemActivityDetailScreen'
+import StemProgressScreen from './src/modules/learning/StemProgressScreen'
+import CyberLabScreen from './src/modules/learning/CyberLabScreen'
+import LearningPreviewScreen from './src/modules/learning/LearningPreviewScreen'
+import LessonPlayerScreen from './src/features/learning/screens/LessonPlayerScreen'
+import PlanetsScreen from './src/screens/PlanetsScreen'
+import BeyondSolarSystemScreen from './src/screens/BeyondSolarSystemScreen'
+import MissionAlertsScreen from './src/screens/MissionAlertsScreen'
+import RocketsScreen from './src/screens/RocketsScreen'
+import RocketDetailScreen from './src/screens/RocketDetailScreen'
+import SpacecraftHubScreen from './src/screens/SpacecraftHubScreen'
+import SpacecraftDetailScreen from './src/screens/SpacecraftDetailScreen'
+import PlanetDetailScreen from './src/screens/PlanetDetailScreen'
+import UpdatesHubScreen from './src/screens/UpdatesHubScreen'
+import UpdatesNewsScreen from './src/screens/UpdatesNewsScreen'
+import UpdatesBlogScreen from './src/screens/UpdatesBlogScreen'
+import UpdatesOfficialScreen from './src/screens/UpdatesOfficialScreen'
+import UpdatesLiveScreen from './src/screens/UpdatesLiveScreen'
+import UpdatesXScreen from './src/screens/UpdatesXScreen'
+import ArtemisScreen from './src/screens/ArtemisScreen'
+import AppTabs from './src/navigation/AppTabs'
+import TypographyPreviewScreen from './src/screens/TypographyPreviewScreen'
+import OnboardingScreen from './src/screens/OnboardingScreen'
+import { getItem, setItem } from '@starkid/core'
 
 const Stack = createNativeStackNavigator()
 
+const appExtra = Constants?.expoConfig?.extra || Constants?.manifest?.extra || {}
+
 configureCore({
-  nasaApiKey: process.env.EXPO_PUBLIC_NASA_API_KEY,
-  supabaseUrl: process.env.EXPO_PUBLIC_SUPABASE_URL,
-  supabaseAnonKey: process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY,
-  apiBase: process.env.EXPO_PUBLIC_API_BASE,
+  nasaApiKey: process.env.EXPO_PUBLIC_NASA_API_KEY || appExtra.nasaApiKey,
+  supabaseUrl: process.env.EXPO_PUBLIC_SUPABASE_URL || appExtra.supabaseUrl,
+  supabaseAnonKey: process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY || appExtra.supabaseAnonKey,
+  apiBase: process.env.EXPO_PUBLIC_API_BASE || appExtra.apiBase,
 })
 
 configureStorage(storageAdapter)
 
 export default function App() {
+  const [fontsReady, setFontsReady] = useState(false)
+  const [onboardingDone, setOnboardingDone] = useState<boolean | null>(null)
+
+  useEffect(() => {
+    let active = true
+    async function loadFonts() {
+      try {
+        const fontModule = require('expo-font')
+        let audiowide = null
+        try {
+          audiowide = require('@expo-google-fonts/audiowide')
+        } catch (error) {
+          audiowide = null
+        }
+        if (fontModule?.loadAsync) {
+          await fontModule.loadAsync({
+            ...(audiowide?.Audiowide_400Regular ? { Audiowide_400Regular: audiowide.Audiowide_400Regular } : {}),
+          })
+        }
+      } catch (error) {
+        // Fonts are optional; fall back to system font if not available.
+      } finally {
+        if (active) setFontsReady(true)
+      }
+    }
+    loadFonts()
+    return () => {
+      active = false
+    }
+  }, [])
+
+  useEffect(() => {
+    let active = true
+    async function initAuth() {
+      await getSession()
+    }
+    initAuth()
+    const unsubscribe = onAuthChange(() => {})
+    return () => {
+      active = false
+      unsubscribe?.()
+    }
+  }, [])
+
+  useEffect(() => {
+    let active = true
+    async function loadOnboarding() {
+      try {
+        const value = await getItem('starkid:onboardingComplete')
+        if (active) setOnboardingDone(value === 'true')
+      } catch (e) {
+        if (active) setOnboardingDone(false)
+      }
+    }
+    loadOnboarding()
+    return () => {
+      active = false
+    }
+  }, [])
+
+  if (!fontsReady) {
+    return null
+  }
+
+  if (onboardingDone === null) {
+    return null
+  }
+
+  if (!onboardingDone) {
+    return (
+      <OnboardingScreen
+        onDone={async () => {
+          await setItem('starkid:onboardingComplete', 'true')
+          setOnboardingDone(true)
+        }}
+      />
+    )
+  }
+
   return (
     <NavigationContainer>
       <Stack.Navigator
@@ -34,14 +140,40 @@ export default function App() {
           contentStyle: { backgroundColor: '#0b0f1a' },
         }}
       >
-        <Stack.Screen name={ROUTES.HOME} component={HomeScreen} />
-        <Stack.Screen name={ROUTES.COMMAND_CENTER} component={CommandCenterScreen} />
-        <Stack.Screen name={ROUTES.LAUNCHES} component={LaunchesScreen} />
-        <Stack.Screen name={ROUTES.SKY_EVENTS} component={SkyEventsScreen} />
-        <Stack.Screen name={ROUTES.COMETS} component={CometsScreen} />
-        <Stack.Screen name={ROUTES.SOLAR_MAP} component={SolarMapScreen} />
-        <Stack.Screen name={ROUTES.STREAMS} component={StreamsScreen} />
-        <Stack.Screen name={ROUTES.MISSIONS_BRIEFING} component={MissionBriefingScreen} />
+        <Stack.Screen name="AppTabs" component={AppTabs} options={{ headerShown: false }} />
+        <Stack.Screen name={ROUTE_MANIFEST.LAUNCHES} component={LaunchesScreen} />
+        <Stack.Screen name={ROUTE_MANIFEST.SKY_EVENTS} component={SkyEventsScreen} />
+        <Stack.Screen name={ROUTE_MANIFEST.COMETS} component={CometsScreen} />
+        <Stack.Screen name={ROUTE_MANIFEST.SOLAR_MAP} component={SolarMapScreen} />
+        <Stack.Screen name={ROUTE_MANIFEST.STREAMS} component={StreamsScreen} />
+        <Stack.Screen name={ROUTE_MANIFEST.LEARNING} component={LearningHubScreen} />
+        <Stack.Screen name={ROUTE_MANIFEST.LEARNING_STEM} component={StemActivitiesScreen} />
+        <Stack.Screen name="LessonPlayer" component={LessonPlayerScreen} />
+        <Stack.Screen name={ROUTE_MANIFEST.LEARNING_CYBERLAB} component={CyberLabScreen} />
+        <Stack.Screen name={ROUTE_MANIFEST.STEM_ACTIVITY_DETAIL} component={StemActivityDetailScreen} />
+        <Stack.Screen name={ROUTE_MANIFEST.STEM_PROGRESS} component={StemProgressScreen} />
+        <Stack.Screen name={ROUTE_MANIFEST.PLANETS} component={PlanetsScreen} />
+        <Stack.Screen name={ROUTE_MANIFEST.PLANET_DETAIL} component={PlanetDetailScreen} />
+        <Stack.Screen name={ROUTE_MANIFEST.BEYOND} component={BeyondSolarSystemScreen} />
+        <Stack.Screen name={ROUTE_MANIFEST.MISSION_ALERTS} component={MissionAlertsScreen} />
+        <Stack.Screen name={ROUTE_MANIFEST.ROCKETS} component={RocketsScreen} />
+        <Stack.Screen name={ROUTE_MANIFEST.ROCKET_DETAIL} component={RocketDetailScreen} />
+        <Stack.Screen name={ROUTE_MANIFEST.SPACECRAFT_HUB} component={SpacecraftHubScreen} />
+        <Stack.Screen name={ROUTE_MANIFEST.SPACECRAFT_DETAIL} component={SpacecraftDetailScreen} />
+        <Stack.Screen name={ROUTE_MANIFEST.UPDATES_HUB} component={UpdatesHubScreen} />
+        <Stack.Screen name={ROUTE_MANIFEST.UPDATES_NEWS} component={UpdatesNewsScreen} />
+        <Stack.Screen name={ROUTE_MANIFEST.UPDATES_BLOG} component={UpdatesBlogScreen} />
+        <Stack.Screen name={ROUTE_MANIFEST.UPDATES_OFFICIAL} component={UpdatesOfficialScreen} />
+        <Stack.Screen name={ROUTE_MANIFEST.UPDATES_LIVE} component={UpdatesLiveScreen} />
+        <Stack.Screen name={ROUTE_MANIFEST.UPDATES_X} component={UpdatesXScreen} />
+        <Stack.Screen name={ROUTE_MANIFEST.ARTEMIS} component={ArtemisScreen} />
+        <Stack.Screen name={ROUTE_MANIFEST.MISSIONS_BRIEFING} component={MissionBriefingScreen} />
+        {__DEV__ ? (
+          <>
+            <Stack.Screen name="TypographyPreview" component={TypographyPreviewScreen} />
+            <Stack.Screen name="LearningPreview" component={LearningPreviewScreen} />
+          </>
+        ) : null}
       </Stack.Navigator>
     </NavigationContainer>
   )

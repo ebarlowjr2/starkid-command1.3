@@ -1,0 +1,58 @@
+export const PLANETS = [
+  {
+    id: 'mercury',
+    name: 'Mercury',
+    tagline: 'Inner Planet • Extreme Temperature Swings',
+    description: 'Closest planet to the Sun. Small, fast, and heavily cratered.',
+    status: 'locked',
+  },
+  {
+    id: 'venus',
+    name: 'Venus',
+    tagline: 'Atmosphere • High Pressure',
+    description: 'Hottest planet by surface temperature, wrapped in thick clouds.',
+    status: 'locked',
+  },
+  {
+    id: 'earth',
+    name: 'Earth',
+    tagline: 'Home World • Life Support Online',
+    description: 'Liquid water, dynamic weather, and a protective magnetic field.',
+    status: 'locked',
+  },
+  {
+    id: 'mars',
+    name: 'Mars',
+    tagline: 'Rover Ops • Telemetry Active',
+    description: 'The Red Planet—our most active surface exploration target.',
+    status: 'live',
+  },
+  {
+    id: 'jupiter',
+    name: 'Jupiter',
+    tagline: 'Gas Giant • Storm Systems Detected',
+    description: 'Largest planet. Home to the Great Red Spot and powerful magnetosphere.',
+    status: 'locked',
+  },
+  {
+    id: 'saturn',
+    name: 'Saturn',
+    tagline: 'Ring System • Spectral Analysis',
+    description: 'Iconic rings and dozens of moons—Titan leads the interest list.',
+    status: 'locked',
+  },
+  {
+    id: 'uranus',
+    name: 'Uranus',
+    tagline: 'Ice Giant • Axial Tilt Extreme',
+    description: 'Rotates on its side. Cold, distant, and still mysterious.',
+    status: 'coming_soon',
+  },
+  {
+    id: 'neptune',
+    name: 'Neptune',
+    tagline: 'Ice Giant • Wind Speeds High',
+    description: 'Deep blue world with some of the fastest winds in the solar system.',
+    status: 'coming_soon',
+  },
+]
