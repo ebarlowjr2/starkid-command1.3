@@ -2,7 +2,7 @@ import { useNavigate } from 'react-router-dom'
 
 export default function TermsPage() {
   const navigate = useNavigate()
-  const effectiveDate = 'April 30, 2026'
+  const effectiveDate = 'May 15, 2026'
 
   const Section = ({ title, children }) => (
     <section style={{ marginBottom: 28 }}>
@@ -54,6 +54,12 @@ export default function TermsPage() {
       </div>
 
       <div style={{ padding: 18, borderRadius: 12, background: 'rgba(0,0,0,0.6)', border: '1px solid rgba(34, 211, 238, 0.2)' }}>
+        <Section title="0. Organization">
+          <p style={{ margin: 0 }}>
+            StarKid Command is operated by the <strong>Barlow Foundation</strong>, a registered <strong>501(c)(3)</strong> nonprofit organization. The app was developed by <strong>One Circle Solutions, LLC</strong> for the Barlow Foundation.
+          </p>
+        </Section>
+
         <Section title="1. Acceptance of Terms">
           <p style={{ margin: 0 }}>
             By using StarKid Command, users agree to these terms.

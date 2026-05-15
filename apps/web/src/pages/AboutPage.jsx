@@ -47,6 +47,27 @@ export default function AboutPage() {
               marginBottom: 16,
             }}
           >
+            Who Built It
+          </h2>
+          <div style={{ fontSize: 15, color: 'rgba(255,255,255,0.85)', lineHeight: 1.8 }}>
+            <p style={{ marginBottom: 16 }}>
+              StarKid Command was developed by <strong>One Circle Solutions, LLC</strong> for the <strong>Barlow Foundation</strong>.
+            </p>
+            <p style={{ margin: 0 }}>
+              The Barlow Foundation is a registered <strong>501(c)(3)</strong> nonprofit organization.
+            </p>
+          </div>
+        </section>
+
+        <section>
+          <h2
+            style={{
+              fontSize: 18,
+              fontWeight: 600,
+              color: '#fff',
+              marginBottom: 16,
+            }}
+          >
             What Is StarKid Command?
           </h2>
           <div style={{ fontSize: 15, color: 'rgba(255,255,255,0.85)', lineHeight: 1.8 }}>
