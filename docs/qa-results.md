@@ -1,9 +1,9 @@
 # QA Results — Launch Readiness
 
-Date Tested: _TBD_  
-Web Build (Vercel): _TBD_  
+Date Tested: May 18, 2026  
+Web Build (Vercel): _TBD (add Vercel deployment/build id if available)_  
 iOS Build (TestFlight): _TBD_  
-Tester(s): _TBD_  
+Tester(s): Eddie Barlow (QA)  
 Devices:
 - Simulator: _TBD_
 - Physical iPhone: _TBD_
@@ -19,12 +19,12 @@ Record the page results below.
 
 | Check | Result | Notes |
 |---|---|---|
-| Legal pages reachable (About/Privacy/Terms) | TBD |  |
-| Published modules visible | TBD |  |
-| Draft modules hidden from learners | TBD |  |
-| Mission start requires auth | TBD |  |
-| Progress resumes (authed) | TBD |  |
-| XP awarded once | TBD |  |
+| Legal pages reachable (About/Privacy/Terms) | CHECK | Manual verification required (buttons present on checklist page). |
+| Published modules visible | PASS | Learner module count: 26 |
+| Draft modules hidden from learners | PASS | Learner list contains only published modules. |
+| Mission start requires auth | CHECK | Manual verification required (signed out → Start Mission prompts Initialize Identity). |
+| Progress resumes (authed) | CHECK | Checklist indicates “Not signed in. Sign in and re-check to validate resume.” |
+| XP awarded once | CHECK | Manual verification required (complete module twice; XP should not increase twice). |
 
 ## 2) Web Manual Smoke Tests
 
@@ -69,4 +69,3 @@ Severity definitions:
 - **BLOCKER**: crashes, broken auth, unusable learning flow, legal missing, cannot delete account, published content not loading
 - **HIGH**: major broken UX that impacts core actions but may have workaround
 - **MEDIUM/LOW**: polish; defer unless it becomes a blocker
-
