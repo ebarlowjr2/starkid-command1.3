@@ -92,6 +92,9 @@ importers:
       '@react-three/fiber':
         specifier: ^8.18.0
         version: 8.18.0(@types/react@18.3.28)(expo-asset@9.0.2(expo@50.0.21(@babel/core@7.29.0)(@react-native/babel-preset@0.73.21(@babel/core@7.29.0)(@babel/preset-env@7.29.0(@babel/core@7.29.0)))(react-native@0.73.6(@babel/core@7.29.0)(@babel/preset-env@7.29.0(@babel/core@7.29.0))(react@18.3.1))(react@18.3.1)))(expo-file-system@16.0.9(expo@50.0.21(@babel/core@7.29.0)(@react-native/babel-preset@0.73.21(@babel/core@7.29.0)(@babel/preset-env@7.29.0(@babel/core@7.29.0)))(react-native@0.73.6(@babel/core@7.29.0)(@babel/preset-env@7.29.0(@babel/core@7.29.0))(react@18.3.1))(react@18.3.1)))(expo@50.0.21(@babel/core@7.29.0)(@react-native/babel-preset@0.73.21(@babel/core@7.29.0)(@babel/preset-env@7.29.0(@babel/core@7.29.0)))(react-native@0.73.6(@babel/core@7.29.0)(@babel/preset-env@7.29.0(@babel/core@7.29.0))(react@18.3.1))(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react-native@0.73.6(@babel/core@7.29.0)(@babel/preset-env@7.29.0(@babel/core@7.29.0))(react@18.3.1))(react@18.3.1)(three@0.182.0)
+      '@sentry/react':
+        specifier: ^10.53.1
+        version: 10.53.1(react@18.3.1)
       '@starkid/core':
         specifier: workspace:*
         version: link:../../packages/core
@@ -1575,16 +1578,32 @@ packages:
     resolution: {integrity: sha512-lNKBS4P7RUvf1niojXQWe9bU3gnBUCbST4Dj0pSiyat1N96cXVyHkeE+uGxowD0RrVWhs+kGHiVX3FcmRWF6sA==}
     engines: {node: '>=18'}
 
+  '@sentry-internal/browser-utils@10.53.1':
+    resolution: {integrity: sha512-X4d6y8sBMjmNhcDW4eMBU3ASsNIMz8dqaFkhyIMN/dkYr/yZKnbRZPaVuVUGvHKjnlficPpIH0/HK9KBjrYxPw==}
+    engines: {node: '>=18'}
+
   '@sentry-internal/feedback@10.51.0':
     resolution: {integrity: sha512-bCM95bcpphx28e6aU0bwRLxOgwosYsdNzezM1sM0pVOkb0TB3hDFRamramVDK+/Hp1o8qmRxS4c5w/A7YBZGkA==}
+    engines: {node: '>=18'}
+
+  '@sentry-internal/feedback@10.53.1':
+    resolution: {integrity: sha512-vVpTI/aEYN5d9IgZeYJWMqVaN0+iFgidSrYNAsZTh1US5sJUzF/wrl+68KdpmCtFROrN3jiAn1oPSwL5CKvEJA==}
     engines: {node: '>=18'}
 
   '@sentry-internal/replay-canvas@10.51.0':
     resolution: {integrity: sha512-8PW1Pp+Yl3lPwYqhBCr5SgkuhDanu9ZLzUqD2bPKL/ElqbM2eDVIWxq4z4ZzePrmZa6IcCjTv6sVQJ7Z4dLyLA==}
     engines: {node: '>=18'}
 
+  '@sentry-internal/replay-canvas@10.53.1':
+    resolution: {integrity: sha512-aueLaf/2prExwA76BGU5/bOXCKWqtt6jQXWA6WJQNrmKpPEtZJB4ypnpsou0McXQCF8tur2Y8U0TEkwQP13yJQ==}
+    engines: {node: '>=18'}
+
   '@sentry-internal/replay@10.51.0':
     resolution: {integrity: sha512-jCpI5HXSwK6ZT2HX70+mDRciAocHzSiDk4DTgvzV69Wvd+Ei5WLgE+d39eaEPsm8lUC0Ydntb5sJIB6uG9D4bw==}
+    engines: {node: '>=18'}
+
+  '@sentry-internal/replay@10.53.1':
+    resolution: {integrity: sha512-wZNzTBYkgGUPWMuUQv7L64+OJmoCnz7GQNiTrTFK6EVAjJXFBCSsPp/nhif0bLhbk8+0g4xz633uOhpXuQbFdw==}
     engines: {node: '>=18'}
 
   '@sentry/babel-plugin-component-annotate@5.2.1':
@@ -1593,6 +1612,10 @@ packages:
 
   '@sentry/browser@10.51.0':
     resolution: {integrity: sha512-Zdc0sKfenxUtW/OGhtJ7xHFN44bXR7YqxJ1zBDzlZfW0nTbeTTUZBq9z5NUw6qdS0Vs/i3V4qzAKTbRKWfqSEA==}
+    engines: {node: '>=18'}
+
+  '@sentry/browser@10.53.1':
+    resolution: {integrity: sha512-zXF373hzUOGzUOrqd8xb1U3LQi5uYC3mwv+z5OMKUUinQlu30tTWBs7ypy6YTchtix9QlYaHWlayUF8vBZ5UjA==}
     engines: {node: '>=18'}
 
   '@sentry/cli-darwin@3.4.1':
@@ -1651,6 +1674,10 @@ packages:
     resolution: {integrity: sha512-Y45V/YXvVLEXmOdkbD1oG1gkRWFi9guCEGg3PlIlIpRjAbZUrvLGgjRJIc1E7XpSzmOnWbs5BbUxMv4PDaPj2w==}
     engines: {node: '>=18'}
 
+  '@sentry/core@10.53.1':
+    resolution: {integrity: sha512-XG4ezlkyuAPjBC5+9kXC94rXXuqYTw9NRhfaDHssbTFaGnqBR8vQX2UUgZfY7ucbeelRDGfBu1sywoU+mB04uA==}
+    engines: {node: '>=18'}
+
   '@sentry/expo-upload-sourcemaps@8.11.1':
     resolution: {integrity: sha512-xtWJqJotkZGI6M5luexR+9PJKudZHrrKTQ97rbnEBlM6G9CU9FzgLuJzgrxC4+hdM9h21VhIblam3IUtcK2bUg==}
     engines: {node: '>=18'}
@@ -1677,6 +1704,12 @@ packages:
 
   '@sentry/react@10.51.0':
     resolution: {integrity: sha512-RRHHqjNvjji6ebIqdlAr453AkST8Vm4cxdu1vWm772IgbzTO7Jx46Cj6Bt2/GjMyH0YLE5euDaAOQhFMmpvAOw==}
+    engines: {node: '>=18'}
+    peerDependencies:
+      react: ^16.14.0 || 17.x || 18.x || 19.x
+
+  '@sentry/react@10.53.1':
+    resolution: {integrity: sha512-lrwNq5T/zW84l60894TpKHPcvFuc1I/Hnohecc0TfYVpIcYYuw2orCHoU4v4wgkFaJUpegVetbgdOphViyLVjA==}
     engines: {node: '>=18'}
     peerDependencies:
       react: ^16.14.0 || 17.x || 18.x || 19.x
@@ -7244,19 +7277,37 @@ snapshots:
     dependencies:
       '@sentry/core': 10.51.0
 
+  '@sentry-internal/browser-utils@10.53.1':
+    dependencies:
+      '@sentry/core': 10.53.1
+
   '@sentry-internal/feedback@10.51.0':
     dependencies:
       '@sentry/core': 10.51.0
+
+  '@sentry-internal/feedback@10.53.1':
+    dependencies:
+      '@sentry/core': 10.53.1
 
   '@sentry-internal/replay-canvas@10.51.0':
     dependencies:
       '@sentry-internal/replay': 10.51.0
       '@sentry/core': 10.51.0
 
+  '@sentry-internal/replay-canvas@10.53.1':
+    dependencies:
+      '@sentry-internal/replay': 10.53.1
+      '@sentry/core': 10.53.1
+
   '@sentry-internal/replay@10.51.0':
     dependencies:
       '@sentry-internal/browser-utils': 10.51.0
       '@sentry/core': 10.51.0
+
+  '@sentry-internal/replay@10.53.1':
+    dependencies:
+      '@sentry-internal/browser-utils': 10.53.1
+      '@sentry/core': 10.53.1
 
   '@sentry/babel-plugin-component-annotate@5.2.1': {}
 
@@ -7267,6 +7318,14 @@ snapshots:
       '@sentry-internal/replay': 10.51.0
       '@sentry-internal/replay-canvas': 10.51.0
       '@sentry/core': 10.51.0
+
+  '@sentry/browser@10.53.1':
+    dependencies:
+      '@sentry-internal/browser-utils': 10.53.1
+      '@sentry-internal/feedback': 10.53.1
+      '@sentry-internal/replay': 10.53.1
+      '@sentry-internal/replay-canvas': 10.53.1
+      '@sentry/core': 10.53.1
 
   '@sentry/cli-darwin@3.4.1':
     optional: true
@@ -7310,6 +7369,8 @@ snapshots:
 
   '@sentry/core@10.51.0': {}
 
+  '@sentry/core@10.53.1': {}
+
   '@sentry/expo-upload-sourcemaps@8.11.1(@expo/env@0.2.3)(dotenv@16.4.7)':
     dependencies:
       '@sentry/cli': 3.4.1
@@ -7339,6 +7400,12 @@ snapshots:
       '@sentry/browser': 10.51.0
       '@sentry/core': 10.51.0
       react: 18.2.0
+
+  '@sentry/react@10.53.1(react@18.3.1)':
+    dependencies:
+      '@sentry/browser': 10.53.1
+      '@sentry/core': 10.53.1
+      react: 18.3.1
 
   '@sentry/types@10.51.0':
     dependencies:

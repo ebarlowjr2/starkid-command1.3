@@ -13,11 +13,12 @@
     "lint": "echo \"No lint configured\""
   },
   "dependencies": {
-    "@starkid/core": "workspace:*",
-    "@starkid/types": "workspace:*",
     "@google/model-viewer": "^4.1.0",
     "@react-three/drei": "^9.122.0",
     "@react-three/fiber": "^8.18.0",
+    "@sentry/react": "^10.53.1",
+    "@starkid/core": "workspace:*",
+    "@starkid/types": "workspace:*",
     "@supabase/supabase-js": "^2.93.3",
     "axios": "^1.12.2",
     "react": "^18.2.0",
