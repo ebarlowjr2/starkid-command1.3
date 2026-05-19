@@ -4,6 +4,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack'
 import { configureCore, configureStorage, ROUTE_MANIFEST, getSession, onAuthChange } from '@starkid/core'
 import { storageAdapter } from './src/platform/storage.native'
 import Constants from 'expo-constants'
+import * as Sentry from '@sentry/react-native'
 
 import LaunchesScreen from './src/screens/LaunchesScreen'
 import SkyEventsScreen from './src/screens/SkyEventsScreen'
@@ -42,6 +43,13 @@ const Stack = createNativeStackNavigator()
 
 const appExtra = Constants?.expoConfig?.extra || Constants?.manifest?.extra || {}
 
+Sentry.init({
+  dsn: process.env.EXPO_PUBLIC_SENTRY_DSN || appExtra.sentryDsn,
+  debug: __DEV__,
+  // Keep sampling conservative for launch; tune later.
+  tracesSampleRate: __DEV__ ? 1.0 : 0.2,
+})
+
 configureCore({
   nasaApiKey: process.env.EXPO_PUBLIC_NASA_API_KEY || appExtra.nasaApiKey,
   supabaseUrl: process.env.EXPO_PUBLIC_SUPABASE_URL || appExtra.supabaseUrl,
@@ -52,7 +60,7 @@ configureCore({
 
 configureStorage(storageAdapter)
 
-export default function App() {
+export default Sentry.wrap(function App() {
   const [fontsReady, setFontsReady] = useState(false)
   const [onboardingDone, setOnboardingDone] = useState<boolean | null>(null)
 
@@ -178,4 +186,4 @@ export default function App() {
       </Stack.Navigator>
     </NavigationContainer>
   )
-}
+});
