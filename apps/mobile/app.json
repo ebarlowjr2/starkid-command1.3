@@ -34,6 +34,14 @@
           "project": "starkid-mobile",
           "organization": "one-circle-solutions-llc"
         }
+      ],
+      [
+        "expo-build-properties",
+        {
+          "ios": {
+            "deploymentTarget": "15.0"
+          }
+        }
       ]
     ]
   }

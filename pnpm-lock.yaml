@@ -46,6 +46,9 @@ importers:
       expo:
         specifier: ~50.0.0
         version: 50.0.21(@babel/core@7.29.0)(@react-native/babel-preset@0.73.21(@babel/core@7.29.0)(@babel/preset-env@7.29.0(@babel/core@7.29.0)))(react-native@0.73.6(@babel/core@7.29.0)(@babel/preset-env@7.29.0(@babel/core@7.29.0))(react@18.2.0))(react@18.2.0)
+      expo-build-properties:
+        specifier: ^55.0.14
+        version: 55.0.14(expo@50.0.21(@babel/core@7.29.0)(@react-native/babel-preset@0.73.21(@babel/core@7.29.0)(@babel/preset-env@7.29.0(@babel/core@7.29.0)))(react-native@0.73.6(@babel/core@7.29.0)(@babel/preset-env@7.29.0(@babel/core@7.29.0))(react@18.2.0))(react@18.2.0))
       expo-font:
         specifier: ~11.10.3
         version: 11.10.3(expo@50.0.21(@babel/core@7.29.0)(@react-native/babel-preset@0.73.21(@babel/core@7.29.0)(@babel/preset-env@7.29.0(@babel/core@7.29.0)))(react-native@0.73.6(@babel/core@7.29.0)(@babel/preset-env@7.29.0(@babel/core@7.29.0))(react@18.2.0))(react@18.2.0))
@@ -1087,6 +1090,9 @@ packages:
   '@expo/rudder-sdk-node@1.1.1':
     resolution: {integrity: sha512-uy/hS/awclDJ1S88w9UGpc6Nm9XnNUjzOAAib1A3PVAnGQIwebg8DpFqOthFBTlZxeuV/BKbZ5jmTbtNZkp1WQ==}
     engines: {node: '>=12'}
+
+  '@expo/schema-utils@55.0.4':
+    resolution: {integrity: sha512-65IdeeE8dAZR3n3J5Eq7LYiQ8BFGeEYCWPBCzycvafL7PkskbCyIclTQarRwf/HXFoRvezKCjaLwy/8v9Prk6g==}
 
   '@expo/sdk-runtime-versions@1.0.0':
     resolution: {integrity: sha512-Doz2bfiPndXYFPMRwPyGa1k5QaKDVpY806UJj570epIiMzWaYyCtobasyfC++qfIXVb5Ocy7r3tP9d62hAQ7IQ==}
@@ -2668,6 +2674,11 @@ packages:
 
   expo-asset@9.0.2:
     resolution: {integrity: sha512-PzYKME1MgUOoUvwtdzhAyXkjXOXGiSYqGKG/MsXwWr0Ef5wlBaBm2DCO9V6KYbng5tBPFu6hTjoRNil1tBOSow==}
+
+  expo-build-properties@55.0.14:
+    resolution: {integrity: sha512-5wopuLXlzFpDnCfsIjgAcj4yKnVTYg3XYGnYV5Hqi7u6jJipLG4fwtUqxVIFqBj7vEHXjd4zYCyXjp39AtAD7w==}
+    peerDependencies:
+      expo: '*'
 
   expo-constants@15.4.6:
     resolution: {integrity: sha512-vizE69dww2Vl0PTWWvDmK0Jo2/J+WzdcMZlA05YEnEYofQuhKxTVsiuipf79mSOmFavt4UQYC1UnzptzKyfmiQ==}
@@ -6580,6 +6591,8 @@ snapshots:
     transitivePeerDependencies:
       - encoding
 
+  '@expo/schema-utils@55.0.4': {}
+
   '@expo/sdk-runtime-versions@1.0.0': {}
 
   '@expo/spawn-async@1.5.0':
@@ -8564,6 +8577,13 @@ snapshots:
       - expo
       - supports-color
     optional: true
+
+  expo-build-properties@55.0.14(expo@50.0.21(@babel/core@7.29.0)(@react-native/babel-preset@0.73.21(@babel/core@7.29.0)(@babel/preset-env@7.29.0(@babel/core@7.29.0)))(react-native@0.73.6(@babel/core@7.29.0)(@babel/preset-env@7.29.0(@babel/core@7.29.0))(react@18.2.0))(react@18.2.0)):
+    dependencies:
+      '@expo/schema-utils': 55.0.4
+      expo: 50.0.21(@babel/core@7.29.0)(@react-native/babel-preset@0.73.21(@babel/core@7.29.0)(@babel/preset-env@7.29.0(@babel/core@7.29.0)))(react-native@0.73.6(@babel/core@7.29.0)(@babel/preset-env@7.29.0(@babel/core@7.29.0))(react@18.2.0))(react@18.2.0)
+      resolve-from: 5.0.0
+      semver: 7.7.4
 
   expo-constants@15.4.6(expo@50.0.21(@babel/core@7.29.0)(@react-native/babel-preset@0.73.21(@babel/core@7.29.0)(@babel/preset-env@7.29.0(@babel/core@7.29.0)))(react-native@0.73.6(@babel/core@7.29.0)(@babel/preset-env@7.29.0(@babel/core@7.29.0))(react@18.2.0))(react@18.2.0)):
     dependencies:

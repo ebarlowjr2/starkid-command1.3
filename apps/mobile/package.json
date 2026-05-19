@@ -21,6 +21,7 @@
     "@starkid/types": "workspace:*",
     "@supabase/supabase-js": "^2.97.0",
     "expo": "~50.0.0",
+    "expo-build-properties": "^55.0.14",
     "expo-font": "~11.10.3",
     "expo-linear-gradient": "~12.7.2",
     "invariant": "^2.2.4",
