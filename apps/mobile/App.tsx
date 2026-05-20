@@ -48,6 +48,11 @@ Sentry.init({
   debug: __DEV__,
   // Keep sampling conservative for launch; tune later.
   tracesSampleRate: __DEV__ ? 1.0 : 0.2,
+  // We don't ship `expo-updates` in this app right now. Sentry's default Expo
+  // integration attempts to require it, which can crash production bundles
+  // (Metro ends up requiring an `undefined` module id). We'll re-enable when
+  // we intentionally adopt `expo-updates`.
+  integrations: (integrations) => integrations.filter((i) => i?.name !== 'ExpoUpdatesListener'),
 })
 
 configureCore({
