@@ -7,6 +7,7 @@ import { lunarOxygenSupplyLesson } from '../seeds/lunarOxygenSupplyLesson'
 import { solarStormShieldingLesson } from '../seeds/solarStormShieldingLesson'
 import { marsRoverBatteryLesson } from '../seeds/marsRoverBatteryLesson'
 import { orbitalDebrisAvoidanceLesson } from '../seeds/orbitalDebrisAvoidanceLesson'
+import { artemisDockingChallengeLesson } from '../seeds/artemisDockingChallengeLesson'
 
 const lessons: Lesson[] = [
   launchFuelRatioLesson,
@@ -15,6 +16,7 @@ const lessons: Lesson[] = [
   solarStormShieldingLesson,
   marsRoverBatteryLesson,
   orbitalDebrisAvoidanceLesson,
+  artemisDockingChallengeLesson,
 ]
 const submissions = new Map<string, LessonSubmission>()
 

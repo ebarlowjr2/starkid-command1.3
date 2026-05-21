@@ -1,5 +1,5 @@
 import React from 'react'
-import { View, StyleSheet, Pressable } from 'react-native'
+import { View, StyleSheet, Pressable, TextInput } from 'react-native'
 import { CustomText } from '../../../components/ui/CustomText'
 import { colors, spacing } from '../../../theme/tokens'
 import QuestionNumericBlock from './blocks/QuestionNumericBlock'
@@ -7,6 +7,9 @@ import QuestionShortTextBlock from './blocks/QuestionShortTextBlock'
 import QuestionChoiceBlock from './blocks/QuestionChoiceBlock'
 
 export default function BlockRenderer({ block, value, onChange, onCheckpoint }: any) {
+  const quizAnswerObj: Record<string, any> =
+    block?.type === 'submission_prompt' && value && typeof value === 'object' ? value : {}
+
   switch (block.type) {
     case 'mission_brief':
       return (
@@ -102,6 +105,61 @@ export default function BlockRenderer({ block, value, onChange, onCheckpoint }: 
         <View style={styles.block}>
           <CustomText variant="body" style={styles.body}>{block.prompt}</CustomText>
           <CustomText variant="bodySmall" style={styles.context}>{block.instruction}</CustomText>
+          {block.checkpointQuiz?.questions?.length ? (
+            <View style={styles.quizWrap}>
+              <CustomText variant="sectionLabel" style={styles.kicker}>
+                {block.checkpointQuiz.title || 'Final Checkpoint'}
+              </CustomText>
+              {block.checkpointQuiz.questions.map((q: any) => {
+                const qValue = quizAnswerObj[q.id]
+                const setQValue = (next: any) => onChange({ ...quizAnswerObj, [q.id]: next })
+                return (
+                  <View key={q.id} style={styles.quizQ}>
+                    <CustomText variant="bodySmall" style={styles.quizPrompt}>{q.prompt}</CustomText>
+                    {q.type === 'numeric' ? (
+                      <>
+                        <TextInput
+                          style={styles.input}
+                          value={qValue ? String(qValue) : ''}
+                          onChangeText={setQValue}
+                          placeholder="Enter value"
+                          placeholderTextColor="rgba(234,242,255,0.4)"
+                          keyboardType="numeric"
+                        />
+                        {q.unit ? <CustomText variant="bodySmall" style={styles.context}>Unit: {q.unit}</CustomText> : null}
+                      </>
+                    ) : q.type === 'short_text' ? (
+                      <TextInput
+                        style={[styles.input, { minHeight: 84 }]}
+                        value={qValue ? String(qValue) : ''}
+                        onChangeText={setQValue}
+                        placeholder="Enter response"
+                        placeholderTextColor="rgba(234,242,255,0.4)"
+                        multiline
+                      />
+                    ) : (
+                      <View style={styles.choiceRow}>
+                        {q.choices.map((c: any) => {
+                          const active = qValue === c.id
+                          return (
+                            <Pressable
+                              key={c.id}
+                              onPress={() => setQValue(c.id)}
+                              style={[styles.choice, active && styles.choiceActive]}
+                            >
+                              <CustomText variant="bodySmall" style={[styles.choiceText, active && styles.choiceTextActive]}>
+                                {c.text}
+                              </CustomText>
+                            </Pressable>
+                          )
+                        })}
+                      </View>
+                    )}
+                  </View>
+                )
+              })}
+            </View>
+          ) : null}
           {block.completionMessage ? (
             <View style={styles.example}>
               <CustomText variant="h2" style={styles.exampleTitle}>Mission Complete</CustomText>
@@ -168,4 +226,35 @@ const styles = StyleSheet.create({
   },
   checkButtonActive: { borderColor: 'rgba(61,235,255,0.9)', backgroundColor: 'rgba(61,235,255,0.2)' },
   checkText: { color: colors.text },
+  quizWrap: {
+    marginTop: spacing.md,
+    paddingTop: spacing.sm,
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(61,235,255,0.2)',
+    gap: spacing.sm,
+  },
+  quizQ: { gap: spacing.xs },
+  quizPrompt: { color: colors.text },
+  input: {
+    borderWidth: 1,
+    borderColor: 'rgba(61,235,255,0.4)',
+    borderRadius: 10,
+    padding: 10,
+    color: colors.text,
+  },
+  choiceRow: { gap: spacing.sm },
+  choice: {
+    paddingVertical: 10,
+    paddingHorizontal: 12,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: 'rgba(61,235,255,0.35)',
+    backgroundColor: 'rgba(6, 10, 22, 0.4)',
+  },
+  choiceActive: {
+    borderColor: 'rgba(61,235,255,0.9)',
+    backgroundColor: 'rgba(61,235,255,0.2)',
+  },
+  choiceText: { color: colors.text },
+  choiceTextActive: { color: colors.text },
 })

@@ -12,6 +12,13 @@ export default function StemActivitiesPage() {
   const [loadError, setLoadError] = useState(null)
   const nav = useNavigate()
 
+  const levelLabel = (lvl) => {
+    if (lvl === 'explorer') return 'Intermediate'
+    if (lvl === 'specialist') return 'Advanced'
+    if (lvl === 'operator') return 'Expert'
+    return lvl
+  }
+
   useEffect(() => {
     let active = true
     async function loadModules() {
@@ -131,7 +138,7 @@ export default function StemActivitiesPage() {
               <span className="text-xs text-cyan-400 bg-cyan-900/40 px-2 py-0.5 rounded">
                 {activity.track}
               </span>
-              <span className="text-xs text-cyan-200/70">{activity.level}</span>
+              <span className="text-xs text-cyan-200/70">{levelLabel(activity.level)}</span>
               {isAuthed && progressById[activity.id]?.status === 'completed' ? (
                 <span className="text-xs text-green-300 bg-green-900/30 px-2 py-0.5 rounded">
                   Completed{activity.xpReward ? ` • +${activity.xpReward} XP` : ''}

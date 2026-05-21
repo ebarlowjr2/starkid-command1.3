@@ -15,7 +15,14 @@ export default function StemActivityDetailScreen({ route, navigation }: { route:
   const [completed, setCompleted] = useState(false)
   const [saving, setSaving] = useState(false)
   const hasMissionEntry = Boolean(activity?.missionContext || activity?.objective)
-  const levelLabel = activity?.level ? `${activity.level.charAt(0).toUpperCase()}${activity.level.slice(1)}` : ''
+  const levelLabel = (() => {
+    const lvl = activity?.level
+    if (!lvl) return ''
+    if (lvl === 'explorer') return 'Intermediate'
+    if (lvl === 'specialist') return 'Advanced'
+    if (lvl === 'operator') return 'Expert'
+    return `${lvl.charAt(0).toUpperCase()}${lvl.slice(1)}`
+  })()
   const [showSync, setShowSync] = useState(false)
   const [resumeStep, setResumeStep] = useState<number | null>(null)
   const [progressStatus, setProgressStatus] = useState<'not_started' | 'in_progress' | 'completed'>('not_started')

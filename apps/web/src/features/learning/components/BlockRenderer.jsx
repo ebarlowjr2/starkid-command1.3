@@ -38,6 +38,18 @@ export default function BlockRenderer({ block, value, onChange, onCheckpoint }) 
           <ol className="mt-3 text-white/80 text-sm list-decimal pl-4">
             {block.steps.map((step) => <li key={step}>{step}</li>)}
           </ol>
+          {block.workedExample ? (
+            <div className="mt-4 pt-3 border-t border-cyan-500/20">
+              <div className="text-white text-lg font-bold">Worked Example</div>
+              <div className="mt-2 text-white/80 text-sm">{block.workedExample.problem}</div>
+              <div className="mt-3 text-cyan-200/80 text-sm">{block.workedExample.solution}</div>
+              {block.workedExample.steps?.length ? (
+                <ul className="mt-3 text-white/70 text-sm list-disc pl-4">
+                  {block.workedExample.steps.map((s) => <li key={s}>{s}</li>)}
+                </ul>
+              ) : null}
+            </div>
+          ) : null}
         </div>
       )
     case 'worked_example':
@@ -82,6 +94,55 @@ export default function BlockRenderer({ block, value, onChange, onCheckpoint }) 
         <div>
           <div className="text-white/80">{block.prompt}</div>
           <div className="text-white/60 text-sm mt-2">{block.instruction}</div>
+          {block.checkpointQuiz?.questions?.length ? (
+            <div className="mt-4 pt-3 border-t border-cyan-500/20">
+              <div className="text-xs text-cyan-200/70 font-mono">
+                {block.checkpointQuiz.title || 'Final Checkpoint'}
+              </div>
+              <div className="mt-3 flex flex-col gap-4">
+                {block.checkpointQuiz.questions.map((q) => {
+                  const obj = value && typeof value === 'object' ? value : {}
+                  const qValue = obj[q.id]
+                  const setQValue = (next) => onChange({ ...obj, [q.id]: next })
+                  return (
+                    <div key={q.id} className="flex flex-col gap-2">
+                      <div className="text-white/80 text-sm">{q.prompt}</div>
+                      {q.type === 'numeric' ? (
+                        <div className="flex flex-col gap-1">
+                          <input
+                            className="bg-black/50 border border-cyan-500/30 rounded px-3 py-2 text-white/90 text-sm"
+                            value={qValue ?? ''}
+                            onChange={(e) => setQValue(e.target.value)}
+                            inputMode="numeric"
+                          />
+                          {q.unit ? <div className="text-white/50 text-xs">Unit: {q.unit}</div> : null}
+                        </div>
+                      ) : q.type === 'short_text' ? (
+                        <textarea
+                          className="bg-black/50 border border-cyan-500/30 rounded px-3 py-2 text-white/90 text-sm"
+                          rows={3}
+                          value={qValue ?? ''}
+                          onChange={(e) => setQValue(e.target.value)}
+                        />
+                      ) : (
+                        <div className="flex flex-col gap-2">
+                          {q.choices.map((c) => (
+                            <button
+                              key={c.id}
+                              onClick={() => setQValue(c.id)}
+                              className={`px-3 py-2 rounded border text-left text-sm ${qValue === c.id ? 'border-cyan-400 bg-cyan-500/20 text-cyan-100' : 'border-cyan-500/30 bg-black/40 text-white/80'}`}
+                            >
+                              {c.text}
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  )
+                })}
+              </div>
+            </div>
+          ) : null}
         </div>
       )
     case 'completion':

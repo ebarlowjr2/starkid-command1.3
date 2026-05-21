@@ -23,6 +23,9 @@ Learn through missions:
 - Submit your work to Command and track completion
 - Earn XP and build your StarKid profile over time
 
+Flagship mission:
+- Artemis III Docking Challenge (educational simulation inspired by current Artemis planning)
+
 StarKid Command is an educational platform and is not an official NASA product.
 
 ## Keywords
@@ -62,4 +65,3 @@ Secondary (optional): Reference
 
 ## Contact
 info@onecs.net
-

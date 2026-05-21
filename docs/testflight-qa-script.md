@@ -79,6 +79,22 @@ Expected:
 - Answers persist within the session when navigating steps.
 - No UI crashes during step transitions.
 
+## 6A) Flagship Mission — Artemis III Docking Challenge
+1. While signed in, open:
+   - STEM Activities → Artemis III Docking Challenge → START MISSION
+2. Verify the module detail shows:
+   - training type
+   - difficulty badge (Intermediate)
+   - XP reward (150)
+   - estimated time (12–15 min)
+3. In the player, verify:
+   - mission decision step gives immediate feedback after selecting GO/HOLD/ABORT
+   - final checkpoint quiz requires answers before submit
+
+Expected:
+- Artemis module runs end-to-end with no crashes.
+- Submit completes and awards XP only once.
+
 ## 7) Progress Save + Resume
 1. In the lesson player, complete several steps but do not submit.
 2. Force close the app.
@@ -146,4 +162,3 @@ Expected:
 - Screenshots / video:
 - Logs / error text:
 - Severity (blocker / high / medium / low):
-

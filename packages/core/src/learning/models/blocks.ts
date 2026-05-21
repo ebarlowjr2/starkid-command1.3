@@ -79,6 +79,8 @@ export type QuestionMultipleChoiceBlock = LessonBlockBase & {
   choices: { id: string; text: string }[]
   answerId: string
   allowMultiple?: boolean
+  correctFeedback?: string
+  incorrectFeedback?: string
 }
 
 export type HintBlock = LessonBlockBase & {
@@ -96,6 +98,34 @@ export type SubmissionPromptBlock = LessonBlockBase & {
   type: 'submission_prompt'
   prompt: string
   instruction: string
+  // Optional "final checkpoint" quiz rendered inside the submit step (keeps 7-step flow).
+  // Answers are stored under the submission_prompt block id as an object keyed by question id.
+  checkpointQuiz?: {
+    title?: string
+    questions: Array<
+      | {
+          id: string
+          type: 'multiple_choice' | 'true_false'
+          prompt: string
+          choices: { id: string; text: string }[]
+          answerId: string
+        }
+      | {
+          id: string
+          type: 'numeric'
+          prompt: string
+          unit?: string
+          answer: { value: number; tolerance: number }
+        }
+      | {
+          id: string
+          type: 'short_text'
+          prompt: string
+          answer?: { accepted: string[] }
+          exampleAnswer?: string
+        }
+    >
+  }
   completionMessage?: string
   completionNextSteps?: string[]
 }

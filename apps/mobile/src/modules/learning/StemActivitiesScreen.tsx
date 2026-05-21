@@ -16,6 +16,19 @@ export default function StemActivitiesScreen({ navigation }: { navigation: any }
   const [activities, setActivities] = useState([])
   const [loadingModules, setLoadingModules] = useState(true)
 
+  const levelLabel = (lvl: string) => {
+    switch (lvl) {
+      case 'explorer':
+        return 'Intermediate'
+      case 'specialist':
+        return 'Advanced'
+      case 'operator':
+        return 'Expert'
+      default:
+        return lvl
+    }
+  }
+
   useEffect(() => {
     let active = true
     async function loadModules() {
@@ -116,7 +129,7 @@ export default function StemActivitiesScreen({ navigation }: { navigation: any }
               <GlassCard variant="secondary" style={styles.activityCard}>
                 <CustomText variant="cardTitle" style={styles.activityTitle}>{item.title}</CustomText>
                 <CustomText variant="bodySmall" style={styles.activityMeta}>
-                  {item.track} • {item.level}
+                  {item.track} • {levelLabel(item.level)}
                 </CustomText>
                 {isAuthed && progressById[item.id]?.status === 'completed' ? (
                   <CustomText variant="bodySmall" style={styles.statusComplete}>

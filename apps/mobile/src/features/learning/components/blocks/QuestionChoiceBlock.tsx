@@ -4,6 +4,8 @@ import { CustomText } from '../../../../components/ui/CustomText'
 import { colors, spacing } from '../../../../theme/tokens'
 
 export default function QuestionChoiceBlock({ block, value, onChange }: any) {
+  const showFeedback = Boolean(value) && typeof block?.answerId === 'string'
+  const correct = showFeedback ? value === block.answerId : false
   return (
     <View style={styles.container}>
       <CustomText variant="body" style={styles.prompt}>{block.prompt}</CustomText>
@@ -23,6 +25,16 @@ export default function QuestionChoiceBlock({ block, value, onChange }: any) {
           )
         })}
       </View>
+      {showFeedback ? (
+        <CustomText
+          variant="bodySmall"
+          style={[styles.feedback, correct ? styles.feedbackGood : styles.feedbackBad]}
+        >
+          {correct
+            ? block.correctFeedback || 'Good call. This condition is within limits.'
+            : block.incorrectFeedback || 'Not quite. Re-check the limits and conditions before proceeding.'}
+        </CustomText>
+      ) : null}
     </View>
   )
 }
@@ -45,4 +57,7 @@ const styles = StyleSheet.create({
   },
   choiceText: { color: colors.text },
   choiceTextActive: { color: colors.text },
+  feedback: { marginTop: spacing.xs },
+  feedbackGood: { color: '#4ade80' },
+  feedbackBad: { color: '#facc15' },
 })
