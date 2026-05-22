@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { NavigationContainer } from '@react-navigation/native'
+import { NavigationContainer, getFocusedRouteNameFromRoute } from '@react-navigation/native'
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
 import { configureCore, configureStorage, ROUTE_MANIFEST, getSession, onAuthChange } from '@starkid/core'
 import { storageAdapter } from './src/platform/storage.native'
@@ -42,6 +42,27 @@ import { getItem, setItem } from '@starkid/core'
 const Stack = createNativeStackNavigator()
 
 const appExtra = Constants?.expoConfig?.extra || Constants?.manifest?.extra || {}
+
+function tabTitleForRoute(routeName: string) {
+  switch (routeName) {
+    case ROUTE_MANIFEST.HOME:
+      return 'Home'
+    case ROUTE_MANIFEST.EXPLORE:
+      return 'Exp'
+    case ROUTE_MANIFEST.COMMAND_CENTER:
+      return 'Comm'
+    case ROUTE_MANIFEST.COMET:
+      return 'C.O.M.E.T.'
+    case ROUTE_MANIFEST.LUNAR_EVENTS:
+      return 'Missions'
+    case ROUTE_MANIFEST.LEARNING:
+      return 'Learn'
+    case ROUTE_MANIFEST.PROFILE:
+      return 'Profile'
+    default:
+      return 'Home'
+  }
+}
 
 Sentry.init({
   dsn: process.env.EXPO_PUBLIC_SENTRY_DSN || appExtra.sentryDsn,
@@ -157,7 +178,16 @@ export default Sentry.wrap(function App() {
           contentStyle: { backgroundColor: '#0b0f1a' },
         }}
       >
-        <Stack.Screen name="AppTabs" component={AppTabs} options={{ headerShown: false }} />
+        <Stack.Screen
+          name="AppTabs"
+          component={AppTabs}
+          options={({ route }) => {
+            const focused = getFocusedRouteNameFromRoute(route) || ROUTE_MANIFEST.HOME
+            // Even though the header is hidden, this title is used as the iOS back label
+            // for stack screens pushed on top of the tab navigator.
+            return { headerShown: false, title: tabTitleForRoute(focused) }
+          }}
+        />
         <Stack.Screen name={ROUTE_MANIFEST.LAUNCHES} component={LaunchesScreen} />
         <Stack.Screen name={ROUTE_MANIFEST.SKY_EVENTS} component={SkyEventsScreen} />
         <Stack.Screen name={ROUTE_MANIFEST.COMETS} component={CometsScreen} />
