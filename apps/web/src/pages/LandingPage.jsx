@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom"
 import { useEffect, useState } from "react"
-import { getArtemisProgramSummary, getArtemisPriorityAlert } from "@starkid/core"
+import { getArtemisProgramSummary, getArtemisPriorityAlert, getUpcomingLaunchesWindow } from "@starkid/core"
 import { TelemetryStrip } from "../components/TelemetryStrip.jsx"
 import { FeaturedEventOrb } from "../components/FeaturedEventOrb.jsx"
 import UpcomingEventsBanner from "../components/UpcomingEventsBanner.jsx"
@@ -8,19 +8,36 @@ import UpcomingEventsBanner from "../components/UpcomingEventsBanner.jsx"
 export default function LandingPage() {
   const nav = useNavigate()
   const [artemis, setArtemis] = useState(null)
+  const [nextLaunch, setNextLaunch] = useState(null)
   const [now, setNow] = useState(Date.now())
   const fallbackArtemisDate = "2027-12-01T00:00:00Z"
 
   useEffect(() => {
     let active = true
+    const pickNextLaunch = (list) => {
+      if (!Array.isArray(list)) return null
+      const withDates = list
+        .map((launch) => {
+          const dateIso = launch?.net || launch?.window_start || launch?.date_utc
+          const time = dateIso ? new Date(dateIso).getTime() : NaN
+          return { launch, time }
+        })
+        .filter((item) => Number.isFinite(item.time))
+        .sort((a, b) => a.time - b.time)
+      return withDates[0]?.launch || null
+    }
+
     async function load() {
-      const [summaryResult, alertResult] = await Promise.allSettled([
+      const [summaryResult, alertResult, launchesResult] = await Promise.allSettled([
         getArtemisProgramSummary(),
         getArtemisPriorityAlert(),
+        getUpcomingLaunchesWindow({ days: 7, limit: 12 }),
       ])
       if (!active) return
       const summary = summaryResult.status === "fulfilled" ? summaryResult.value?.data : null
       const alert = alertResult.status === "fulfilled" ? alertResult.value?.data : null
+      const launches = launchesResult.status === "fulfilled" ? launchesResult.value?.data : []
+      const next = pickNextLaunch(launches)
       const nextMissionDate = summary?.nextMissionDate || alert?.startTime || null
       setArtemis(
         summary
@@ -37,10 +54,16 @@ export default function LandingPage() {
               }
             : null
       )
+      setNextLaunch(next)
     }
+    // We keep this deliberately close to mobile behavior:
+    // - countdown ticks every second (via `now`)
+    // - "next launch" is refreshed every 6 hours
     load()
+    const interval = setInterval(load, 6 * 60 * 60 * 1000)
     return () => {
       active = false
+      clearInterval(interval)
     }
   }, [])
 
@@ -51,6 +74,19 @@ export default function LandingPage() {
 
   const artemisCountdown = (() => {
     const targetIso = artemis?.nextMissionDate || fallbackArtemisDate
+    const target = new Date(targetIso).getTime()
+    if (!Number.isFinite(target)) return "TBD"
+    const diff = Math.max(0, target - now)
+    const days = Math.floor(diff / (24 * 3600 * 1000))
+    const hours = Math.floor((diff % (24 * 3600 * 1000)) / (3600 * 1000))
+    const minutes = Math.floor((diff % (3600 * 1000)) / (60 * 1000))
+    const seconds = Math.floor((diff % (60 * 1000)) / 1000)
+    return `${days}d ${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`
+  })()
+
+  const nextLaunchCountdown = (() => {
+    const targetIso = nextLaunch?.net || nextLaunch?.window_start || nextLaunch?.date_utc
+    if (!targetIso) return "TBD"
     const target = new Date(targetIso).getTime()
     if (!Number.isFinite(target)) return "TBD"
     const diff = Math.max(0, target - now)
@@ -114,6 +150,28 @@ export default function LandingPage() {
             {artemis?.description || "NASA’s priority lunar exploration program."}
           </div>
           <div className="artemis-cta">OPEN ARTEMIS →</div>
+        </div>
+      </div>
+
+      <div className="landing-section">
+        <div
+          className="launch-card"
+          onClick={() => nav("/command")}
+          role="button"
+          tabIndex={0}
+          onKeyDown={(e) => e.key === "Enter" && nav("/command")}
+        >
+          <div className="launch-label">UPCOMING LAUNCH</div>
+          <div className="launch-title">{nextLaunch?.name || "Next Launch TBD"}</div>
+          <div className="launch-countdown">
+            COUNTDOWN · <span>{nextLaunchCountdown}</span>
+          </div>
+          <div className="launch-body">
+            {nextLaunch?.mission?.description
+              ? `${String(nextLaunch.mission.description).slice(0, 140)}…`
+              : "Times are NET and subject to change."}
+          </div>
+          <div className="launch-cta">VIEW LAUNCH FEED →</div>
         </div>
       </div>
 
@@ -283,6 +341,61 @@ export default function LandingPage() {
         }
 
         .artemis-cta {
+          margin-top: 12px;
+          font-size: 11px;
+          letter-spacing: 0.14em;
+          color: rgba(34,211,238,0.8);
+          font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+        }
+
+        .launch-card {
+          padding: 18px;
+          border-radius: 16px;
+          border: 1px solid rgba(34, 211, 238, 0.35);
+          background: rgba(8, 12, 24, 0.55);
+          cursor: pointer;
+          transition: transform 0.2s ease, border-color 0.2s ease;
+        }
+
+        .launch-card:hover {
+          transform: translateY(-2px);
+          border-color: rgba(34, 211, 238, 0.6);
+        }
+
+        .launch-label {
+          font-size: 10px;
+          letter-spacing: 0.2em;
+          color: rgba(255,255,255,0.6);
+          font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+        }
+
+        .launch-title {
+          font-size: 20px;
+          font-weight: 700;
+          color: #22d3ee;
+          margin-top: 8px;
+        }
+
+        .launch-body {
+          font-size: 14px;
+          color: rgba(226,232,240,0.8);
+          margin-top: 6px;
+        }
+
+        .launch-countdown {
+          margin-top: 8px;
+          font-size: 12px;
+          letter-spacing: 0.12em;
+          color: rgba(148, 163, 184, 0.9);
+          font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+        }
+
+        .launch-countdown span {
+          color: #22d3ee;
+          font-weight: 700;
+        }
+
+        .launch-cta {
           margin-top: 12px;
           font-size: 11px;
           letter-spacing: 0.14em;
