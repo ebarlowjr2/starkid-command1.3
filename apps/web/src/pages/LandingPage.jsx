@@ -135,26 +135,6 @@ export default function LandingPage() {
 
       <div className="landing-section">
         <div
-          className="artemis-card"
-          onClick={() => nav("/artemis")}
-          role="button"
-          tabIndex={0}
-          onKeyDown={(e) => e.key === "Enter" && nav("/artemis")}
-        >
-          <div className="artemis-label">ARTEMIS SPOTLIGHT</div>
-          <div className="artemis-title">{artemis?.nextMission || "Artemis III Estimated Target"}</div>
-          <div className="artemis-countdown">
-            COUNTDOWN · <span>{artemisCountdown}</span>
-          </div>
-          <div className="artemis-body">
-            {artemis?.description || "NASA’s priority lunar exploration program."}
-          </div>
-          <div className="artemis-cta">OPEN ARTEMIS →</div>
-        </div>
-      </div>
-
-      <div className="landing-section">
-        <div
           className="launch-card"
           onClick={() => nav("/command")}
           role="button"
@@ -172,6 +152,26 @@ export default function LandingPage() {
               : "Times are NET and subject to change."}
           </div>
           <div className="launch-cta">VIEW LAUNCH FEED →</div>
+        </div>
+      </div>
+
+      <div className="landing-section">
+        <div
+          className="artemis-card"
+          onClick={() => nav("/artemis")}
+          role="button"
+          tabIndex={0}
+          onKeyDown={(e) => e.key === "Enter" && nav("/artemis")}
+        >
+          <div className="artemis-label">ARTEMIS SPOTLIGHT</div>
+          <div className="artemis-title">{artemis?.nextMission || "Artemis III Estimated Target"}</div>
+          <div className="artemis-countdown">
+            COUNTDOWN · <span>{artemisCountdown}</span>
+          </div>
+          <div className="artemis-body">
+            {artemis?.description || "NASA’s priority lunar exploration program."}
+          </div>
+          <div className="artemis-cta">OPEN ARTEMIS →</div>
         </div>
       </div>
 
