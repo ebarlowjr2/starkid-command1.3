@@ -43,6 +43,7 @@ import LaunchChecklistPage from './pages/LaunchChecklistPage.jsx'
 import ProfilePage from './pages/ProfilePage.jsx'
 import AuthCallbackPage from './pages/AuthCallbackPage.jsx'
 import SocialQueuePage from './pages/ops/SocialQueuePage.jsx'
+import ContentCommandCenterPage from './pages/admin/ContentCommandCenterPage.jsx'
 import LearningPreviewPage from './pages/dev/LearningPreviewPage.jsx'
 import LessonPlayerScreen from './features/learning/screens/LessonPlayerScreen.jsx'
 import CometWidget from './components/comet/CometWidget.jsx'
@@ -190,6 +191,14 @@ function AppShell() {
                       <Route path="/launch-checklist" element={<LaunchChecklistPage />} />
                     ) : null}
                     <Route path="/ops/social-queue" element={<SocialQueuePage />} />
+                    <Route path="/admin/content" element={<ContentCommandCenterPage />} />
+                    <Route path="/admin/content/candidates" element={<ContentCommandCenterPage />} />
+                    <Route path="/admin/content/review" element={<ContentCommandCenterPage />} />
+                    <Route path="/admin/content/drafts" element={<ContentCommandCenterPage />} />
+                    <Route path="/admin/content/social-queue" element={<ContentCommandCenterPage />} />
+                    <Route path="/admin/content/scheduled" element={<ContentCommandCenterPage />} />
+                    <Route path="/admin/content/published" element={<ContentCommandCenterPage />} />
+                    <Route path="/admin/content/:id" element={<ContentCommandCenterPage />} />
                     {import.meta.env.DEV ? (
                       <Route path="/dev/learning-preview" element={<LearningPreviewPage />} />
                     ) : null}
