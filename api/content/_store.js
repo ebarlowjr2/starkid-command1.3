@@ -394,6 +394,42 @@ export async function createSmokeTestItems() {
     },
   ]
 
+  if (isSupabaseConfigured()) {
+    const supabase = getSupabase()
+    const records = samples.map((sample, index) => normalizeItem({
+      ...sample,
+      slug: `${slugify(sample.title)}-${Date.now()}-${index + 1}`,
+    }))
+
+    const { data, error } = await supabase
+      .from('content_items')
+      .insert(records)
+      .select('*')
+
+    if (error) throw error
+
+    const appLinks = (data || [])
+      .map((item, index) => ({
+        content_item_id: item.id,
+        link_type: samples[index].app_link_type,
+        target_id: samples[index].app_link_target_id || '',
+        cta_text: samples[index].app_cta || '',
+      }))
+      .filter((link) => link.link_type)
+
+    if (appLinks.length) {
+      const { error: linkError } = await supabase.from('content_app_links').insert(appLinks)
+      if (linkError) throw linkError
+    }
+
+    return (data || []).map((item) => ({
+      ...item,
+      social_posts: [],
+      content_app_links: appLinks.filter((link) => link.content_item_id === item.id),
+      content_webhook_events: [],
+    }))
+  }
+
   const created = []
   for (const sample of samples) {
     created.push(await createContent({
