@@ -163,8 +163,17 @@ export default function ContentCommandCenterPage() {
     }
     if (opsKey) headers['X-OPS-KEY'] = opsKey
     const res = await fetch(url, { ...options, headers })
-    const data = await res.json().catch(() => ({}))
-    if (!res.ok) throw new Error(data.error || 'Request failed')
+    const text = await res.text()
+    let data = {}
+    try {
+      data = text ? JSON.parse(text) : {}
+    } catch {
+      data = { raw: text }
+    }
+    if (!res.ok) {
+      const details = data.error || data.message || data.raw || res.statusText || 'Request failed'
+      throw new Error(`${details} (${res.status})`)
+    }
     return data
   }
 
@@ -314,7 +323,10 @@ export default function ContentCommandCenterPage() {
     setError('')
     setMessage('')
     try {
-      const data = await apiFetch('/api/content/seed-test-items', { method: 'POST' })
+      const data = await apiFetch('/api/content', {
+        method: 'POST',
+        body: JSON.stringify({ action: 'seed_test_items' }),
+      })
       setMessage(`Created ${data.items?.length || 0} production smoke test items.`)
       await loadContent()
     } catch (e) {

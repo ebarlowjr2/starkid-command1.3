@@ -1,5 +1,6 @@
 import {
   createContent,
+  createSmokeTestItems,
   listContent,
   parseBody,
   requireOps,
@@ -24,7 +25,13 @@ export default async function handler(req, res) {
 
     if (req.method === 'POST') {
       if (!requireOps(req, res)) return
-      const item = await createContent(parseBody(req))
+      const body = parseBody(req)
+      if (body.action === 'seed_test_items') {
+        const items = await createSmokeTestItems()
+        res.status(201).json({ items })
+        return
+      }
+      const item = await createContent(body)
       res.status(201).json({ item })
       return
     }
