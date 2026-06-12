@@ -1,1 +1,1 @@
-export { default } from '../../../api/content.js'
+export { default } from './content/index.js'
