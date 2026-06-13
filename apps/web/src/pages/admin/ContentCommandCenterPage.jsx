@@ -667,9 +667,17 @@ function DetailPanel({
       <Field label="SEO title"><input value={edit.seo_title || ''} onChange={(e) => setEdit('seo_title', e.target.value)} /></Field>
       <Field label="SEO description"><textarea rows={2} value={edit.seo_description || ''} onChange={(e) => setEdit('seo_description', e.target.value)} /></Field>
       <Field label="Hero image URL"><input value={edit.hero_image_url || ''} onChange={(e) => setEdit('hero_image_url', e.target.value)} /></Field>
+      <Field label="Source name"><input value={edit.source_name || ''} onChange={(e) => setEdit('source_name', e.target.value)} /></Field>
+      <Field label="Source URL"><input value={edit.source_url || ''} onChange={(e) => setEdit('source_url', e.target.value)} /></Field>
+      <Field label="Fact source name"><input value={edit.fact_source_name || ''} onChange={(e) => setEdit('fact_source_name', e.target.value)} /></Field>
+      <Field label="Fact source URL"><input value={edit.fact_source_url || ''} onChange={(e) => setEdit('fact_source_url', e.target.value)} /></Field>
       <label className="content-check">
         <input type="checkbox" checked={Boolean(edit.is_test)} onChange={(e) => setEdit('is_test', e.target.checked)} />
         Mark as test content
+      </label>
+      <label className="content-check">
+        <input type="checkbox" checked={Boolean(edit.verified_manually)} onChange={(e) => setEdit('verified_manually', e.target.checked)} />
+        Verified manually
       </label>
       <Field label="STEM tie-in"><textarea rows={3} value={edit.stem_tie_in || ''} onChange={(e) => setEdit('stem_tie_in', e.target.value)} /></Field>
       <Field label="App CTA"><input value={edit.app_cta || ''} onChange={(e) => setEdit('app_cta', e.target.value)} /></Field>
