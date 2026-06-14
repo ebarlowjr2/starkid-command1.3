@@ -630,6 +630,11 @@ function buildBlogUrl(item) {
 export function buildWebhookPayload(item) {
   const socialPosts = item.social_posts || []
   const appLink = item.content_app_links?.[0]
+  const captionsByPlatform = socialPosts.reduce((captions, post) => {
+    captions[post.platform] = post.caption || post.body || ''
+    return captions
+  }, {})
+
   return {
     contentItemId: item.id,
     isTest: Boolean(item.is_test),
@@ -639,6 +644,12 @@ export function buildWebhookPayload(item) {
     sourceUrl: item.source_url,
     blogUrl: buildBlogUrl(item),
     scheduledFor: item.scheduled_for,
+    instagramCaption: captionsByPlatform.instagram || '',
+    facebookCaption: captionsByPlatform.facebook || '',
+    linkedinCaption: captionsByPlatform.linkedin || '',
+    xCaption: captionsByPlatform.x || '',
+    threadsCaption: captionsByPlatform.threads || '',
+    youtubeShortsCaption: captionsByPlatform.youtube_shorts || '',
     platforms: socialPosts
       .filter((post) => post.platform !== 'youtube_shorts')
       .map((post) => ({
