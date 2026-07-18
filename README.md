@@ -28,5 +28,6 @@ Copy `.env.example` to `.env` and set `VITE_NASA_API_KEY`. You can use `DEMO_KEY
 ### Content Command Center
 Operational docs for the admin content workflow live in:
 
+- `docs/project-wiki.md`
 - `docs/content-command-center-wiki.md`
 - `docs/content-command-center-production-test-plan.md`
