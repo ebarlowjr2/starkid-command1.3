@@ -1,5 +1,6 @@
 import { useNavigate, useParams } from 'react-router-dom'
 import { getPostBySlug } from '@starkid/core'
+import { useEffect, useState } from 'react'
 
 function renderMarkdown(content) {
   const lines = content.split('\n')
@@ -128,7 +129,17 @@ function renderMarkdown(content) {
 export default function BlogDetailPage() {
   const navigate = useNavigate()
   const { slug } = useParams()
-  const post = getPostBySlug(slug)
+  const [post, setPost] = useState(null)
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    let active = true
+    getPostBySlug(slug)
+      .then((p) => { if (active) setPost(p) })
+      .catch(() => { if (active) setPost(null) })
+      .finally(() => { if (active) setLoading(false) })
+    return () => { active = false }
+  }, [slug])
 
   if (!post) {
     return (
@@ -160,7 +171,7 @@ export default function BlogDetailPage() {
             fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace',
           }}
         >
-          POST NOT FOUND
+          {loading ? 'LOADING…' : 'POST NOT FOUND'}
         </div>
       </div>
     )

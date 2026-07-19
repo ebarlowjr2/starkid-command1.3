@@ -1,15 +1,25 @@
 import { useNavigate } from 'react-router-dom'
-import { getAllPosts, getAllTags } from '@starkid/core'
-import { useState } from 'react'
+import { getAllPosts } from '@starkid/core'
+import { useEffect, useState } from 'react'
 
 export default function BlogListPage() {
   const navigate = useNavigate()
-  const allPosts = getAllPosts()
-  const allTags = getAllTags()
+  const [allPosts, setAllPosts] = useState([])
+  const [loading, setLoading] = useState(true)
   const [selectedTag, setSelectedTag] = useState(null)
 
+  useEffect(() => {
+    let active = true
+    getAllPosts()
+      .then((posts) => { if (active) setAllPosts(Array.isArray(posts) ? posts : []) })
+      .catch(() => { if (active) setAllPosts([]) })
+      .finally(() => { if (active) setLoading(false) })
+    return () => { active = false }
+  }, [])
+
+  const allTags = [...new Set(allPosts.flatMap((p) => p.tags || []))]
   const filteredPosts = selectedTag
-    ? allPosts.filter((post) => post.tags.includes(selectedTag))
+    ? allPosts.filter((post) => (post.tags || []).includes(selectedTag))
     : allPosts
 
   return (
@@ -134,7 +144,7 @@ export default function BlogListPage() {
 
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-                {post.tags.map((tag) => (
+                {(post.tags || []).map((tag) => (
                   <span
                     key={tag}
                     style={{
@@ -175,7 +185,7 @@ export default function BlogListPage() {
             fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace',
           }}
         >
-          NO POSTS FOUND
+          {loading ? 'LOADING MISSION LOGS…' : 'NO POSTS FOUND'}
         </div>
       )}
     </div>

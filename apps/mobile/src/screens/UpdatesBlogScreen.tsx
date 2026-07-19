@@ -1,18 +1,38 @@
-import React, { useMemo, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { SafeAreaView, ScrollView, StyleSheet, View, Pressable } from 'react-native'
 import { SpaceBackground } from '../components/home/SpaceBackground'
 import { GlassCard } from '../components/home/GlassCard'
 import { colors, spacing } from '../theme/tokens'
-import { getAllPosts, getAllTags, getPostBySlug, ROUTE_MANIFEST } from '@starkid/core'
+import { getAllPosts, getPostBySlug, ROUTE_MANIFEST } from '@starkid/core'
 import { CustomText } from '../components/ui/CustomText'
 
 export default function UpdatesBlogScreen({ navigation, route }: any) {
   const [selectedTag, setSelectedTag] = useState<string | null>(null)
   const slug = route?.params?.slug as string | undefined
-  const allPosts = useMemo(() => getAllPosts(), [])
-  const allTags = useMemo(() => getAllTags(), [])
-  const post = slug ? getPostBySlug(slug) : null
+  const [allPosts, setAllPosts] = useState<any[]>([])
+  const [post, setPost] = useState<any>(null)
 
+  useEffect(() => {
+    let active = true
+    getAllPosts()
+      .then((posts: any) => { if (active) setAllPosts(Array.isArray(posts) ? posts : []) })
+      .catch(() => { if (active) setAllPosts([]) })
+    return () => { active = false }
+  }, [])
+
+  useEffect(() => {
+    let active = true
+    if (slug) {
+      getPostBySlug(slug)
+        .then((p: any) => { if (active) setPost(p) })
+        .catch(() => { if (active) setPost(null) })
+    } else {
+      setPost(null)
+    }
+    return () => { active = false }
+  }, [slug])
+
+  const allTags = [...new Set(allPosts.flatMap((p: any) => p.tags || []))]
   const filteredPosts = selectedTag
     ? allPosts.filter((p: any) => p.tags?.includes(selectedTag))
     : allPosts

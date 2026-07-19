@@ -1,3 +1,8 @@
+import { getCoreConfig } from '../../../config/coreConfig.ts'
+
+// Legacy seed posts. No longer rendered (the blog now shows PUBLISHED
+// content_items from the API — see functions at the bottom). Retained for a
+// future DB migration so this content isn't lost.
 const BLOG_POSTS = [
   {
     slug: 'welcome-to-starkid-command',
@@ -239,24 +244,77 @@ Follow the Artemis missions and watch history being made. The next giant leap fo
   },
 ]
 
-export function getAllPosts() {
-  return BLOG_POSTS.map(({ content, ...post }) => post).sort(
-    (a, b) => new Date(b.date) - new Date(a.date)
-  )
+// --- API-driven blog feed: PUBLISHED content_items, shared by web + mobile ---
+
+function apiBase() {
+  try {
+    return (getCoreConfig().apiBase || '').replace(/\/$/, '')
+  } catch {
+    return ''
+  }
 }
 
-export function getPostBySlug(slug) {
-  return BLOG_POSTS.find((post) => post.slug === slug) || null
+function mapItem(item) {
+  const date =
+    item.published_at || item.source_published_at || item.created_at || new Date().toISOString()
+  const tags = [item.content_type, item.topic].filter(Boolean)
+  let content = (item.body || item.excerpt || '').trim()
+  if (item.stem_tie_in) content += `\n\nSTEM connection: ${item.stem_tie_in}`
+  if (item.source_name && item.source_url) {
+    content += `\n\nSource: ${item.source_name} — ${item.source_url}`
+  }
+  return {
+    slug: item.slug || item.id,
+    title: item.title || 'Untitled',
+    date,
+    summary: item.excerpt || '',
+    tags,
+    coverImage: item.hero_image_url || null,
+    content,
+    sourceName: item.source_name || '',
+    sourceUrl: item.source_url || '',
+  }
 }
 
-export function getPostsByTag(tag) {
-  return BLOG_POSTS.filter((post) => post.tags.includes(tag)).map(
-    ({ content, ...post }) => post
-  )
+let _cache = null
+let _cacheAt = 0
+const CACHE_MS = 60 * 1000
+
+async function loadPosts() {
+  const now = Date.now()
+  if (_cache && now - _cacheAt < CACHE_MS) return _cache
+  try {
+    const res = await fetch(`${apiBase()}/content?filter=published`)
+    if (!res.ok) throw new Error(`blog feed ${res.status}`)
+    const data = await res.json()
+    const posts = (data.items || [])
+      .map(mapItem)
+      .sort((a, b) => new Date(b.date) - new Date(a.date))
+    _cache = posts
+    _cacheAt = now
+    return posts
+  } catch {
+    // Published-only: on failure keep prior cache, else empty (no static fallback).
+    return _cache || []
+  }
 }
 
-export function getAllTags() {
+export async function getAllPosts() {
+  return (await loadPosts()).map(({ content, ...post }) => post)
+}
+
+export async function getPostBySlug(slug) {
+  return (await loadPosts()).find((post) => post.slug === slug) || null
+}
+
+export async function getPostsByTag(tag) {
+  return (await loadPosts())
+    .filter((post) => (post.tags || []).includes(tag))
+    .map(({ content, ...post }) => post)
+}
+
+export async function getAllTags() {
   const tags = new Set()
-  BLOG_POSTS.forEach((post) => post.tags.forEach((tag) => tags.add(tag)))
+  ;(await loadPosts()).forEach((post) => (post.tags || []).forEach((tag) => tags.add(tag)))
   return Array.from(tags).sort()
 }
