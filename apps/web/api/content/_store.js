@@ -161,7 +161,7 @@ export function determineInitialStatus(contentType) {
 }
 
 export function canDistribute(item) {
-  return item?.status === 'approved' || item?.status === 'scheduled'
+  return ['approved', 'scheduled', 'published'].includes(item?.status)
 }
 
 export function canRetryWebhook(item) {
@@ -724,17 +724,18 @@ export async function sendToWebhook(id, options = {}) {
     }
 
     await saveWebhookEvent({ ...eventBase, response: responseBody, status: 'sent', sent_at: new Date().toISOString() })
-    await markSentToBuffer(id, payload, responseBody)
+    await markSentToBuffer(id, payload, responseBody, item.status === 'published')
     return getContent(id)
   } catch (error) {
     await saveWebhookEvent({ ...eventBase, status: 'failed', error_message: error.message })
-    await updateContent(id, { status: 'failed' })
+    if (item.status !== 'published') await updateContent(id, { status: 'failed' })
     throw error
   }
 }
 
-async function markSentToBuffer(id, payload, response) {
+async function markSentToBuffer(id, payload, response, keepPublished = false) {
   const now = new Date().toISOString()
+  const nextStatus = keepPublished ? 'published' : 'sent_to_buffer'
   if (isSupabaseConfigured()) {
     const supabase = getSupabase()
     await supabase
@@ -746,7 +747,7 @@ async function markSentToBuffer(id, payload, response) {
         buffer_response: response,
       })
       .eq('content_item_id', id)
-    await updateContent(id, { status: 'sent_to_buffer' })
+    await updateContent(id, { status: nextStatus })
     return
   }
 
@@ -755,7 +756,7 @@ async function markSentToBuffer(id, payload, response) {
       ? { ...post, status: 'sent_to_buffer', sent_to_buffer_at: now, buffer_payload: payload, buffer_response: response }
       : post
   )
-  await updateContent(id, { status: 'sent_to_buffer' })
+  await updateContent(id, { status: nextStatus })
 }
 
 export async function saveWebhookEvent(event) {
