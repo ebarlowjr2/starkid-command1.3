@@ -103,6 +103,14 @@ export default function BlogListPage() {
             }}
             onClick={() => navigate(`/updates/blog/${post.slug}`)}
           >
+            {post.coverImage && (
+              <img
+                src={post.coverImage}
+                alt=""
+                loading="lazy"
+                style={{ width: '100%', height: 180, objectFit: 'cover', borderRadius: 12, marginBottom: 12, display: 'block' }}
+              />
+            )}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8 }}>
               <h2
                 style={{

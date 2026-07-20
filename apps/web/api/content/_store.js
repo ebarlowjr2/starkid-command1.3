@@ -643,6 +643,7 @@ export function buildWebhookPayload(item) {
     sourceName: item.source_name,
     sourceUrl: item.source_url,
     blogUrl: buildBlogUrl(item),
+    imageUrl: item.hero_image_url || '',
     scheduledFor: item.scheduled_for,
     instagramCaption: captionsByPlatform.instagram || '',
     facebookCaption: captionsByPlatform.facebook || '',

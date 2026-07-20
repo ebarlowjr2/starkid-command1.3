@@ -200,6 +200,13 @@ export default function BlogDetailPage() {
       </button>
 
       <article>
+        {post.coverImage && (
+          <img
+            src={post.coverImage}
+            alt=""
+            style={{ width: '100%', maxHeight: 360, objectFit: 'cover', borderRadius: 16, marginBottom: 24, display: 'block' }}
+          />
+        )}
         <header style={{ marginBottom: 32 }}>
           <div style={{ display: 'flex', gap: 8, marginBottom: 12, flexWrap: 'wrap' }}>
             {post.tags.map((tag) => (
