@@ -510,13 +510,42 @@ export async function rejectContent(id, reason = '') {
   })
 }
 
+// Discovery-first hashtags: lead with high-traffic topical tags people actually
+// search/follow (#SpaceX, #NASA, #Astronomy…) for reach, keep #StarKidCommand as
+// a brand anchor, and add education-community tags for the parent/educator
+// audience. Counts are tuned per platform — on X/Facebook more tags LOWER reach,
+// so we stay lean; Instagram/LinkedIn allow more.
 function hashtagsFor(item, platform) {
-  const tags = ['#StarKidCommand']
-  if (item.is_launch_related || item.content_type.includes('launch')) tags.push('#Launch')
-  if (item.is_lunar_related || item.content_type.includes('artemis')) tags.push('#Moon')
-  if (item.is_stem_related || item.stem_tie_in) tags.push('#STEM')
-  if (platform === 'linkedin') return tags.filter((tag) => tag !== '#Moon')
-  return tags.slice(0, 4)
+  const ct = (item.content_type || '').toLowerCase()
+  const t = `${item.title || ''} ${item.excerpt || ''} ${item.body || ''} ${item.source_name || ''} ${ct}`.toLowerCase()
+  const disc = []
+  const add = (tag) => { if (tag && !disc.includes(tag)) disc.push(tag) }
+
+  // 1) Specific, high-traffic space tags (most discoverable first)
+  if (/\bspacex\b|falcon|starlink|dragon/.test(t)) add('#SpaceX')
+  if (/starship/.test(t)) add('#Starship')
+  if (/rocket ?lab|electron|neutron/.test(t)) add('#RocketLab')
+  if (/blue origin|new glenn|new shepard/.test(t)) add('#BlueOrigin')
+  if (/artemis|orion|\bsls\b/.test(t) || ct.includes('artemis')) add('#Artemis')
+  if (item.is_lunar_related || /\bmoon\b|lunar/.test(t)) add('#Moon')
+  if (item.source_name === 'NASA APOD' || /astronomy|nebula|galaxy|telescope|\bapod\b|cosmos|\buniverse\b/.test(t)) add('#Astronomy')
+  if (ct === 'new_space_company_update' || /\bstartup\b|commercial space|new space/.test(t)) add('#NewSpace')
+  if (item.is_launch_related || ct.includes('launch')) add('#Launch')
+  if (/\bnasa\b/.test(t)) add('#NASA')
+
+  // 2) Education anchor (StarKid's audience is kids/educators)
+  const edu = item.is_stem_related || item.stem_tie_in
+  if (edu) add('#STEM')
+  // 3) Broad reach
+  add('#Space')
+  // 4) Education-community long tail (Instagram/LinkedIn room)
+  if (edu) { add('#STEMeducation'); add('#SpaceForKids') }
+
+  const brand = '#StarKidCommand'
+  const caps = { x: 2, twitter: 2, facebook: 3, threads: 1, linkedin: 5, instagram: 8, youtube_shorts: 3 }
+  const cap = caps[platform] ?? 4
+  if (cap <= 1) return [disc[0] || brand]         // Threads: single strongest tag
+  return [...disc.slice(0, cap - 1), brand]        // reserve the brand-anchor slot
 }
 
 function captionFor(item, platform) {
@@ -535,7 +564,7 @@ function captionFor(item, platform) {
     return `${item.title}\n\nA StarKid Command update connecting space exploration with STEM learning. ${summary}${tieIn}\n\n${source.trim()}`
   }
   if (platform === 'x') {
-    return `${item.title}: ${summary.slice(0, 120)} ${item.source_name ? `via ${item.source_name}` : ''} ${hashtagsFor(item, platform).slice(0, 2).join(' ')}`
+    return `${item.title}: ${summary.slice(0, 120)} ${item.source_name ? `via ${item.source_name}` : ''} ${hashtagsFor(item, platform).join(' ')}`
   }
   if (platform === 'threads') {
     return `${item.title}\n\n${summary}\n\nTiny mission-control question: what would you ask the team next?${source}`
