@@ -48,7 +48,7 @@ The following fields are supported by the current admin form and Supabase table.
 | Objective | `objective` | Yes | string | `Determine the correct oxidizer-to-fuel ratio...` |
 | Mission Outcomes | `mission_outcomes` | Yes | array of strings | `['Review the mission brief', ...]` |
 | Tags | `tags` | Optional | array of strings | `['launch','math']` |
-| Lesson Slug | `lesson_slug` | Required for playable module | string | `launch-fuel-ratio-calculation` |
+| Lesson Slug | `lesson_slug` | Yes | registered lesson slug | `launch-fuel-ratio-calculation` |
 | Answer Key | `answer_key` | Optional | string | `1560 kg` |
 | Status | `status` | Yes | enum/string | `draft` |
 | Submitted For Review At | `submitted_for_review_at` | Optional | timestamp | `2025-03-28T18:20:00Z` |
@@ -78,7 +78,7 @@ The following fields are supported by the current admin form and Supabase table.
 - `block_list`
 - `block_count`
 - `xp_reward`
-- `lesson_slug` (required if the module should launch the lesson player)
+- `lesson_slug` (must match a lesson registered in `packages/core`; publishing is blocked otherwise)
 - `status` (must be `published` to be learner-visible)
 
 ### Optional / enhancement fields
@@ -267,6 +267,9 @@ A module is ready when it has:
 
 ## Reference Example
 **Launch Fuel Ratio Calculation** is the current reference module. All new modules should match its structure and quality.
+
+### Authoring Boundary
+The admin form creates and governs the module entry metadata. The lesson player reads the structured lesson registered in `packages/core` by `lesson_slug`. Create the lesson first, then use its exact slug in the admin form. This prevents published cards that cannot launch a mission.
 
 ---
 

@@ -122,14 +122,14 @@ export default function MobileNav({ navSections }) {
       {/* Mobile menu overlay */}
       {isMenuOpen && (
         <div 
-          className="fixed inset-0 bg-black/80 z-40"
+          className="fixed inset-0 bg-black/80 z-[9998]"
           onClick={() => setIsMenuOpen(false)}
         />
       )}
 
       {/* Mobile menu panel */}
       <div 
-        className={`fixed top-0 right-0 h-full w-72 bg-zinc-900 border-l border-cyan-500/30 z-50 transform transition-transform duration-300 ${
+        className={`fixed top-0 right-0 h-full w-72 bg-zinc-900 border-l border-cyan-500/30 z-[10000] transform transition-transform duration-300 ${
           isMenuOpen ? 'translate-x-0' : 'translate-x-full'
         }`}
       >

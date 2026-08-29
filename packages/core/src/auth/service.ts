@@ -62,6 +62,28 @@ export async function signUpWithPassword(email: string, password: string, redire
   return session
 }
 
+// Native confirmation links return to the app with a one-time auth code.
+// Exchange it here so web and mobile continue to share one auth service.
+export async function completeAuthRedirect(redirectUrl: string) {
+  const supabase = getSupabaseClient()
+  if (!supabase) throw new Error('Supabase not configured')
+
+  const codeMatch = redirectUrl.match(/[?&]code=([^&]+)/)
+  if (!codeMatch?.[1]) return getSession()
+
+  const guestId = await getOrCreateAnonymousId()
+  const { data, error } = await supabase.auth.exchangeCodeForSession(decodeURIComponent(codeMatch[1]))
+  if (error) throw error
+
+  const session = toSession(data?.session)
+  if (session?.userId) {
+    await migrateLocalGuestData(guestId, session.userId)
+    await ensureSupabaseProfile(session.userId)
+  }
+  await setUserSession(session)
+  return session
+}
+
 export async function signOut() {
   const supabase = getSupabaseClient()
   if (!supabase) return

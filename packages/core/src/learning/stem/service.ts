@@ -91,6 +91,7 @@ export function listStemActivities(filters?: { track?: StemTrack; level?: StemLe
         'Verify the timing fits the window',
         'Submit your calculation to Command',
       ],
+      lessonSlug: 'math.launch.window-countdown',
     }),
   }
 

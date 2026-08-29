@@ -16,12 +16,14 @@ export function SyncIdentityModal({
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
+  const [signupNotice, setSignupNotice] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
 
   const handleSync = async () => {
     try {
       setLoading(true)
       setError(null)
+      setSignupNotice(null)
       await signInWithPassword(email, password)
       onSync()
     } catch (e: any) {
@@ -35,8 +37,13 @@ export function SyncIdentityModal({
     try {
       setLoading(true)
       setError(null)
-      await signUpWithPassword(email, password)
-      onSync()
+      setSignupNotice(null)
+      const session = await signUpWithPassword(email, password, 'starkidcommand://auth/callback')
+      if (session?.userId) {
+        onSync()
+      } else {
+        setSignupNotice('Check your email to confirm your account. The confirmation link will return you to StarKid Command.')
+      }
     } catch (e: any) {
       setError(e?.message || 'Unable to establish profile')
     } finally {
@@ -80,6 +87,7 @@ export function SyncIdentityModal({
             </Pressable>
           </View>
           {error ? <Text style={styles.error}>{error}</Text> : null}
+          {signupNotice ? <Text style={styles.notice}>{signupNotice}</Text> : null}
         </View>
       </View>
     </Modal>
@@ -116,4 +124,5 @@ const styles = StyleSheet.create({
   actions: { marginTop: spacing.md, gap: spacing.sm },
   secondary: { ...typography.pixel, color: colors.dim, textAlign: 'center', marginTop: spacing.sm },
   error: { ...typography.small, color: '#fca5a5', marginTop: spacing.sm, textAlign: 'center' },
+  notice: { ...typography.small, color: colors.dim, marginTop: spacing.sm, textAlign: 'center' },
 })

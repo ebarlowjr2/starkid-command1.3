@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react'
 import { NavigationContainer, getFocusedRouteNameFromRoute } from '@react-navigation/native'
+import { Linking } from 'react-native'
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
-import { configureCore, configureStorage, ROUTE_MANIFEST, getSession, onAuthChange } from '@starkid/core'
+import { configureCore, configureStorage, ROUTE_MANIFEST, getSession, onAuthChange, completeAuthRedirect } from '@starkid/core'
 import { storageAdapter } from './src/platform/storage.native'
 import Constants from 'expo-constants'
 import * as Sentry from '@sentry/react-native'
@@ -119,6 +120,21 @@ export default Sentry.wrap(function App() {
     return () => {
       active = false
     }
+  }, [])
+
+  useEffect(() => {
+    const handleAuthRedirect = async (url: string | null) => {
+      if (!url?.startsWith('starkidcommand://auth/callback')) return
+      try {
+        await completeAuthRedirect(url)
+      } catch (error) {
+        Sentry.captureException(error)
+      }
+    }
+
+    Linking.getInitialURL().then(handleAuthRedirect)
+    const subscription = Linking.addEventListener('url', ({ url }) => handleAuthRedirect(url))
+    return () => subscription.remove()
   }, [])
 
   useEffect(() => {

@@ -81,7 +81,7 @@ export default function StemActivitiesPage() {
           STEM ACTIVITIES
         </h2>
         <p className="text-sm text-cyan-200/70 font-mono">
-          Hands-on challenges and experiments are landing soon.
+          Choose a mission, build space-systems skills, and track your progress.
         </p>
         <button
           onClick={() => nav('/learning/stem/progress')}
@@ -159,7 +159,7 @@ export default function StemActivitiesPage() {
               onClick={() => nav(`/learning/stem/${activity.id}`)}
               className="mt-3 text-xs text-cyan-300 border border-cyan-600/60 px-2 py-1 rounded hover:text-cyan-200"
             >
-              View Steps →
+              Access Module →
             </button>
           </div>
         ))}

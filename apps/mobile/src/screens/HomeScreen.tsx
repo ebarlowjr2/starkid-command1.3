@@ -183,12 +183,25 @@ export default function HomeScreen() {
             </View>
           </View>
           <View style={styles.cardStack}>
+            <NextMajorEventCard
+              kicker="UPCOMING LAUNCH"
+              title={nextLaunch?.name || "Launch schedule updating"}
+              netLine="Launch window opens (NET)"
+              countdown={nextLaunch ? countdown : "UPDATING"}
+              description={
+                nextLaunch?.mission?.description
+                  ? `${nextLaunch.mission.description.slice(0, 110)}...`
+                  : "Times are NET and subject to change."
+              }
+              buttonLabel="VIEW MORE →"
+              onOpenBrief={() => navigation.navigate(ROUTE_MANIFEST.LAUNCHES as never)}
+            />
             <GlassCard variant="secondary" style={styles.artemisCard}>
               <CustomText variant="sectionLabel" style={styles.artemisLabel}>
                 ARTEMIS SPOTLIGHT
               </CustomText>
               <CustomText variant="cardTitle" style={styles.artemisTitle}>
-                {artemis?.nextMission || "Artemis II"}
+                {artemis?.nextMission || "Artemis III Estimated Target"}
               </CustomText>
               <CustomText variant="bodySmall" style={styles.artemisCountdown}>
                 COUNTDOWN · {artemisCountdown}
@@ -202,19 +215,6 @@ export default function HomeScreen() {
                 style={styles.artemisButton}
               />
             </GlassCard>
-            <NextMajorEventCard
-              kicker="UPCOMING LAUNCH"
-              title={nextLaunch?.name || "Next Launch TBD"}
-              netLine="Launch window opens (NET)"
-              countdown={countdown}
-              description={
-                nextLaunch?.mission?.description
-                  ? `${nextLaunch.mission.description.slice(0, 110)}...`
-                  : "Times are NET and subject to change."
-              }
-              buttonLabel="VIEW MORE →"
-              onOpenBrief={() => navigation.navigate(ROUTE_MANIFEST.LAUNCHES as never)}
-            />
           </View>
           <View style={styles.cardStack}>
             <UpcomingSkyEventsCard

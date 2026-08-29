@@ -2,7 +2,6 @@ import React from "react";
 import { View, Pressable, StyleSheet } from "react-native";
 import { BottomTabBarProps } from "@react-navigation/bottom-tabs";
 import { colors } from "../theme/tokens";
-import { CometTabButton } from "./CometTabButton";
 import { CustomText } from "../components/ui/CustomText";
 
 const ICONS: Record<string, string> = {
@@ -17,12 +16,15 @@ const ICONS: Record<string, string> = {
 };
 
 export function CustomTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
-  const routes = state.routes;
+  // C.O.M.E.T. is still available as an in-app destination, but it is a
+  // coming-soon assistant. Keeping it out of the primary bar gives the six
+  // active destinations enough room for stable, readable labels.
+  const routes = state.routes.filter((route) => route.name !== "C.O.M.E.T.");
 
   return (
     <View style={styles.container}>
-      {routes.map((route, index) => {
-        const focused = state.index === index;
+      {routes.map((route) => {
+        const focused = state.routes[state.index]?.key === route.key;
         const { options } = descriptors[route.key];
         const label = options.tabBarLabel ?? options.title ?? route.name;
         const icon = ICONS[route.name] || "•";
@@ -33,14 +35,6 @@ export function CustomTabBar({ state, descriptors, navigation }: BottomTabBarPro
             navigation.navigate(route.name);
           }
         };
-
-        if (route.name === "C.O.M.E.T.") {
-          return (
-            <View key={route.key} style={styles.tab}>
-              <CometTabButton onPress={onPress} focused={focused} />
-            </View>
-          );
-        }
 
         return (
           <Pressable key={route.key} onPress={onPress} style={styles.tab}>
@@ -67,9 +61,9 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "flex-end",
     justifyContent: "space-between",
-    paddingHorizontal: 18,
+    paddingHorizontal: 10,
     paddingTop: 12,
-    paddingBottom: 24,
+    paddingBottom: 18,
     borderTopLeftRadius: 22,
     borderTopRightRadius: 22,
     backgroundColor: "rgba(8, 12, 24, 0.9)",

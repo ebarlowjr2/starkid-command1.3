@@ -1,5 +1,6 @@
 import { getSupabaseClient } from '../../clients/supabase/supabase.js'
 import { listStemActivities } from '../stem/service'
+import { getLessonBySlug } from '../services/learningService'
 import type { LearningModule, LearningModuleType } from './types'
 import type { StemActivity, StemLevel, StemTrack } from '../stem/types'
 
@@ -76,6 +77,15 @@ function mapModuleToRow(module: LearningModule) {
   }
 }
 
+function assertModuleCanPublish(module: LearningModule) {
+  if (!module.lessonSlug) {
+    throw new Error('A published module needs a lesson slug.')
+  }
+  if (!getLessonBySlug(module.lessonSlug)) {
+    throw new Error(`No playable lesson is registered for "${module.lessonSlug}".`)
+  }
+}
+
 export async function listLearningModules(filters: ListModulesFilters = {}): Promise<LearningModule[]> {
   const audience = filters.audience || 'learner'
   const baseModules =
@@ -105,19 +115,22 @@ export async function listLearningModules(filters: ListModulesFilters = {}): Pro
   const { data, error } = await query
   if (error || !data) return baseModules
 
-  const merged = new Map<string, LearningModule>()
-  baseModules.forEach((module) => merged.set(module.id, module))
-  data.forEach((row) => {
-    const module = mapRowToModule(row)
-    merged.set(module.id, module)
-  })
-
-  return Array.from(merged.values())
+  // A successful database response is the learner catalog. Static activities
+  // remain an offline/configuration fallback only, so unpublished and retired
+  // templates cannot leak back into discovery beside governed content.
+  return data.map(mapRowToModule)
 }
 
 export async function getLearningModuleById(id: string): Promise<LearningModule | null> {
   const modules = await listLearningModules()
-  return modules.find((module) => module.id === id) || null
+  const directMatch = modules.find((module) => module.id === id)
+  if (directMatch) return directMatch
+
+  // Preserve deep links created before database-backed modules became the
+  // canonical source. A legacy static id resolves to its lesson's live row.
+  const legacyModule = listStemActivities().find((module) => module.id === id)
+  if (!legacyModule?.lessonSlug) return null
+  return modules.find((module) => module.lessonSlug === legacyModule.lessonSlug) || null
 }
 
 export async function getLearningModuleByLessonSlug(slug: string) {
@@ -160,7 +173,12 @@ export function submitModuleForReview(id: string) {
   return updateModuleStatus(id, 'in_review')
 }
 
-export function publishModule(id: string) {
+export async function publishModule(id: string) {
+  const supabase = getSupabaseClient()
+  if (!supabase) throw new Error('Supabase not configured')
+  const { data, error } = await supabase.from('learning_modules').select('*').eq('id', id).single()
+  if (error || !data) throw error || new Error('Module not found')
+  assertModuleCanPublish(mapRowToModule(data))
   return updateModuleStatus(id, 'published')
 }
 

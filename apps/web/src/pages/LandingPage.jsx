@@ -2,7 +2,6 @@ import { useNavigate } from "react-router-dom"
 import { useEffect, useState } from "react"
 import { getArtemisProgramSummary, getArtemisPriorityAlert, getUpcomingLaunchesWindow } from "@starkid/core"
 import { TelemetryStrip } from "../components/TelemetryStrip.jsx"
-import { FeaturedEventOrb } from "../components/FeaturedEventOrb.jsx"
 import UpcomingEventsBanner from "../components/UpcomingEventsBanner.jsx"
 
 export default function LandingPage() {
@@ -130,10 +129,6 @@ export default function LandingPage() {
       </div>
 
       <div className="landing-section">
-        <FeaturedEventOrb />
-      </div>
-
-      <div className="landing-section">
         <div
           className="launch-card"
           onClick={() => nav("/command")}
@@ -142,9 +137,9 @@ export default function LandingPage() {
           onKeyDown={(e) => e.key === "Enter" && nav("/command")}
         >
           <div className="launch-label">UPCOMING LAUNCH</div>
-          <div className="launch-title">{nextLaunch?.name || "Next Launch TBD"}</div>
+          <div className="launch-title">{nextLaunch?.name || "Launch schedule updating"}</div>
           <div className="launch-countdown">
-            COUNTDOWN · <span>{nextLaunchCountdown}</span>
+            {nextLaunch ? "COUNTDOWN" : "STATUS"} · <span>{nextLaunch ? nextLaunchCountdown : "UPDATING"}</span>
           </div>
           <div className="launch-body">
             {nextLaunch?.mission?.description

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { createLearningModule } from '@starkid/core'
+import { createLearningModule, getLessonBySlug } from '@starkid/core'
 import { useNavigate } from 'react-router-dom'
 import { getSession } from '@starkid/core'
 
@@ -56,6 +56,10 @@ export default function LearningModuleAdminAddPage() {
     e.preventDefault()
     setStatus('Submitting...')
     try {
+      const lessonSlug = form.lessonSlug.trim()
+      if (!lessonSlug || !getLessonBySlug(lessonSlug)) {
+        throw new Error('Enter the slug of a registered lesson before creating this module.')
+      }
       const payload = {
         id: form.id || undefined,
         moduleType: form.moduleType,
@@ -76,7 +80,7 @@ export default function LearningModuleAdminAddPage() {
         missionOutcomes: form.missionOutcomes
           ? form.missionOutcomes.split('\n').map((item) => item.trim()).filter(Boolean)
           : undefined,
-        lessonSlug: form.lessonSlug || undefined,
+        lessonSlug,
         tags: form.tags ? form.tags.split(',').map((item) => item.trim()).filter(Boolean) : undefined,
         answerKey: form.answerKey || undefined,
         steps: [],
@@ -171,8 +175,8 @@ export default function LearningModuleAdminAddPage() {
             <input type="number" className="w-full mt-1 bg-black/60 border border-cyan-600/60 p-2 rounded" value={form.blockCount} onChange={update('blockCount')} />
           </label>
           <label className="text-xs">
-            Lesson Slug (optional)
-            <input className="w-full mt-1 bg-black/60 border border-cyan-600/60 p-2 rounded" value={form.lessonSlug} onChange={update('lessonSlug')} />
+            Lesson Slug (registered lesson required)
+            <input required className="w-full mt-1 bg-black/60 border border-cyan-600/60 p-2 rounded" value={form.lessonSlug} onChange={update('lessonSlug')} />
           </label>
         </div>
 
@@ -214,6 +218,9 @@ export default function LearningModuleAdminAddPage() {
         <button className="mt-4 text-xs text-cyan-200 border border-cyan-600/70 px-4 py-2 rounded">
           Submit Module
         </button>
+        <div className="text-xs text-cyan-200/60">
+          This form creates the module entry. Its lesson slug must match a registered lesson so the published module can start the player.
+        </div>
         {status ? <div className="text-xs text-cyan-200/80 mt-2">{status}</div> : null}
       </form>
       )}
