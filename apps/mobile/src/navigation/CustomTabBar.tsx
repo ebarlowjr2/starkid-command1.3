@@ -2,6 +2,7 @@ import React from "react";
 import { View, Pressable, StyleSheet } from "react-native";
 import { BottomTabBarProps } from "@react-navigation/bottom-tabs";
 import { colors } from "../theme/tokens";
+import { CometTabButton } from "./CometTabButton";
 import { CustomText } from "../components/ui/CustomText";
 
 const ICONS: Record<string, string> = {
@@ -16,15 +17,12 @@ const ICONS: Record<string, string> = {
 };
 
 export function CustomTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
-  // C.O.M.E.T. is still available as an in-app destination, but it is a
-  // coming-soon assistant. Keeping it out of the primary bar gives the six
-  // active destinations enough room for stable, readable labels.
-  const routes = state.routes.filter((route) => route.name !== "C.O.M.E.T.");
+  const routes = state.routes;
 
   return (
     <View style={styles.container}>
-      {routes.map((route) => {
-        const focused = state.routes[state.index]?.key === route.key;
+      {routes.map((route, index) => {
+        const focused = state.index === index;
         const { options } = descriptors[route.key];
         const label = options.tabBarLabel ?? options.title ?? route.name;
         const icon = ICONS[route.name] || "•";
@@ -35,6 +33,14 @@ export function CustomTabBar({ state, descriptors, navigation }: BottomTabBarPro
             navigation.navigate(route.name);
           }
         };
+
+        if (route.name === "C.O.M.E.T.") {
+          return (
+            <View key={route.key} style={styles.tab}>
+              <CometTabButton onPress={onPress} focused={focused} />
+            </View>
+          );
+        }
 
         return (
           <Pressable key={route.key} onPress={onPress} style={styles.tab}>
