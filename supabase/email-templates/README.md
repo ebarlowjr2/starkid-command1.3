@@ -10,6 +10,16 @@ Use `confirm-signup.html` in Supabase Dashboard:
 
 The confirmation button uses Supabase's `{{ .ConfirmationURL }}` variable. Do not replace that value: Supabase generates the signed confirmation URL and applies the redirect requested by the web or mobile signup flow.
 
+## Reset Password
+
+Use `reset-password.html` in Supabase Dashboard:
+
+1. Open **Authentication -> Email Templates -> Reset Password**.
+2. Set the subject to `Reset your StarKid Command password`.
+3. Replace the template body with the contents of `reset-password.html` and save.
+
+This template also uses Supabase's `{{ .ConfirmationURL }}` variable. Before enabling a public "Forgot password" action, connect its `redirectTo` value to a dedicated password-update screen. The current web confirmation callback is designed for email confirmation, not for choosing a new password.
+
 ## Required URL Configuration
 
 In **Authentication -> URL Configuration**, retain the production site URL and allow these redirect URLs:
