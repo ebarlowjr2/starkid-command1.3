@@ -3,6 +3,7 @@ import { formatSourceStatus } from '../../services/diagnostics.ts'
 import { getUpcomingLaunches } from '../../services/launchesService.ts'
 import { getUpcomingSkyEventsService } from '../../services/skyEventsService.ts'
 import { getAlertsForUser } from '../../services/alertsService.ts'
+import { normalizeEarthEvents } from '../../services/earthEventsService.ts'
 
 describe('services layer', () => {
   test('formatSourceStatus renders ok and failed entries', () => {
@@ -66,5 +67,31 @@ describe('services layer', () => {
     expect(alertsResult.data.some((alert) => alert.category === 'lunar_event')).toBe(true)
     expect(alertsResult.data.some((alert) => alert.category === 'asteroid_flyby')).toBe(true)
     expect(alertsResult.sources.some((source) => source.name === 'alerts-engine')).toBe(true)
+  })
+
+  test('earthEventsService keeps only mappable point events', () => {
+    const events = normalizeEarthEvents([
+      {
+        properties: {
+          id: 'event-1',
+          title: 'Test wildfire',
+          date: '2026-09-04T00:00:00Z',
+          categories: [{ title: 'Wildfires' }],
+          magnitudeValue: 100,
+          magnitudeUnit: 'acres',
+        },
+        geometry: { type: 'Point', coordinates: [-104.8, 46.6] },
+      },
+      { properties: { id: 'event-2' }, geometry: { type: 'Polygon', coordinates: [] } },
+    ])
+
+    expect(events).toEqual([expect.objectContaining({
+      id: 'event-1',
+      title: 'Test wildfire',
+      category: 'Wildfires',
+      latitude: 46.6,
+      longitude: -104.8,
+      magnitude: '100 acres',
+    })])
   })
 })

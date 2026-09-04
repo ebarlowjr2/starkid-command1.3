@@ -129,3 +129,15 @@ export type SolarActivity = {
   strongestClass?: string
   severityPct?: number
 }
+
+export type EarthEvent = {
+  id: string
+  title: string
+  category: string
+  latitude: number
+  longitude: number
+  observedAt?: string
+  description?: string
+  magnitude?: string
+  sourceUrl?: string
+}
