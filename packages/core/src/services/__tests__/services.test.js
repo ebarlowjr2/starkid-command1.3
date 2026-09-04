@@ -82,6 +82,15 @@ describe('services layer', () => {
         },
         geometry: { type: 'Point', coordinates: [-104.8, 46.6] },
       },
+      {
+        properties: {
+          id: 'event-1',
+          title: 'Older duplicate observation',
+          date: '2026-09-03T00:00:00Z',
+          categories: [{ title: 'Wildfires' }],
+        },
+        geometry: { type: 'Point', coordinates: [-105, 45] },
+      },
       { properties: { id: 'event-2' }, geometry: { type: 'Polygon', coordinates: [] } },
     ])
 

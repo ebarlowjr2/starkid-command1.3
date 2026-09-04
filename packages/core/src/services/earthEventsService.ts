@@ -78,5 +78,12 @@ export function normalizeEarthEvents(rawEvents: unknown[]): EarthEvent[] {
     })
   }
 
-  return events.sort((a, b) => Date.parse(b.observedAt || '') - Date.parse(a.observedAt || ''))
+  const seen = new Set<string>()
+  return events
+    .sort((a, b) => Date.parse(b.observedAt || '') - Date.parse(a.observedAt || ''))
+    .filter((event) => {
+      if (seen.has(event.id)) return false
+      seen.add(event.id)
+      return true
+    })
 }
