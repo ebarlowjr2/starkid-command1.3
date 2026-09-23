@@ -2,6 +2,7 @@ import React from 'react'
 import QuestionNumericBlock from './blocks/QuestionNumericBlock.jsx'
 import QuestionShortTextBlock from './blocks/QuestionShortTextBlock.jsx'
 import QuestionChoiceBlock from './blocks/QuestionChoiceBlock.jsx'
+import TerminalMissionBlock from './blocks/TerminalMissionBlock.jsx'
 
 export default function BlockRenderer({ block, value, onChange, onCheckpoint }) {
   switch (block.type) {
@@ -71,6 +72,8 @@ export default function BlockRenderer({ block, value, onChange, onCheckpoint }) 
       return <QuestionShortTextBlock block={block} value={value} onChange={onChange} />
     case 'question_multiple_choice':
       return <QuestionChoiceBlock block={block} value={value} onChange={onChange} />
+    case 'terminal_mission':
+      return <TerminalMissionBlock block={block} value={value} onChange={onChange} />
     case 'hint':
       return (
         <div className="text-white/70 text-sm border border-purple-500/30 bg-purple-500/10 rounded p-3">

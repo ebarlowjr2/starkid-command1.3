@@ -1,5 +1,7 @@
 import type { Lesson } from '../models/lesson'
 import type { LessonBlock } from '../models/blocks'
+import { evaluateMission } from '../terminal/validators'
+import type { EmulatorState } from '../terminal/types'
 
 export type ValidationResult = { valid: boolean; message?: string }
 
@@ -46,6 +48,19 @@ export function validateBlockAnswer(block: LessonBlock, answer: unknown): Valida
         return { valid: false, message: 'Acknowledge the checkpoint.' }
       }
       return { valid: true }
+    case 'terminal_mission': {
+      // Grade the RESULTING SYSTEM STATE, not a stored "passed" flag: re-run the
+      // validators against the emulator snapshot saved under this block id. Any
+      // sequence of commands that produced the required state passes.
+      const state = answer && typeof answer === 'object' ? (answer as { emulatorState?: EmulatorState }).emulatorState : undefined
+      if (!state) {
+        return { valid: false, message: 'Complete the mission objectives in the terminal.' }
+      }
+      const evaluation = evaluateMission(state, block.mission)
+      return evaluation.passed
+        ? { valid: true }
+        : { valid: false, message: 'Some spacecraft systems are not ready yet — check the objectives panel.' }
+    }
     case 'submission_prompt':
       if (block.checkpointQuiz?.questions?.length) {
         const obj = (answer && typeof answer === 'object') ? (answer as Record<string, unknown>) : {}
@@ -68,7 +83,8 @@ export function validateLessonBeforeSubmit(lesson: Lesson, answers: Record<strin
       block.type === 'question_short_text' ||
       block.type === 'question_multiple_choice' ||
       block.type === 'checkpoint' ||
-      block.type === 'submission_prompt'
+      block.type === 'submission_prompt' ||
+      block.type === 'terminal_mission'
     ) {
       const result = validateBlockAnswer(block, answers[block.id])
       if (!result.valid) {

@@ -8,6 +8,7 @@ import { solarStormShieldingLesson } from '../seeds/solarStormShieldingLesson'
 import { marsRoverBatteryLesson } from '../seeds/marsRoverBatteryLesson'
 import { orbitalDebrisAvoidanceLesson } from '../seeds/orbitalDebrisAvoidanceLesson'
 import { artemisDockingChallengeLesson } from '../seeds/artemisDockingChallengeLesson'
+import { linuxLevel1Course } from '../seeds/linuxLevel1Course'
 
 const lessons: Lesson[] = [
   launchFuelRatioLesson,
@@ -17,6 +18,7 @@ const lessons: Lesson[] = [
   marsRoverBatteryLesson,
   orbitalDebrisAvoidanceLesson,
   artemisDockingChallengeLesson,
+  linuxLevel1Course,
 ]
 const submissions = new Map<string, LessonSubmission>()
 

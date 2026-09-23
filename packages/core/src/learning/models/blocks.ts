@@ -1,3 +1,5 @@
+import type { TerminalMission } from '../terminal/types'
+
 export type LessonBlockType =
   | 'mission_brief'
   | 'concept'
@@ -10,6 +12,7 @@ export type LessonBlockType =
   | 'checkpoint'
   | 'submission_prompt'
   | 'completion'
+  | 'terminal_mission'
 
 export type LessonBlockBase = {
   id: string
@@ -136,6 +139,19 @@ export type CompletionBlock = LessonBlockBase & {
   nextSteps?: string[]
 }
 
+/**
+ * A hands-on Linux terminal mission (Linux Mission Training). The block simply
+ * carries a fully-authored {@link TerminalMission}; the web player renders a
+ * terminal + objectives panel and grades the resulting SYSTEM STATE, never the
+ * commands typed. The student's answer is stored under the block id as
+ * `{ emulatorState, passed, completedTaskIds }` so completion can be re-graded
+ * deterministically (see playerValidation).
+ */
+export type TerminalMissionBlock = LessonBlockBase & {
+  type: 'terminal_mission'
+  mission: TerminalMission
+}
+
 export type LessonBlock =
   | MissionBriefBlock
   | ConceptBlock
@@ -148,3 +164,4 @@ export type LessonBlock =
   | CheckpointBlock
   | SubmissionPromptBlock
   | CompletionBlock
+  | TerminalMissionBlock
