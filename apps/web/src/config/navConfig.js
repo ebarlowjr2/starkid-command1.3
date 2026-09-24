@@ -36,6 +36,7 @@ export const navSections = [
     items: [
       { label: 'Learning Hub', to: '/learning' },
       { label: 'STEM Activities', to: '/learning/stem' },
+      { label: 'Linux Lab', to: '/learning/linux' },
       { label: 'Cyber Lab', to: '/learning/cyberlab' }
     ]
   },

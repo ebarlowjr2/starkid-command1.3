@@ -4,6 +4,7 @@ export const ROUTE_MANIFEST = {
   LEARNING: 'Learning',
   LEARNING_STEM: 'Learning STEM',
   LEARNING_CYBERLAB: 'Learning Cyber Lab',
+  LEARNING_LINUX: 'Learning Linux Lab',
   STEM_ACTIVITIES: 'STEM Activities',
   STEM_ACTIVITY_DETAIL: 'STEM Activity Detail',
   STEM_PROGRESS: 'STEM Progress',
