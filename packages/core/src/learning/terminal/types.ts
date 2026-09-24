@@ -210,4 +210,36 @@ export interface TerminalMission {
   }>
   /** Line shown when every task passes, e.g. "FLIGHT CREW: AUTHORIZED". */
   completionBanner?: string
+  /**
+   * Optional in-world launch-readiness diagnostic (the `verify-launch.sh`
+   * capstone tool). Purely feedback: it reports GO/NO-GO by re-running these
+   * validators against live state. The mission's task validators remain the
+   * sole grader — this can never disagree with them because it shares them.
+   */
+  readiness?: LaunchReadinessSpec
+}
+
+// ---------------------------------------------------------------------------
+// Launch readiness report — powers the in-world `verify-launch.sh` diagnostic.
+// Each subsystem is GO only when all of its validators pass; the report reads
+// the SAME live EmulatorState the mission is graded on.
+// ---------------------------------------------------------------------------
+
+export interface LaunchReadinessSubsystem {
+  /** Display label, e.g. "Flight Crew". */
+  label: string
+  /** All validators must pass for this subsystem to report GO. */
+  validators: Validator[]
+}
+
+export interface LaunchReadinessSpec {
+  /** Heading line for the report. */
+  title?: string
+  /** Executable name the student runs, e.g. "verify-launch.sh". */
+  scriptName?: string
+  subsystems: LaunchReadinessSubsystem[]
+  /** Footer shown when every subsystem is GO. */
+  goLine?: string
+  /** Footer shown when any subsystem is NO-GO. */
+  holdLine?: string
 }

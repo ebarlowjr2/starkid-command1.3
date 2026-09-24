@@ -599,7 +599,216 @@ const mission7: TerminalMission = {
   completionBanner: 'ALL FLIGHT SYSTEMS VERIFIED — AURORA IS GO',
 }
 
-const missions = [mission1, mission2, mission3, mission4, mission5, mission6, mission7]
+// Mission 8 — the capstone. Technically self-contained: a fresh, deterministic
+// pre-launch snapshot representing the *results* of Missions 1–7 (never the
+// student's own carried-over state, so resets and grading stay reproducible).
+// Narratively it is the Aurora the cadet has spent Level I preparing. Unlike the
+// build-up missions, Aurora arrives MOSTLY ready but with several deliberate
+// launch-blocking faults the cadet must independently find and fix. Objectives
+// are operational ("correct the security exposure"), never step-by-step
+// commands — the cadet decides how to investigate and resolve each one.
+const mission8: TerminalMission = {
+  id: 'linux-l1-m8-launch',
+  order: 8,
+  title: 'Mission 8 — Final Launch Readiness',
+  subtitle: 'Independently verify Aurora, then authorize ignition',
+  narrative:
+    'Aurora is on the pad. Engineering, crew operations, navigation, communications, and flight systems have all ' +
+    'reported their individual preparations complete, and the launch window is approaching. Mission Control believes ' +
+    'Aurora is ready — but final go/no-go is your responsibility, cadet. Independently verify the spacecraft before ' +
+    'ignition. Run ./verify-launch.sh at any time to poll every station; it reports GO/NO-GO from the real system ' +
+    'state, but it will not tell you how to fix a hold. Investigate with the tools you have learned (ls, cat, grep, ' +
+    'id, groups, ps), correct every discrepancy, then arm Aurora for launch.',
+  objectives: [
+    'Run ./verify-launch.sh and find every station reporting NO-GO',
+    'Correct each launch-blocking discrepancy using your Level I skills',
+    'Arm Aurora for ignition once all stations are GO',
+  ],
+  skills: ['ls', 'cat', 'grep', 'id', 'groups', 'usermod', 'chmod', 'mv', 'echo', 'ps'],
+  init: {
+    user: 'cadet',
+    hostname: 'aurora-fc',
+    home: '/home/cadet',
+    cwd: AURORA,
+    // Flight crew from Mission 4 — but the engineer was dropped from flightcrew.
+    groups: [{ name: 'flightcrew', gid: 1500, members: ['commander', 'pilot'] }],
+    users: [
+      { name: 'commander', uid: 1501, primaryGroup: 'commander', groups: ['commander', 'flightcrew'] },
+      { name: 'pilot', uid: 1502, primaryGroup: 'pilot', groups: ['pilot', 'flightcrew'] },
+      { name: 'engineer', uid: 1503, primaryGroup: 'engineer', groups: ['engineer'] },
+    ],
+    processes: [
+      { pid: 1, user: 'root', command: '/sbin/init', cpu: 0.0, mem: 0.1 },
+      { pid: 101, user: 'root', command: 'flight-control', cpu: 1.2, mem: 3.4 },
+      { pid: 102, user: 'cadet', command: 'telemetry-daemon', cpu: 0.6, mem: 1.1 },
+      { pid: 103, user: 'cadet', command: 'fuel-monitor', cpu: 0.3, mem: 0.8 },
+    ],
+    files: [
+      // Workspace + bays (Mission 2) — correct.
+      { path: `${AURORA}/fuel`, type: 'dir', owner: 'cadet', group: 'cadet' },
+      { path: `${AURORA}/telemetry`, type: 'dir', owner: 'cadet', group: 'cadet' },
+      { path: `${AURORA}/crew`, type: 'dir', owner: 'cadet', group: 'cadet' },
+      { path: `${AURORA}/launch`, type: 'dir', owner: 'cadet', group: 'cadet' },
+      // Pre-flight checklist (Mission 3) — FAULT: fuel line still reads NO-GO.
+      {
+        path: `${AURORA}/preflight.txt`,
+        owner: 'cadet',
+        group: 'cadet',
+        content:
+          'AURORA PRE-FLIGHT CHECKLIST\nGUIDANCE: GO\nTELEMETRY: GO\nFUEL: NO-GO\nGO/NO-GO: PENDING\n',
+      },
+      // Launch keys (Mission 5) — correctly secured.
+      { path: `${AURORA}/launch.key`, owner: 'commander', group: 'flightcrew', mode: 0o600, content: 'LAUNCH-AUTH-AURORA-001\n' },
+      { path: `${AURORA}/abort.key`, owner: 'pilot', group: 'flightcrew', mode: 0o640, content: 'ABORT-AUTH-AURORA-001\n' },
+      // Flight-computer health report (Mission 6) — correct.
+      { path: `${AURORA}/health.txt`, owner: 'cadet', group: 'cadet', content: 'AURORA FLIGHT COMPUTER: NOMINAL\n' },
+      // Ignition authorization file — FAULT: world-readable (644) instead of 640.
+      { path: `${AURORA}/launch/ignition.key`, owner: 'commander', group: 'flightcrew', mode: 0o644, content: 'IGNITION-AUTH-AURORA-001\n' },
+      // Flight-computer diagnostic — FAULT: left in the workspace root as a .bak,
+      // not filed in the telemetry bay where guidance expects it.
+      { path: `${AURORA}/diagnostic.log.bak`, owner: 'cadet', group: 'cadet', content: 'FLIGHT-COMPUTER DIAGNOSTIC\nALL SUBSYSTEMS NOMINAL\n' },
+      // The readiness tool itself — real, readable, run via the backend.
+      {
+        path: `${AURORA}/verify-launch.sh`,
+        owner: 'cadet',
+        group: 'cadet',
+        mode: 0o755,
+        content:
+          '#!/bin/sh\n# StarKid Command — Aurora launch-readiness check.\n' +
+          '# Usage: ./verify-launch.sh\n' +
+          '# Reports GO/NO-GO for every launch station from live system state.\n',
+      },
+    ],
+  },
+  tasks: [
+    {
+      id: 'm8-crew',
+      title: 'Complete the flight crew roster',
+      description:
+        'Launch Control reports the authorized flight crew is incomplete — a crew member is missing from the team. Restore the full roster.',
+      skills: ['id', 'groups', 'usermod'],
+      validators: [
+        { type: 'user_in_group', user: 'engineer', group: 'flightcrew', failureMessage: 'The engineer is not on the authorized flight crew.' },
+        { type: 'user_in_group', user: 'commander', group: 'flightcrew', failureMessage: 'The commander must remain on the flight crew.' },
+        { type: 'user_in_group', user: 'pilot', group: 'flightcrew', failureMessage: 'The pilot must remain on the flight crew.' },
+      ],
+      hints: [
+        { level: 1, text: 'Check who is actually on the crew. id <user> and groups <user> show a user\'s group memberships — compare all three against flightcrew.' },
+        { level: 2, text: 'One crew member is not in flightcrew. Adding a user to a group without removing their other groups uses usermod -aG.' },
+        { level: 3, text: 'Try: usermod -aG flightcrew engineer' },
+      ],
+    },
+    {
+      id: 'm8-security',
+      title: 'Correct the ignition security exposure',
+      description:
+        'Launch Control reports the ignition authorization file is accessible outside the authorized flight team. Correct the security issue without locking out the crew.',
+      skills: ['ls', 'chmod'],
+      validators: [
+        { type: 'permissions_match', path: `${AURORA}/launch/ignition.key`, mode: 0o640, failureMessage: 'ignition.key is readable outside the flight crew — owner read/write and group read only (640).' },
+      ],
+      hints: [
+        { level: 4, text: 'Inspect the file\'s permissions with ls -l inside the launch directory. Who can currently read it?' },
+        { level: 5, text: 'It should be readable by its owner and the flightcrew group, but not by everyone. Owner read+write (6), group read (4), others none (0).' },
+        { level: 6, text: 'Try: chmod 640 launch/ignition.key' },
+      ],
+    },
+    {
+      id: 'm8-checklist',
+      title: 'Clear the pre-flight checklist',
+      description:
+        'The pre-flight checklist still shows a station that is not GO. Investigate which one, resolve it, and bring every checklist item to GO.',
+      skills: ['cat', 'grep', 'echo'],
+      validators: [
+        {
+          type: 'file_contains',
+          path: `${AURORA}/preflight.txt`,
+          contains: ['GUIDANCE: GO', 'TELEMETRY: GO', 'FUEL: GO'],
+          failureMessage: 'Every checklist station must read GO — one still shows a hold.',
+        },
+      ],
+      hints: [
+        { level: 7, text: 'Read the checklist with cat preflight.txt. Which station is not GO? grep NO-GO preflight.txt narrows it down.' },
+        { level: 8, text: 'Rewrite the checklist so the held station reads GO. You can recreate the file with echo lines and > / >> redirection.' },
+        { level: 9, text: 'For example: echo "AURORA PRE-FLIGHT CHECKLIST" > preflight.txt then append GUIDANCE: GO, TELEMETRY: GO, FUEL: GO with >>' },
+      ],
+    },
+    {
+      id: 'm8-diagnostic',
+      title: 'File the flight-computer diagnostic',
+      description:
+        'Guidance cannot find the flight-computer diagnostic in the telemetry bay where it belongs. Locate the misplaced file and restore it to telemetry/diagnostic.log.',
+      skills: ['ls', 'mv'],
+      validators: [
+        {
+          type: 'file_contains',
+          path: `${AURORA}/telemetry/diagnostic.log`,
+          text: 'FLIGHT-COMPUTER DIAGNOSTIC',
+          failureMessage: 'The flight-computer diagnostic is not filed at telemetry/diagnostic.log.',
+        },
+      ],
+      hints: [
+        { level: 10, text: 'List the workspace with ls to find the stray diagnostic file. It is not in the telemetry bay yet.' },
+        { level: 11, text: 'Move (and rename) it into the telemetry directory. mv can move and rename in one step.' },
+        { level: 12, text: 'Try: mv diagnostic.log.bak telemetry/diagnostic.log' },
+      ],
+    },
+    {
+      id: 'm8-arm',
+      title: 'Arm Aurora for ignition',
+      description:
+        'With every station GO, transmit final ignition authorization: write ARMED into launch/authorization. This is your authorization to proceed — do it only when verify-launch.sh reports ALL STATIONS GO.',
+      skills: ['echo'],
+      validators: [
+        { type: 'file_contains', path: `${AURORA}/launch/authorization`, text: 'ARMED', failureMessage: 'Aurora is not armed — write ARMED into launch/authorization.' },
+      ],
+      hints: [
+        { level: 13, text: 'The authorization is a file at launch/authorization containing the word ARMED.' },
+        { level: 14, text: 'Try: echo ARMED > launch/authorization' },
+      ],
+    },
+  ],
+  systems: [
+    { id: 'crew', label: 'FLIGHT CREW ROSTER', pendingLabel: 'INCOMPLETE', readyLabel: 'GO', taskId: 'm8-crew' },
+    { id: 'sec', label: 'IGNITION SECURITY', pendingLabel: 'EXPOSED', readyLabel: 'GO', taskId: 'm8-security' },
+    { id: 'chk', label: 'LAUNCH CHECKLIST', pendingLabel: 'HOLD', readyLabel: 'GO', taskId: 'm8-checklist' },
+    { id: 'diag', label: 'FLIGHT COMPUTER', pendingLabel: 'MISPLACED', readyLabel: 'GO', taskId: 'm8-diagnostic' },
+    { id: 'ign', label: 'IGNITION AUTHORIZATION', pendingLabel: 'SAFED', readyLabel: 'ARMED', taskId: 'm8-arm' },
+  ],
+  readiness: {
+    title: 'AURORA FINAL LAUNCH READINESS',
+    scriptName: 'verify-launch.sh',
+    goLine: 'ALL STATIONS GO',
+    holdLine: 'LAUNCH STATUS: HOLD',
+    subsystems: [
+      { label: 'Navigation', validators: [{ type: 'directory_exists', path: `${AURORA}/telemetry` }] },
+      { label: 'Communications', validators: [{ type: 'directory_exists', path: `${AURORA}/crew` }] },
+      {
+        label: 'Flight Crew',
+        validators: [
+          { type: 'user_in_group', user: 'commander', group: 'flightcrew' },
+          { type: 'user_in_group', user: 'pilot', group: 'flightcrew' },
+          { type: 'user_in_group', user: 'engineer', group: 'flightcrew' },
+        ],
+      },
+      { label: 'Launch Checklist', validators: [{ type: 'file_contains', path: `${AURORA}/preflight.txt`, contains: ['GUIDANCE: GO', 'TELEMETRY: GO', 'FUEL: GO'] }] },
+      { label: 'Security', validators: [{ type: 'permissions_match', path: `${AURORA}/launch/ignition.key`, mode: 0o640 }] },
+      { label: 'Flight Computer', validators: [{ type: 'file_contains', path: `${AURORA}/telemetry/diagnostic.log`, text: 'FLIGHT-COMPUTER DIAGNOSTIC' }] },
+      {
+        label: 'Mission Processes',
+        validators: [
+          { type: 'process_running', process: 'flight-control' },
+          { type: 'process_running', process: 'telemetry-daemon' },
+          { type: 'process_running', process: 'fuel-monitor' },
+        ],
+      },
+      { label: 'Ignition', validators: [{ type: 'file_contains', path: `${AURORA}/launch/authorization`, text: 'ARMED' }] },
+    ],
+  },
+  completionBanner: 'ALL STATIONS GO — AURORA CLEARED FOR IGNITION',
+}
+
+const missions = [mission1, mission2, mission3, mission4, mission5, mission6, mission7, mission8]
 
 export const linuxLevel1Course: Lesson = {
   id: 'lesson_linux_level_1_prepare_for_launch_v1',
@@ -607,9 +816,10 @@ export const linuxLevel1Course: Lesson = {
   title: 'Linux Level I — Prepare for Launch',
   subtitle: 'Learn Linux by getting the spacecraft Aurora ready to fly',
   summary:
-    'A hands-on Linux course set in StarKid Command. Across seven terminal missions you orient on the station, ' +
+    'A hands-on Linux course set in StarKid Command. Across eight terminal missions you orient on the station, ' +
     'build the launch workspace, draft the pre-flight checklist, assemble the flight crew, secure the launch keys, ' +
-    'run a flight-computer health check, and verify the flight software — one continuous launch-preparation story.',
+    'run a flight-computer health check, verify the flight software, and pass a final launch-readiness review before ' +
+    'authorizing ignition — one continuous launch-preparation story.',
   track: 'linux',
   moduleType: 'stem',
   difficulty: 'cadet',
@@ -617,7 +827,7 @@ export const linuxLevel1Course: Lesson = {
   skills: ['filesystem navigation', 'files & directories', 'redirection', 'users & groups', 'permissions', 'processes'],
   tags: ['linux', 'terminal', 'launch', 'level-1'],
   objective:
-    'Operate a spacecraft Linux system through seven graded missions, using real commands to bring every launch system to READY.',
+    'Operate a spacecraft Linux system through eight graded missions, using real commands to bring every launch system to READY and authorize ignition.',
   status: 'published',
   version: '1.0.0',
   blocks: [
@@ -633,7 +843,7 @@ export const linuxLevel1Course: Lesson = {
       context:
         'Stuck on a mission? Reveal hints one at a time — they go from a gentle nudge to the exact command. Use Reset to ' +
         'return a mission to its starting state. Type help in any terminal to see the available commands.',
-      stats: ['7 missions', 'Graded on system state', 'Progressive hints'],
+      stats: ['8 missions', 'Graded on system state', 'Progressive hints'],
     },
     ...missions.map((mission, index) => ({
       id: `block-${mission.id}`,
@@ -643,15 +853,17 @@ export const linuxLevel1Course: Lesson = {
       mission,
     })),
     {
-      id: 'linux-l1-submit',
-      type: 'submission_prompt',
+      id: 'linux-l1-launch',
+      type: 'launch_sequence',
       order: missions.length + 2,
-      prompt: 'Aurora is prepped — submit for launch clearance.',
-      instruction:
-        'All seven preparation missions must show every system READY before Aurora can be cleared. Reset and revisit any ' +
-        'mission whose systems are still pending, then submit.',
-      completionMessage: 'Launch clearance granted. Aurora is GO for launch — outstanding work, cadet.',
-      completionNextSteps: ['Level II — Operate in Flight (coming soon)', 'Review your secured keys and process logs'],
+      heading: 'Aurora Launch',
+      requiresBlockId: `block-${mission8.id}`,
+      holdMessage:
+        'LAUNCH STATUS: HOLD — Final launch readiness is not yet complete. Return to Mission 8, clear every station to GO, and arm Aurora for ignition.',
+      authorizedMessage: 'FINAL GO/NO-GO COMPLETE\nALL STATIONS: GO\nAURORA LAUNCH AUTHORIZED',
+      badgeLabel: 'Linux Launch Operations — Level I Complete',
+      completionMessage: 'Aurora is airborne. You learned enough Linux to launch a spacecraft, cadet — outstanding work.',
+      nextSteps: ['Level II — Operate in Flight (coming soon)', 'Review your secured keys, checklist, and process logs'],
     },
   ],
   rewards: {

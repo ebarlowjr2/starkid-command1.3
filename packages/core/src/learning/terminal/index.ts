@@ -17,3 +17,5 @@ export {
   evaluateMission,
 } from './validators'
 export type { TaskEvaluation, MissionEvaluation } from './validators'
+export { buildLaunchReadinessReport } from './readiness'
+export type { LaunchReadinessResult } from './readiness'

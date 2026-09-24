@@ -18,7 +18,21 @@
 // There is no cursor addressing, no interactive programs (top/less/vi), no raw
 // PTY stream. The Terminal UI must not pretend otherwise.
 
-import { createEmulator, runCommand } from '@starkid/core'
+import { createEmulator, runCommand, buildLaunchReadinessReport } from '@starkid/core'
+
+/**
+ * Does this input line invoke the mission's readiness script?
+ * Accepts `./name`, `name`, and `sh|bash [./]name` forms.
+ * @param {string} input
+ * @param {string} scriptName
+ */
+function invokesScript(input, scriptName) {
+  const trimmed = (input || '').trim()
+  const forms = [scriptName, `./${scriptName}`]
+  if (forms.includes(trimmed)) return true
+  const m = trimmed.match(/^(?:sh|bash)\s+(.+)$/)
+  return !!m && forms.includes(m[1].trim())
+}
 
 /**
  * @typedef {Object} TerminalRunResult
@@ -63,6 +77,16 @@ export function createEmulatorBackend(mission, initialState) {
       return `${state.user}@${state.hostname}:${displayCwd(state)}$`
     },
     run(input) {
+      // Capstone diagnostic: `verify-launch.sh` is a real, readable file seeded
+      // in the mission, but it is not a program the line-based emulator can
+      // execute. Intercept it here and report GO/NO-GO from the live state using
+      // the mission's own validators. This is feedback only — grading still runs
+      // through evaluateMission on the snapshot (see TerminalMissionBlock).
+      const readiness = mission && mission.readiness
+      if (readiness && readiness.scriptName && invokesScript(input, readiness.scriptName)) {
+        const report = buildLaunchReadinessReport(state, readiness)
+        return { output: report.text + '\n', exitCode: report.allGo ? 0 : 1 }
+      }
       const res = runCommand(state, input)
       state = res.state
       return { output: res.output ?? '', clear: res.clear, exitCode: res.exitCode }

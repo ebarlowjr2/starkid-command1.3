@@ -13,6 +13,7 @@ export type LessonBlockType =
   | 'submission_prompt'
   | 'completion'
   | 'terminal_mission'
+  | 'launch_sequence'
 
 export type LessonBlockBase = {
   id: string
@@ -152,6 +153,29 @@ export type TerminalMissionBlock = LessonBlockBase & {
   mission: TerminalMission
 }
 
+/**
+ * The Level I finale (Chunk 4). A purely presentational payoff block: once the
+ * capstone mission ({@link requiresBlockId}) is graded complete, it plays the
+ * final go/no-go → countdown → ignition → launch sequence and surfaces the
+ * Level I badge. It never grades and is not required for submission; the
+ * capstone terminal_mission remains the real gate (see playerValidation).
+ */
+export type LaunchSequenceBlock = LessonBlockBase & {
+  type: 'launch_sequence'
+  heading?: string
+  /** terminal_mission block id that must pass before launch can proceed. */
+  requiresBlockId?: string
+  /** Shown while the capstone is not yet complete. */
+  holdMessage?: string
+  /** Banner shown at the top of an authorized launch. */
+  authorizedMessage?: string
+  /** Recognition label surfaced after ignition. */
+  badgeLabel?: string
+  /** Message shown once the spacecraft has launched. */
+  completionMessage?: string
+  nextSteps?: string[]
+}
+
 export type LessonBlock =
   | MissionBriefBlock
   | ConceptBlock
@@ -165,3 +189,4 @@ export type LessonBlock =
   | SubmissionPromptBlock
   | CompletionBlock
   | TerminalMissionBlock
+  | LaunchSequenceBlock
