@@ -9,8 +9,9 @@ Learning/STEM area. Students learn Linux by preparing a spacecraft for launch in
 a real in-browser terminal; missions are graded on resulting system state, not
 typed commands.
 
-**Course 1:** Linux Level I — Prepare for Launch (7 missions built; capstone +
-launch sequence still to come). Levels II/III are architected for but not built.
+**Course 1:** Linux Level I — Prepare for Launch (8 missions built, including the
+Mission 8 troubleshooting capstone + launch sequence). Complete through Chunk 6.
+Levels II/III are architected for but not built.
 
 ## Branch & rules
 - Work on branch **`feature/linux-learning-missions`**. Do NOT merge to main.
@@ -64,14 +65,21 @@ launch sequence still to come). Levels II/III are architected for but not built.
   verify processes (ps | grep > log). Each mission's `init` is self-contained.
   Verified 39/39 via esbuild smoke test (fresh state fails, solvable with real
   commands, all systems flip READY, submit gated until all pass).
-- [ ] **Chunk 4 — capstone + launch sequence** (Mission 8: countdown/ignition/
-  badge). NOTE emulator limits: no live process control, so the launch sequence
-  must be a presentation/UI block gated on file/state deliverables, not driven by
-  emulator process state.
-- [ ] **Chunk 5 — DB seed** (`learning_modules` row for Level I, published) +
-  route/nav wiring (Linux course landing + mission select).
-- [ ] **Chunk 6 — tests + docs** (cross-user isolation, unauthorized access;
-  architecture/adding-a-mission/adding-a-validator/reset docs).
+- [x] **Chunk 4 — capstone + launch sequence.** Mission 8 "Final Launch Readiness"
+  is a troubleshooting capstone: a fresh deterministic Aurora (representing M1–7)
+  seeded with 5 deliberate faults the cadet finds and fixes; `verify-launch.sh` is
+  a feedback-only GO/NO-GO diagnostic (`terminal/readiness.ts`, reuses validators,
+  intercepted in the web backend). The finale is a presentational `launch_sequence`
+  block gated on the capstone grading complete — the terminal_mission stays the
+  real gate. Browser-verified end to end.
+- [x] **Chunk 5 — DB seed** (`learning_modules` row for Level I, published,
+  migration applied) + route/nav wiring (Linux course landing + mission select).
+- [x] **Chunk 6 — tests + docs.** Vitest suites in
+  `packages/core/src/learning/terminal/__tests__/` (engine, validators,
+  cross-session isolation, unauthorized-access/permissions, course + capstone +
+  readiness). Docs: [architecture](./architecture.md),
+  [adding-a-mission](./adding-a-mission.md),
+  [adding-a-validator](./adding-a-validator.md), [reset](./reset.md).
 
 ## Running tests
 `pnpm -C packages/core test` (vitest). If vitest stalls, bundle a smoke script
