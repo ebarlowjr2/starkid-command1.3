@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { getLessonBySlug, getSession } from '@starkid/core'
+import { getLessonBySlug, getSession, evaluateMission } from '@starkid/core'
 import {
   initLessonPlayer,
   hydrateLessonPlayer,
@@ -131,6 +131,16 @@ export default function LessonPlayerScreen() {
   const value = state.answers[block.id]
   const validation = state.validation[block.id]
 
+  // The launch finale unlocks only when the capstone mission it depends on is
+  // graded complete — re-graded from its saved snapshot, never a stored flag.
+  let launchReady = true
+  if (block.type === 'launch_sequence' && block.requiresBlockId) {
+    const capstone = lesson.blocks.find((b) => b.id === block.requiresBlockId)
+    const ans = capstone ? state.answers[capstone.id] : null
+    const snap = ans && typeof ans === 'object' ? ans.emulatorState : null
+    launchReady = !!(capstone && snap && evaluateMission(snap, capstone.mission).passed)
+  }
+
   const persistProgress = async (nextState) => {
     if (!module) return
     try {
@@ -229,6 +239,7 @@ export default function LessonPlayerScreen() {
           value={value}
           onChange={handleAnswer}
           onCheckpoint={handleAnswer}
+          context={{ launchReady }}
         />
         {validation && !validation.valid ? (
           <div className="text-red-300 text-xs mt-2">{validation.message}</div>

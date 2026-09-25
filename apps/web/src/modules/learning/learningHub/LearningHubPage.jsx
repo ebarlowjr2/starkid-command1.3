@@ -27,10 +27,9 @@ export default function LearningHubPage() {
       disabled: true,
     },
     {
-      title: "Linux Systems",
-      description: "Future terminal-based ops training.",
+      title: "Linux Lab",
+      description: "Prepare a spacecraft for launch in a real in-browser Linux terminal.",
       route: "/learning/linux",
-      disabled: true,
     },
     {
       title: "Space Engineering",

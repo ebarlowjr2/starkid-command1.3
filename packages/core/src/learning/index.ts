@@ -5,6 +5,7 @@
 // without modifying the main application.
 
 export * from './stem/index.ts'
+export * from './terminal/index.ts'
 export * from './progress/service'
 export * from './progress/types'
 
@@ -17,6 +18,7 @@ export * from './repositories/learningRepository'
 export * from './repositories/mockLearningRepository'
 export * from './services/learningService'
 export * from './seeds/launchFuelRatioLesson'
+export * from './seeds/linuxLevel1Course'
 export * from './utils/validateLesson'
 export * from './player'
 export * from './modules/types'
