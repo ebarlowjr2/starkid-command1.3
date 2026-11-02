@@ -7,5 +7,10 @@
     "build": "pnpm -C apps/web build",
     "lint": "pnpm -C apps/web lint",
     "test": "pnpm -C packages/core test"
+  },
+  "pnpm": {
+    "patchedDependencies": {
+      "expo-device@5.9.4": "patches/expo-device@5.9.4.patch"
+    }
   }
 }
