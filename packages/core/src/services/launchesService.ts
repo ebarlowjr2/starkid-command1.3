@@ -1,3 +1,4 @@
+import { LAUNCH_ID_PATTERN } from './launchAlertRules'
 import type { Launch } from '@starkid/types'
 import type { ServiceResult, SourceStatus } from './types'
 import { getUpcomingLaunchesFromLibrary } from '../domain/launches/launchLibrary.js'
@@ -217,7 +218,9 @@ function normalizeLaunch(raw: any, source: string): Launch {
   const providerType = inferProviderType(providerName || (source === 'spacex' ? 'SpaceX' : 'Other'))
   if (source === 'spacex') {
     return {
-      id: raw.id,
+      source: source === 'spacex' ? 'spacex' : 'launch-library',
+    status: raw.status,
+    id: raw.id,
       name: raw.name,
       net: raw.date_utc,
       window_start: raw.date_utc,
@@ -228,6 +231,8 @@ function normalizeLaunch(raw: any, source: string): Launch {
     }
   }
   return {
+    source: source === 'spacex' ? 'spacex' : 'launch-library',
+    status: raw.status,
     id: raw.id,
     name: raw.name,
     net: raw.net,
@@ -336,4 +341,17 @@ function dedupeAlertList(alerts: Alert[]) {
     result.push(alert)
   }
   return result
+}
+
+export async function getLaunchById(id: string): Promise<Launch> {
+  if (!LAUNCH_ID_PATTERN.test(id || '')) throw new Error('Invalid launch identifier')
+  const controller = new AbortController()
+  const timeout = setTimeout(() => controller.abort(), 15000)
+  try {
+    const response = await fetch(`https://ll.thespacedevs.com/2.3.0/launches/${id}/`, { signal: controller.signal })
+    if (!response.ok) throw new Error('Launch details are unavailable')
+    const raw = await response.json()
+    if (raw.id !== id) throw new Error('Invalid launch response')
+    return normalizeLaunch(raw, 'launch-library')
+  } finally { clearTimeout(timeout) }
 }

@@ -1,3 +1,4 @@
+import { disconnectLaunchAlertsBeforeSignOut } from '../services/launchAlertsService'
 import { getSupabaseClient } from '../clients/supabase/supabase.js'
 import { setUserSession, getOrCreateAnonymousId } from '../storage/identity.ts'
 import type { Session } from './types'
@@ -87,7 +88,9 @@ export async function completeAuthRedirect(redirectUrl: string) {
 export async function signOut() {
   const supabase = getSupabaseClient()
   if (!supabase) return
-  await supabase.auth.signOut()
+  await disconnectLaunchAlertsBeforeSignOut()
+  const { error } = await supabase.auth.signOut()
+  if (error) throw error
   await setUserSession(null)
 }
 

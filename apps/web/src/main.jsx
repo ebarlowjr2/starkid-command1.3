@@ -22,6 +22,7 @@ configureCore({
   nasaApiKey: import.meta.env.VITE_NASA_API_KEY,
   supabaseUrl: import.meta.env.VITE_SUPABASE_URL,
   supabaseAnonKey: import.meta.env.VITE_SUPABASE_ANON_KEY,
+  launchAlertsEnabled: import.meta.env.VITE_ENABLE_LAUNCH_ALERTS === 'true',
   apiBase: '/api',
 })
 

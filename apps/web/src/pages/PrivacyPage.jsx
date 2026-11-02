@@ -2,7 +2,7 @@ import { useNavigate } from 'react-router-dom'
 
 export default function PrivacyPage() {
   const navigate = useNavigate()
-  const effectiveDate = 'May 15, 2026'
+  const effectiveDate = 'November 2, 2026'
 
   const Section = ({ title, children }) => (
     <section style={{ marginBottom: 28 }}>
@@ -82,6 +82,10 @@ export default function PrivacyPage() {
           <p style={{ margin: 0 }}>
             StarKid Command may use services such as Supabase, Vercel, analytics tools, authentication providers, and external space/science data sources.
           </p>
+        </Section>
+
+        <Section title="Launch Notifications">
+          <p style={{ margin: 0 }}>If you enable launch notifications, we store the launches you watch, your reminder preferences, and a push token identifying your app installation. We use Expo and Apple or Google push services to deliver reminders. You can stop watching a launch, pause reminders in Profile, or disable notifications in your device settings. Delivery records are retained for up to 30 days, and inactive device registrations expire after 30 days. Account deletion removes your launch preferences and device registrations.</p>
         </Section>
 
         <Section title="5. Children’s Privacy">

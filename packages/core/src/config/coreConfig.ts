@@ -9,6 +9,7 @@ export type CoreConfig = {
     setItem: (key: string, value: string) => Promise<void> | void
     removeItem: (key: string) => Promise<void> | void
   }
+  launchAlertsEnabled?: boolean
   apiBase?: string
 }
 

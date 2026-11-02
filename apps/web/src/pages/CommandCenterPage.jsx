@@ -1,3 +1,6 @@
+import { Link } from 'react-router-dom'
+import { NotifyLaunchButton, SelectedLaunchDetails } from '../components/LaunchNotifications'
+import { launchAlertsEnabled, launchWatchSupported } from '@starkid/core'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import Globe from '../components/Globe.jsx'
 import { getOpenEarthEvents, getSolarActivity, getUpcomingLaunches } from '@starkid/core'
@@ -53,6 +56,7 @@ function buildFeedItems({ launches, earthEvents, solar, activeLayers }) {
       items.push({
         id: `launch-${launch?.id || launch?.name}`,
         kind: statusTone(launch),
+        launch,
         title: launch?.name || 'Mission details updating',
         source: launch?.providerName || 'Launch provider pending',
         detail: `NET ${formatDate(launch?.net || launch?.window_start, 'TBD')}`,
@@ -89,6 +93,7 @@ function FeedRow({ item }) {
         <strong>{item.title}</strong>
         <span>{item.source}</span>
         <small>{item.detail}</small>
+        {item.launch && launchAlertsEnabled() && launchWatchSupported(item.launch) ? <div><Link className="inline-block py-3 text-cyan-200 underline" to={`/command?launch=${item.launch.id}`}>View launch</Link><NotifyLaunchButton launch={item.launch} /></div> : null}
       </div>
     </article>
   )
@@ -163,6 +168,7 @@ export default function CommandCenterPage() {
         </div>
       </header>
 
+      <SelectedLaunchDetails />
       <section className="command-stage" aria-label="Global mission picture">
         <div className="command-globe-wrap">
           <Globe launches={launches} earthEvents={earthEvents} activeLayers={activeLayers} resetSignal={resetSignal} />

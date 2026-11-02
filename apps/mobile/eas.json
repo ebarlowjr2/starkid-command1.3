@@ -27,10 +27,17 @@
       "pnpm": "9.12.2",
       "ios": {
         "image": "macos-sequoia-15.6-xcode-26.2"
+      },
+      "env": {
+        "EXPO_PUBLIC_ENABLE_LAUNCH_ALERTS": "true"
       }
     }
   },
   "submit": {
-    "production": {}
+    "production": {
+      "ios": {
+        "ascAppId": "6760936641"
+      }
+    }
   }
 }

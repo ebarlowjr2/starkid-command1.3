@@ -9,3 +9,7 @@ export * from './artemisService'
 export * from './asteroidsService'
 export * from './rocketsService'
 export * from './earthEventsService'
+
+export * from './launchAlertRules'
+export * from './launchAlertsService'
+export * from './launchAlertsController'

@@ -1,3 +1,4 @@
+import { LaunchNotificationPreferences } from "../components/LaunchNotifications";
 import React, { useEffect, useState, useCallback } from "react";
 import { SafeAreaView, StyleSheet, View, ScrollView, TextInput, Pressable, Switch, Alert } from "react-native";
 import { Linking } from "react-native";
@@ -97,8 +98,10 @@ export default function ProfileScreen() {
             ) : (
               <Pressable
                 onPress={async () => {
-                  await signOut();
-                  await loadProfile();
+                  try {
+                    await signOut();
+                    await loadProfile();
+                  } catch (e: any) { setDeleteError(e?.message || "Unable to sign out. Please retry."); }
                 }}
                 style={{ marginTop: spacing.md, alignSelf: "flex-start" }}
               >
@@ -144,6 +147,7 @@ export default function ProfileScreen() {
             ) : null}
           </GlassCard>
 
+          <LaunchNotificationPreferences />
           <View style={styles.statsGrid}>
             {[
               { label: "Missions", value: stats.missionsCompleted },

@@ -1,3 +1,4 @@
+import { LaunchNotificationPreferences } from '../components/LaunchNotifications'
 import React, { useEffect, useState } from 'react'
 import { getProfile, updateProfile, getCurrentActor, signOut, getSession, deleteAccount } from '@starkid/core'
 import SyncIdentityModal from '../components/auth/SyncIdentityModal.jsx'
@@ -141,6 +142,7 @@ export default function ProfilePage() {
 
       <section className="border border-cyan-700/60 rounded-lg p-4 bg-black/60 mb-6">
         <div className="text-sm text-cyan-300 font-semibold mb-3">ALERT CONFIGURATION</div>
+        <LaunchNotificationPreferences />
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
           {[
             ['missionAlerts', 'Mission Alerts'],

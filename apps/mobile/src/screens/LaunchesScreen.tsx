@@ -1,6 +1,9 @@
 import React, { useEffect, useState } from 'react'
-import { View, StyleSheet, ActivityIndicator, FlatList, SafeAreaView } from 'react-native'
-import { getUpcomingLaunchesWindow, getProviderSpotlights } from '@starkid/core'
+import { View, StyleSheet, ActivityIndicator, FlatList, SafeAreaView, Pressable } from 'react-native'
+import { getUpcomingLaunchesWindow, getProviderSpotlights, launchAlertsEnabled, launchWatchSupported } from '@starkid/core'
+import { NotifyLaunchButton } from '../components/LaunchNotifications'
+import { useNavigation } from '@react-navigation/native'
+import type { Launch } from '@starkid/types'
 import { SpaceBackground } from '../components/home/SpaceBackground'
 import { GlassCard } from '../components/home/GlassCard'
 import { Badge } from '../components/home/Badge'
@@ -8,15 +11,10 @@ import { PixelButton } from '../components/home/PixelButton'
 import { colors, spacing } from '../theme/tokens'
 import { CustomText } from '../components/ui/CustomText'
 
-type LaunchItem = {
-  id?: string | number
-  name?: string
-  net?: string
-  window_start?: string
-  pad?: { name?: string }
-}
+type LaunchItem = Launch
 
 export default function LaunchesScreen() {
+  const navigation = useNavigation<any>()
   const [loading, setLoading] = useState(true)
   const [loadError, setLoadError] = useState<string | null>(null)
   const [reloadKey, setReloadKey] = useState(0)
@@ -138,6 +136,10 @@ export default function LaunchesScreen() {
                 ) : null}
               </View>
               {item.pad?.name ? <CustomText variant="bodySmall" style={styles.cardMeta}>{item.pad.name}</CustomText> : null}
+              {launchAlertsEnabled() && launchWatchSupported(item) ? <Pressable accessibilityRole="button" style={{ minHeight: 44, justifyContent: 'center' }} onPress={() => navigation.navigate('LaunchDetail', { launchId: item.id })}>
+                <CustomText variant="button" style={{ color: colors.accent }}>View launch</CustomText>
+              </Pressable> : null}
+              <NotifyLaunchButton launch={item} />
             </GlassCard>
           )}
         />

@@ -1,4 +1,6 @@
 export type Launch = {
+  source?: 'launch-library' | 'spacex'
+  status?: { id?: number; name?: string; abbrev?: string }
   id?: string | number
   name?: string
   net?: string

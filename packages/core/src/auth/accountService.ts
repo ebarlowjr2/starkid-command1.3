@@ -1,3 +1,4 @@
+import { disconnectLaunchAlertsBeforeSignOut } from '../services/launchAlertsService'
 import { getCoreConfig } from '../config/coreConfig'
 import { getSession, signOut } from './service'
 import { getSupabaseClient } from '../clients/supabase/supabase'
@@ -14,6 +15,7 @@ export async function deleteAccount() {
   const accessToken = data?.session?.access_token
   if (!accessToken) throw new Error('No access token available')
 
+  await disconnectLaunchAlertsBeforeSignOut()
   const res = await fetch(`${apiBase}/account/delete`, {
     method: 'POST',
     headers: {

@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react'
-import { NavigationContainer, getFocusedRouteNameFromRoute } from '@react-navigation/native'
+import React, { useEffect, useRef, useState } from 'react'
+import { NavigationContainer, getFocusedRouteNameFromRoute, createNavigationContainerRef } from '@react-navigation/native'
 import { Linking } from 'react-native'
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
 import { configureCore, configureStorage, ROUTE_MANIFEST, getSession, onAuthChange, completeAuthRedirect } from '@starkid/core'
@@ -8,6 +8,8 @@ import Constants from 'expo-constants'
 import * as Sentry from '@sentry/react-native'
 
 import LaunchesScreen from './src/screens/LaunchesScreen'
+import LaunchDetailScreen from './src/screens/LaunchDetailScreen'
+import { startLaunchNotifications } from './src/platform/launchNotifications.native'
 import SkyEventsScreen from './src/screens/SkyEventsScreen'
 import CometsScreen from './src/screens/CometsScreen'
 import SolarMapScreen from './src/screens/SolarMapScreen'
@@ -41,6 +43,7 @@ import OnboardingScreen from './src/screens/OnboardingScreen'
 import { getItem, setItem } from '@starkid/core'
 
 const Stack = createNativeStackNavigator()
+const navigationRef = createNavigationContainerRef<any>()
 
 const appExtra = Constants?.expoConfig?.extra || Constants?.manifest?.extra || {}
 
@@ -86,6 +89,7 @@ configureCore({
   supabaseAnonKey: process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY || appExtra.supabaseAnonKey,
   supabaseAuthStorage: storageAdapter,
   apiBase: process.env.EXPO_PUBLIC_API_BASE || appExtra.apiBase,
+  launchAlertsEnabled: process.env.EXPO_PUBLIC_ENABLE_LAUNCH_ALERTS === 'true' || appExtra.launchAlertsEnabled === true,
 })
 
 configureStorage(storageAdapter)
@@ -93,6 +97,17 @@ configureStorage(storageAdapter)
 export default Sentry.wrap(function App() {
   const [fontsReady, setFontsReady] = useState(false)
   const [onboardingDone, setOnboardingDone] = useState<boolean | null>(null)
+  const pendingLaunch = useRef<string | null>(null)
+  const openPendingLaunch = () => {
+    if (pendingLaunch.current && navigationRef.isReady()) {
+      navigationRef.navigate('LaunchDetail', { launchId: pendingLaunch.current })
+      pendingLaunch.current = null
+    }
+  }
+  useEffect(() => startLaunchNotifications((id) => {
+    pendingLaunch.current = id
+    openPendingLaunch()
+  }), [])
 
   useEffect(() => {
     let active = true
@@ -186,7 +201,7 @@ export default Sentry.wrap(function App() {
   }
 
   return (
-    <NavigationContainer>
+    <NavigationContainer ref={navigationRef} onReady={openPendingLaunch}>
       <Stack.Navigator
         screenOptions={{
           headerStyle: { backgroundColor: '#0b0f1a' },
@@ -205,6 +220,7 @@ export default Sentry.wrap(function App() {
           }}
         />
         <Stack.Screen name={ROUTE_MANIFEST.LAUNCHES} component={LaunchesScreen} />
+        <Stack.Screen name="LaunchDetail" component={LaunchDetailScreen} options={{ title: 'Launch Briefing' }} />
         <Stack.Screen name={ROUTE_MANIFEST.SKY_EVENTS} component={SkyEventsScreen} />
         <Stack.Screen name={ROUTE_MANIFEST.COMETS} component={CometsScreen} />
         <Stack.Screen name={ROUTE_MANIFEST.SOLAR_MAP} component={SolarMapScreen} />
