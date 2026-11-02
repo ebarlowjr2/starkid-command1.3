@@ -46,7 +46,8 @@ the polling rate and other app traffic.
 - Mobile: `EXPO_PUBLIC_ENABLE_LAUNCH_ALERTS=true` in the production EAS profile;
   `expo-notifications`, `expo-device`, `expo-constants` and native plugin require a
   new app binary. A real device and APNs/FCM credentials are required for delivery.
-- Web: `VITE_ENABLE_LAUNCH_ALERTS=true` at build time enables controls.
+- Web: controls are enabled by default in this release. Set
+  `VITE_ENABLE_LAUNCH_ALERTS=false` at build time to hide them.
 - Backend: `LAUNCH_ALERT_DELIVERY_ENABLED=true` and a random
   `LAUNCH_ALERT_CRON_SECRET`. `LAUNCH_ALERT_POLL_SECONDS` defaults to 300.
 - Optional `LAUNCH_LIBRARY_TOKEN` uses the provider's authenticated quota.

@@ -162,3 +162,20 @@ Expected:
 - Screenshots / video:
 - Logs / error text:
 - Severity (blocker / high / medium / low):
+
+
+## Launch notifications (build 33+)
+
+- Open Profile and verify Launch Notifications is visible.
+- As a guest, choose Notify Me on an upcoming launch; verify the identity prompt.
+- Sign in, allow notifications, watch a launch, and check it appears in Profile.
+- Deny permission on another install; verify guidance and continued browsing.
+- Confirm 1-hour/10-minute settings, schedule updates, pause and individual removal.
+- On a physical iPhone, receive a due reminder and tap it from background/cold start.
+- Confirm the selected launch briefing opens and a duplicate poll does not repeat it.
+- Sign out, then sign into another account on the same phone; old-account reminders
+  must stop and the new account must explicitly enable this phone.
+- Disable this phone in Profile and check no further reminders are received.
+
+Physical delivery remains a manual TestFlight check; bundle/build success does not
+prove APNs delivery.
