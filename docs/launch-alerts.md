@@ -86,3 +86,30 @@ modified by the notification migration.
 6. Test APNs delivery on a physical iPhone. A successful JS export or EAS build
    does not verify device delivery. No production notification should be fabricated
    to test a real launch; use an opted-in tester and controlled data in staging.
+
+## Release verification - November 2, 2026
+
+- Changes pushed to `main` and `codex/launch-notifications`; web deployment passed
+  and production `/profile` serves the new notification controls.
+- 86 core tests pass, including sender freshness, opt-out and ambiguous-send cases.
+  SQL migration/security checks pass. Web production build and iOS JS export pass.
+  Browser checks pass at desktop and 390px width, including the guest auth prompt.
+- iOS build **34** completed successfully:
+  https://expo.dev/accounts/onecirclesolutions/projects/starkid-command/builds/935cc3ca-2435-497f-9e5c-16c9d947e413
+- Expo Device 5.9.4 requires the committed pnpm patch for Xcode 26 Swift simulator
+  detection. The lockfile includes the patch; retain it until the Expo SDK upgrade.
+- Apple rejected automatic submission with
+  `EAS_ASC_REQUIRED_AGREEMENTS_MISSING_OR_EXPIRED`. The Account Holder must accept
+  the required terms at https://appstoreconnect.apple.com/business and, if prompted,
+  https://developer.apple.com/account. Then resubmit the existing build:
+
+  ```sh
+  eas submit --platform ios --id 935cc3ca-2435-497f-9e5c-16c9d947e413 --profile production --non-interactive
+  ```
+
+- Backend schema, function and minute scheduler are installed. Scheduler requests
+  return HTTP 200. Delivery is currently **paused** (`LAUNCH_ALERT_DELIVERY_ENABLED=false`)
+  until StarKid's Apple push key is configured. Reusing a team key associated with
+  another app awaits explicit owner approval; a dedicated key requires Apple 2FA.
+- Physical iPhone delivery, permission prompts and notification taps still require
+  the TestFlight checks above after Apple accepts the upload and the key is linked.
