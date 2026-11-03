@@ -1,0 +1,49 @@
+name: Mission Control Live external staging check
+on:
+  push:
+    branches: ['codex/display-reliability-*']
+    paths: ['.github/workflows/display-staging-check.yml']
+  workflow_dispatch:
+    inputs:
+      display_url:
+        description: Public HTTPS display gateway to inspect
+        required: true
+        type: string
+permissions:
+  contents: read
+jobs:
+  public-staging:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    env:
+      DISPLAY_URL: ${{ inputs.display_url || 'https://thee-superior-welcome-larger.trycloudflare.com' }}
+      SOFTWARE_GL: '1'
+      MODEL_TIMEOUT_MS: '300000'
+      ACCEPTANCE_DIR: /tmp/starkid-public-staging
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Prepare optional browser tooling
+        run: |
+          mkdir -p "$ACCEPTANCE_DIR"
+          npm install --prefix /tmp/starkid-playwright --no-audit --no-fund playwright@1.64.1
+          echo 'PLAYWRIGHT_MODULE=/tmp/starkid-playwright/node_modules/playwright/index.mjs' >> "$GITHUB_ENV"
+          if command -v google-chrome >/dev/null 2>&1; then
+            printf 'CHROME_PATH=%s\n' "$(command -v google-chrome)" >> "$GITHUB_ENV"
+          else
+            node /tmp/starkid-playwright/node_modules/playwright/cli.js install --with-deps chromium
+          fi
+      - name: Verify public edge and direct-route refreshes
+        run: |
+          date --utc --iso-8601=seconds > "$ACCEPTANCE_DIR/external-runner.txt"
+          uname -a >> "$ACCEPTANCE_DIR/external-runner.txt"
+          curl --retry 2 --max-time 30 -fsS "$DISPLAY_URL/api/display/health" > "$ACCEPTANCE_DIR/public-health.json"
+          node apps/display/scripts/acceptance.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: mission-control-public-staging-${{ github.run_id }}
+          path: /tmp/starkid-public-staging
+          retention-days: 7
