@@ -1,0 +1,17 @@
+{
+  "lab": "StarKid Space Lab",
+  "timezone": "America/Chicago",
+  "quality": "low",
+  "tourSeconds": 30,
+  "seconds": 90,
+  "stations": ["earth", "orbit", "mars", "mission"],
+  "audio": false,
+  "reducedMotion": false,
+  "monitors": [
+    {"name":"Earth", "url":"/earth?lab=StarKid%20Space%20Lab&timezone=America/Chicago&quality=low&tourSeconds=30&kiosk=1"},
+    {"name":"ISS", "url":"/orbit?lab=StarKid%20Space%20Lab&timezone=America/Chicago&quality=low&kiosk=1"},
+    {"name":"Mars", "url":"/planets/mars?lab=StarKid%20Space%20Lab&timezone=America/Chicago&quality=low&tourSeconds=30&kiosk=1"},
+    {"name":"Missions", "url":"/missions?lab=StarKid%20Space%20Lab&timezone=America/Chicago&quality=low&kiosk=1"}
+  ],
+  "broadcastUrl":"/broadcast?lab=StarKid%20Space%20Lab&timezone=America/Chicago&quality=high&stations=earth,orbit,mars,mission&seconds=90&kiosk=1"
+}

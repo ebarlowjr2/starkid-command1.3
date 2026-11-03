@@ -1,0 +1,75 @@
+name: Mission Control Live two-hour reliability validation
+on:
+  push:
+    branches: ['codex/display-reliability-*']
+    paths: ['apps/display/**', '.github/workflows/display-reliability.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: display-reliability-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  soak:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 170
+    env:
+      SOFTWARE_GL: '1'
+      SOAK_MINUTES: '120'
+      SOAK_QUALITY: high
+      SOAK_OUTPUT: /tmp/starkid-display-evidence/soak-120m.json
+      SOAK_EVIDENCE_DIR: /tmp/starkid-display-evidence/soak
+      ACCEPTANCE_DIR: /tmp/starkid-display-evidence/screenshots
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9.12.2
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - name: Install and verify the display
+        run: |
+          pnpm install --frozen-lockfile --ignore-scripts
+          pnpm -C apps/display test
+          pnpm -C apps/display build
+          mkdir -p /tmp/starkid-display-evidence
+          git rev-parse HEAD > /tmp/starkid-display-evidence/revision.txt
+          find apps/display/dist -type f -exec sha256sum {} + > /tmp/starkid-display-evidence/assets.sha256
+      - name: Prepare optional browser tooling
+        run: |
+          npm install --prefix /tmp/starkid-playwright --no-audit --no-fund playwright@1.64.1
+          echo 'PLAYWRIGHT_MODULE=/tmp/starkid-playwright/node_modules/playwright/index.mjs' >> "$GITHUB_ENV"
+          if command -v google-chrome >/dev/null 2>&1; then
+            printf 'CHROME_PATH=%s\n' "$(command -v google-chrome)" >> "$GITHUB_ENV"
+          else
+            node /tmp/starkid-playwright/node_modules/playwright/cli.js install --with-deps chromium
+          fi
+      - name: Start an isolated display gateway
+        run: |
+          PORT=4174 DISPLAY_CACHE_DIR=/tmp/starkid-display-cache nohup node apps/display/server/http.mjs > /tmp/starkid-display-evidence/gateway.log 2>&1 &
+          for attempt in $(seq 1 30); do
+            if curl -fsS http://localhost:4174/api/display/health; then exit 0; fi
+            sleep 2
+          done
+          exit 1
+      - name: Real-time two-hour soak with interruption
+        run: |
+          set -euo pipefail
+          nohup node apps/display/scripts/source-audit.mjs http://localhost:4174 /tmp/starkid-display-evidence/source-audit.jsonl "$SOAK_OUTPUT" > /tmp/starkid-display-evidence/source-audit.log 2>&1 &
+          node apps/display/scripts/soak.mjs | tee /tmp/starkid-display-evidence/soak-progress.log
+      - name: Summarize raw evidence
+        if: always()
+        run: |
+          if test -f "$SOAK_OUTPUT"; then node apps/display/scripts/summarize-soak.mjs "$SOAK_OUTPUT" > /tmp/starkid-display-evidence/summary.log; fi
+      - name: Inspect direct routes at 1080p and 4K
+        if: success()
+        run: node apps/display/scripts/acceptance.mjs
+      - name: Retain evidence even on failure
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: mission-control-validation-${{ github.run_id }}
+          path: /tmp/starkid-display-evidence
+          retention-days: 7

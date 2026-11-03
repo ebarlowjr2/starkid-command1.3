@@ -1,0 +1,35 @@
+name: Build display release (manual)
+on:
+  workflow_dispatch:
+    inputs:
+      revision:
+        description: Exact tested commit SHA or tag to package; promotion remains manual
+        required: true
+        type: string
+permissions:
+  contents: read
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.revision }}
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9.12.2
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile --ignore-scripts
+      - run: pnpm -C apps/display test
+      - run: pnpm -C apps/display build
+      - run: pnpm -C apps/web build
+      - run: docker build -f apps/display/Dockerfile -t starkid-display:release .
+      - run: docker save starkid-display:release -o /tmp/starkid-display.tar
+      - uses: actions/upload-artifact@v4
+        with:
+          name: starkid-display-release
+          path: /tmp/starkid-display.tar
+          retention-days: 7

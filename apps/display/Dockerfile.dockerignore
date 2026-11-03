@@ -1,0 +1,17 @@
+**/node_modules
+**/dist
+**/.git
+**/.env
+**/.env.*
+**/.aws
+**/.codex
+**/.agents
+**/.claude
+**/.cache
+**/.pnpm-store
+**/.vercel
+**/.DS_Store
+supabase/.temp
+
+**/.npmrc
+**/.git-credentials

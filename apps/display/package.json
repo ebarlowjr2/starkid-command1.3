@@ -1,0 +1,16 @@
+{
+  "name": "@starkid/display",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "node ../../apps/web/node_modules/vite/bin/vite.js --host 0.0.0.0 --port 4174",
+    "build": "node scripts/build.mjs",
+    "preview": "node server/http.mjs",
+    "test": "node --test test/*.test.mjs",
+    "start": "node server/http.mjs"
+  },
+  "dependencies": {
+    "qrcode-terminal": "0.11.0"
+  }
+}

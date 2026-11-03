@@ -1,0 +1,26 @@
+# Example Linux gateway service. Set actual paths and a dedicated non-root account.
+[Unit]
+Description=StarKid Mission Control Live gateway
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=starkid
+WorkingDirectory=/opt/starkid/apps/display
+ExecStart=/usr/bin/node server/http.mjs
+Environment=PORT=4174
+Environment=DISPLAY_CACHE_DIR=/var/lib/starkid-display
+EnvironmentFile=-/etc/starkid-display.env
+StateDirectory=starkid-display
+Restart=on-failure
+RestartSec=10
+NoNewPrivileges=true
+ProtectSystem=strict
+ReadWritePaths=/var/lib/starkid-display
+ProtectHome=true
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
