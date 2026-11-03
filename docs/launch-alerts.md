@@ -108,8 +108,9 @@ modified by the notification migration.
   ```
 
 - Backend schema, function and minute scheduler are installed. Scheduler requests
-  return HTTP 200. Delivery is currently **paused** (`LAUNCH_ALERT_DELIVERY_ENABLED=false`)
-  until StarKid's Apple push key is configured. Reusing a team key associated with
-  another app awaits explicit owner approval; a dedicated key requires Apple 2FA.
+  return HTTP 200. The owner approved sharing the existing team push key, and EAS
+  confirmed it is assigned to StarKid. Delivery is **enabled**
+  (`LAUNCH_ALERT_DELIVERY_ENABLED=true`). The existing key was neither replaced nor
+  revoked. A submission retry still reports the missing/expired Apple agreement.
 - Physical iPhone delivery, permission prompts and notification taps still require
   the TestFlight checks above after Apple accepts the upload and the key is linked.
