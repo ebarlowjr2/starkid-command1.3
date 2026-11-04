@@ -76,7 +76,7 @@ This release supersedes the earlier static-only hosting instructions: the shared
 Options:
 
 1. Linux Node service: build the repo, then install `deploy/starkid-display.service`, adjusting account and absolute paths. The service starts only the display gateway. Put server-only environment values in `/etc/starkid-display.env`; enable the service at boot.
-2. Container: from the repository root, `docker build -f apps/display/Dockerfile -t starkid-display:TESTED_REVISION .`, then `docker run --restart unless-stopped -p 4174:4174 -v starkid-display-cache:/data starkid-display:TESTED_REVISION`. The Dockerfile-specific ignore file excludes environment files, credentials, and local build/runtime data. Container build itself remains pending until tested with Docker.
+2. Container: from the repository root, `docker build -f apps/display/Dockerfile -t starkid-display:TESTED_REVISION .`, then `docker run --restart unless-stopped -p 4174:4174 -v starkid-display-cache:/data starkid-display:TESTED_REVISION`. The Dockerfile-specific ignore file excludes environment files, credentials, and local build/runtime data. Both arm64 and linux/amd64 images have now been built and independently started in validation; exact image IDs and route/cache results are in [first-release acceptance](docs/FIRST-RELEASE-VALIDATION.md). Physical device performance remains pending.
 
 Terminate HTTPS at your existing reverse proxy. Route all paths to the gateway, including `/api/display/*`. Serve at the domain root; subpath deployment is unsupported. The gateway applies no-cache to HTML/service worker and immutable caching to hashed assets. Deploy frontend and gateway from the same revision and restart the service atomically. `/api/display/health` is a lightweight process health check; it is not a declaration that every provider is current. Roll back by restarting the previous tested artifact with the same cache volume.
 
@@ -88,4 +88,6 @@ The service worker precaches shell, all hashed chunks, and both models; runtime 
 
 One renderer is reused, inactive planet resources are disposed, and hidden/nonplanet views do not draw. Low quality uses pixel ratio 1, no antialiasing, a low-power request, and approximately 10 fps; high quality caps ratio at 1.5 and approximately 30 fps. WebGL failure has a lightweight static reference graphic plus textual information. Context restoration triggers targeted reload; no recurring blind reload loop is used.
 
-See [OPERATIONS.md](OPERATIONS.md), [VALIDATION.md](VALIDATION.md), and [ROADMAP.md](ROADMAP.md). Raspberry Pi, OBS, two-hour soak, and 24-hour hardware acceptance are distinct from a successful software build. Pending checks are not claimed complete.
+See [OPERATIONS.md](OPERATIONS.md), [VALIDATION.md](VALIDATION.md), and [ROADMAP.md](ROADMAP.md). The two-hour software soak and independent Docker validation have passed. Physical mini-PC/OBS commissioning, the 24-hour trial and Raspberry Pi performance remain unverified.
+
+Current review package: [first-release evidence and reproduction](docs/FIRST-RELEASE-VALIDATION.md), [source-by-source acceptance](docs/SOURCE-ACCEPTANCE.md), and [exact 24-hour mini-PC/OBS trial](docs/HARDWARE-TRIAL-24H.md).

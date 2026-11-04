@@ -82,3 +82,5 @@ node scripts/soak.mjs
 ```
 
 Use `SOFTWARE_GL=1` only for headless software-rendered checks; it does not measure physical GPU performance. Heap growth across model loads is expected; inspect whether the later samples plateau, whether inactive scene resources are released, and whether the network reconnect returns feeds to their truthful state. A short smoke run is not a two-hour soak. Run the 24-hour hardware checklist before leaving the installation unattended.
+
+Current validation evidence is in [the first-release report](docs/FIRST-RELEASE-VALIDATION.md). For commissioning use [the exact 24-hour mini-PC/OBS procedure](docs/HARDWARE-TRIAL-24H.md), including recovery tests and disabling a failing station. The two-hour software result does not certify the target hardware or Raspberry Pi.

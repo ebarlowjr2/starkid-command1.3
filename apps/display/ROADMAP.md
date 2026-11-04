@@ -12,4 +12,4 @@ Only Earth, ISS, Mars, and Mission Control belong in the initial playlist. No pl
 
 Orbital follow-up: evaluate CelesTrak OMM/SGP4 with reference propagation tests and large catalog IDs. The first release uses the documented ISS estimate/positions service, with a strict 45-second marker validity window and explicit source identity; it does not claim local propagation or orbital-element-age knowledge.
 
-Before unattended commissioning: complete the two-hour browser soak and 24-hour hardware acceptance in OPERATIONS.md, on the actual gateway, monitors, and encoding computer.
+The isolated two-hour software soak passed on November 3, 2026. Before unattended commissioning, execute [the 24-hour trial](docs/HARDWARE-TRIAL-24H.md) on the actual gateway, monitors and encoding computer. Keep the next iteration on recovery, provider quota handling and device reliability before adding stations.

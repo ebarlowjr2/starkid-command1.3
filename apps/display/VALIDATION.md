@@ -1,4 +1,6 @@
-# Validation — November 3, 2026
+# Initial implementation validation — November 3, 2026
+
+**Current first-release acceptance:** see [docs/FIRST-RELEASE-VALIDATION.md](docs/FIRST-RELEASE-VALIDATION.md), [source acceptance](docs/SOURCE-ACCEPTANCE.md), and the [24-hour hardware procedure](docs/HARDWARE-TRIAL-24H.md). The record below is the earlier implementation check; current Docker and long-soak evidence supersede its pending statuses.
 
 This record supersedes the initial static-only preview validation. The supplied development brief has now been read and used to extend the implementation. Physical commissioning remains pending.
 
@@ -49,11 +51,11 @@ Ran `scripts/soak.mjs` for 2.001 minutes with repeated 15-second station changes
 
 ## Pending checks and external blockers
 
-- **Two-hour browser soak:** not completed in this implementation run. A reproducible 120-minute script is supplied; the two-minute smoke run is not counted as a substitute.
+- **Two-hour browser soak — subsequently completed:** the real 120.0435-minute isolated CI run passed with 480 continuous samples and a 90.396-second interruption. The earlier laptop attempt was invalidated by clamshell sleep. See the current first-release report for full metrics and evidence.
 - **24-hour hardware acceptance:** required before unattended commissioning. Mini PC/physical monitors, viewing-distance readability, power loss, kiosk autostart, screen blanking, GPU temperature, and sustained frame rate remain pending.
 - **Raspberry Pi 5 8GB:** no physical hardware was tested. Low-quality software behavior is implemented; hardware performance is not certified.
 - **OBS/streaming:** Browser Source/Window Capture, hardware encoder selection, stream reconnect, dropped frames, and live delivery were not tested.
-- **Container:** Docker CLI exists, but the local Docker daemon is stopped (`Cannot connect to the Docker daemon`). Dockerfile and manual release workflow are supplied; image build/boot remains unverified. No registry or production deployment was changed.
+- **Container — subsequently completed:** both arm64 and linux/amd64 images built, booted independently and passed direct-route refresh checks at both resolutions. Cache persistence and warm-cache offline startup were verified. See current first-release acceptance for image IDs and raw evidence. No production deployment was changed.
 - **Provider disruption:** automated tests inject HTTP 429, invalid schemas and TimeoutError; actual prolonged provider outages, production-origin policies, and simultaneous physical monitors need field validation.
 - **Scientific scope:** no local SGP4 propagator or precise current Earth–Mars ephemeris is claimed. ISS estimates have a 45-second precision validity bound. Terrain centering/solar geometry remain approximate reference views.
 - **Optional UX paths:** actual related-origin deployment verification, denied/evicted storage, keyboard fullscreen, forced GPU context-loss restoration, and full accessibility review require additional acceptance testing. Local QR SVG generation and invalid-protocol rejection passed a browser/API check. A separate Chrome run with WebGL disabled rendered the static reference fallback without uncaught page exceptions.
