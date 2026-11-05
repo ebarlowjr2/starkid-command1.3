@@ -82,6 +82,12 @@ Terminate HTTPS at your existing reverse proxy. Route all paths to the gateway, 
 
 Do not publish `apps/display/dist` alone to a static host: that omits the gateway. No production project/settings have been changed by this implementation.
 
+### Separate Vercel frontend
+
+The independent Vercel project is `starkid-mission-control-live`, connected to `ebarlowjr2/starkid-command1.3`, branch `codex/display-reliability-20261103`. Set Root Directory to `apps/display`, enable source files outside that directory, select Vite, use Node 22, and set Output Directory to `dist`. The display's own `vercel.json` supplies the build/install commands and station route fallback; it must remain inside `apps/display`. Do not use the repository-root configuration or root `.vercel` link, which belong to the main application. Installing workspace dependencies supplies shared build tools and assets; the build command builds only the display.
+
+This configuration deploys a static frontend with no serverless functions. It does **not** deploy `server/http.mjs` or supply `/api/display/*`. A separate persistent gateway and a same-origin API proxy are still required before accepting Vercel as the live production host. Keep API paths out of the HTML fallback so missing gateway responses cannot masquerade as successful data. Do not replace the shared cache with independent per-request functions. Create a preview deployment and verify the build and station route refreshes before promotion; leave the main Vercel project unchanged.
+
 ## Offline and devices
 
 The service worker precaches shell, all hashed chunks, and both models; runtime API responses are excluded so they cannot appear falsely current. Last-good provider snapshots live in browser localStorage as well as the gateway cache. NASA image runtime caching is bounded to eight previously viewed images. First-ever offline startup requires an initial successful online visit; blocked/evicted browser storage may limit offline functionality. A missing image leaves a labeled useful scene.
